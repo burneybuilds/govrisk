@@ -1,6 +1,6 @@
 import { useState, FormEvent } from 'react';
 import { Link, useNavigate, useLocation } from 'react-router-dom';
-import { Eye, EyeOff, AlertCircle, BarChart3 } from 'lucide-react';
+import { Eye, EyeOff, AlertCircle, Lock, ShieldCheck } from 'lucide-react';
 import { login } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 
@@ -10,7 +10,9 @@ export default function Login() {
   const { setUser } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [remember, setRemember] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [showHelp, setShowHelp] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -20,7 +22,7 @@ export default function Login() {
     e.preventDefault();
     setError('');
     if (!email.trim() || !password) {
-      setError('Please enter both email and password.');
+      setError('Please enter both email and password to continue.');
       return;
     }
     setLoading(true);
@@ -29,131 +31,186 @@ export default function Login() {
       setUser(data.user);
       navigate(from, { replace: true });
     } catch (err: any) {
-      setError(err.message || 'Login failed. Please try again.');
+      setError(err.message || 'Sign in failed. Please verify your credentials and try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="flex min-h-screen bg-navy-950">
-      <div className="hidden w-1/2 lg:block">
-        <div className="flex h-full flex-col justify-between bg-gradient-to-br from-navy-900 via-navy-900 to-navy-800 p-12">
-          <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-base font-bold text-white">
-              GR
-            </div>
-            <div>
-              <h1 className="text-xl font-bold uppercase tracking-wide text-white">GovRisk</h1>
-              <p className="text-xs text-navy-300">AI Infrastructure Intelligence</p>
-            </div>
-          </div>
-          <div className="max-w-md">
-            <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-xl bg-blue-600/20 text-blue-400">
-              <BarChart3 size={28} />
-            </div>
-            <h2 className="text-3xl font-bold leading-tight text-white">
-              Centralized risk intelligence for India's infrastructure portfolio.
-            </h2>
-            <p className="mt-4 text-sm leading-relaxed text-navy-300">
-              Monitor 1,000+ projects across ministries with AI-powered early warnings,
-              predictive cost and schedule analytics, and actionable risk intelligence.
-            </p>
-          </div>
-          <p className="text-xs text-navy-500">
-            Ministry of Electronics &amp; Information Technology · SIH 2026
-          </p>
-        </div>
+    <div className="flex min-h-screen flex-col bg-[#f5f6f9]">
+      {/* Faint geometric background pattern */}
+      <div
+        aria-hidden="true"
+        className="pointer-events-none fixed inset-0"
+        style={{
+          backgroundImage:
+            'radial-gradient(circle, rgba(20,30,53,0.06) 1px, transparent 1px)',
+          backgroundSize: '24px 24px',
+        }}
+      />
+
+      {/* Top accent line */}
+      <div className="flex h-1 w-full shrink-0">
+        <div className="w-24 bg-[#C9A227]" />
+        <div className="flex-1 bg-navy-800" />
       </div>
 
-      <div className="flex w-full items-center justify-center px-6 py-12 lg:w-1/2">
+      {/* Government header */}
+      <header className="shrink-0 border-b border-gray-200 bg-white">
+        <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-4 sm:px-6">
+          <img
+            src="/emblem_of_india.svg"
+            alt="Indian National Emblem"
+            className="h-12 w-auto shrink-0"
+          />
+          <div className="min-w-0 flex-1">
+            <div className="flex flex-wrap items-baseline gap-x-2">
+              <span className="text-base font-bold tracking-wide text-navy-900 sm:text-lg">
+                GovRisk
+              </span>
+              <span className="hidden text-xs text-gray-400 sm:inline">|</span>
+              <span className="text-sm font-medium text-gray-600">
+                Government of India · Infrastructure Risk Intelligence
+              </span>
+            </div>
+            <p className="text-xs text-gray-500">
+              Ministry of Electronics &amp; Information Technology · Digital Services
+            </p>
+          </div>
+          <div className="hidden items-center gap-1.5 rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-navy-700 md:flex">
+            <Lock size={13} aria-hidden="true" />
+            Live
+          </div>
+        </div>
+      </header>
+
+      {/* Main */}
+      <main className="flex flex-1 items-center justify-center px-4 py-10 sm:py-14">
         <div className="w-full max-w-md">
-          <div className="mb-8 flex items-center gap-3 lg:hidden">
-            <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
-              GR
-            </div>
-            <div>
-              <h1 className="text-lg font-bold uppercase tracking-wide text-white">GovRisk</h1>
-              <p className="text-xs text-navy-300">AI Infrastructure Intelligence</p>
-            </div>
+          <div className="mb-7 text-center">
+            <h1 className="text-2xl font-semibold text-navy-900">Government Portal</h1>
+            <p className="mt-1.5 text-sm text-gray-500">
+              Secure access to the Government Digital Services Portal
+            </p>
           </div>
 
-          <div className="rounded-2xl border border-navy-800 bg-navy-900 p-8 shadow-2xl">
-            <h2 className="text-2xl font-bold text-white">Sign in</h2>
-            <p className="mt-1.5 text-sm text-navy-300">
-              Access the GovRisk monitoring platform
+          {/* Login card */}
+          <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
+            <h2 className="text-lg font-semibold text-navy-900">Sign In</h2>
+            <p className="mt-1 text-sm text-gray-500">
+              Enter your credentials to access your account.
             </p>
 
             {error && (
-              <div className="mt-5 flex items-start gap-2.5 rounded-lg border border-red-500/30 bg-red-500/10 p-3">
-                <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-400" />
-                <p className="text-sm text-red-300">{error}</p>
+              <div
+                role="alert"
+                className="mt-4 flex items-start gap-2.5 rounded-md border border-red-300 bg-red-50 p-3"
+              >
+                <AlertCircle size={16} className="mt-0.5 shrink-0 text-red-700" />
+                <p className="text-sm text-red-700">{error}</p>
+              </div>
+            )}
+
+            {showHelp && (
+              <div className="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-navy-800">
+                Please contact your departmental administrator to reset your password.
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-5">
               <div>
-                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-navy-100">
-                  Email
+                <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-navy-900">
+                  Email / Government ID
                 </label>
                 <input
                   id="email"
                   type="email"
+                  name="email"
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="you@govrisk.gov.in"
-                  className="h-11 w-full rounded-lg border border-navy-700 bg-navy-800 px-4 text-sm text-white outline-none transition-all placeholder:text-navy-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+                  className="h-11 w-full rounded-md border border-gray-300 bg-white px-3.5 text-sm text-navy-900 outline-none transition-colors placeholder:text-gray-400 focus:border-navy-700 focus:ring-2 focus:ring-navy-700/20"
                 />
               </div>
 
               <div>
-                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-navy-100">
+                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-navy-900">
                   Password
                 </label>
                 <div className="relative">
                   <input
                     id="password"
                     type={showPassword ? 'text' : 'password'}
+                    name="password"
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
                     placeholder="Enter your password"
-                    className="h-11 w-full rounded-lg border border-navy-700 bg-navy-800 px-4 pr-11 text-sm text-white outline-none transition-all placeholder:text-navy-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
+                    className="h-11 w-full rounded-md border border-gray-300 bg-white px-3.5 pr-11 text-sm text-navy-900 outline-none transition-colors placeholder:text-gray-400 focus:border-navy-700 focus:ring-2 focus:ring-navy-700/20"
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((s) => !s)}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-navy-400 hover:text-navy-200"
+                    className="absolute right-3 top-1/2 -translate-y-1/2 rounded p-1 text-gray-400 hover:text-navy-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-700/40"
                     aria-label={showPassword ? 'Hide password' : 'Show password'}
                   >
-                    {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
                   </button>
                 </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <label className="flex items-center gap-2 text-sm text-gray-600">
+                  <input
+                    type="checkbox"
+                    checked={remember}
+                    onChange={(e) => setRemember(e.target.checked)}
+                    className="h-4 w-4 rounded border-gray-300 accent-navy-800 focus:ring-navy-700/30"
+                  />
+                  Remember me
+                </label>
+                <button
+                  type="button"
+                  onClick={() => setShowHelp((s) => !s)}
+                  className="text-sm font-medium text-navy-800 underline-offset-2 hover:underline focus:outline-none focus-visible:underline"
+                >
+                  Forgot password?
+                </button>
               </div>
 
               <button
                 type="submit"
                 disabled={loading}
-                className="h-11 w-full rounded-lg bg-blue-600 text-sm font-semibold text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
+                className="h-11 w-full rounded-md bg-navy-800 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-navy-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-700/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? 'Signing in...' : 'Sign in'}
+                {loading ? 'Signing in…' : 'Sign In'}
               </button>
             </form>
+
+            <div className="mt-6 flex items-start gap-2 text-xs text-gray-500">
+              <ShieldCheck size={15} className="mt-0.5 shrink-0 text-navy-700" aria-hidden="true" />
+              <p>Your information is protected using secure authentication.</p>
+            </div>
+
+            <div className="mt-6 border-t border-gray-100 pt-4 text-center text-sm text-gray-500">
+              Don't have an account?{' '}
+              <Link
+                to="/register"
+                className="font-medium text-navy-800 underline-offset-2 hover:underline"
+              >
+                Request access
+              </Link>
+            </div>
           </div>
 
-          <p className="mt-6 text-center text-sm text-navy-300">
-            Don't have an account?{' '}
-            <Link to="/register" className="font-semibold text-blue-400 hover:text-blue-300">
-              Create one
-            </Link>
-          </p>
-
-          <div className="mt-8 rounded-lg border border-navy-800 bg-navy-900/60 p-4">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-navy-400">
-              Demo accounts
+          {/* Demo credentials */}
+          <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
+            <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
+              Demo credentials
             </p>
-            <div className="grid grid-cols-1 gap-1 text-xs text-navy-300 sm:grid-cols-2">
+            <div className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 font-mono text-xs text-gray-600 sm:grid-cols-2">
               <span>admin@govrisk.gov.in / admin123</span>
               <span>officer@govrisk.gov.in / officer123</span>
               <span>analyst@govrisk.gov.in / analyst123</span>
@@ -161,7 +218,30 @@ export default function Login() {
             </div>
           </div>
         </div>
-      </div>
+      </main>
+
+      {/* Footer */}
+      <footer className="shrink-0 border-t border-gray-200 bg-white">
+        <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-4 py-4 text-xs text-gray-500 sm:flex-row sm:px-6">
+          <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
+            <a href="#help" className="hover:text-navy-800 hover:underline">
+              Help
+            </a>
+            <a href="#accessibility" className="hover:text-navy-800 hover:underline">
+              Accessibility
+            </a>
+            <a href="#privacy" className="hover:text-navy-800 hover:underline">
+              Privacy
+            </a>
+            <a href="#terms" className="hover:text-navy-800 hover:underline">
+              Terms
+            </a>
+          </nav>
+          <p className="text-center">
+            © {new Date().getFullYear()} Government of India · GovRisk
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }
