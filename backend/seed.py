@@ -15,8 +15,8 @@ import os
 import sys
 
 from database import engine, SessionLocal, Base
-from models import Project, Alert
-from seed_data import SEED_PROJECTS, SEED_ALERTS
+from models import Project, Alert, ProjectUpdate
+from seed_data import SEED_PROJECTS, SEED_ALERTS, SEED_PROJECT_UPDATES
 from services.risk_service import apply_assessment
 
 
@@ -87,7 +87,34 @@ def seed():
             db.add(alert)
         print(f"Inserted {len(SEED_ALERTS)} alerts")
 
+        # Seed project updates (AI early-warning signal history)
+        for update_data in SEED_PROJECT_UPDATES:
+            update = ProjectUpdate(
+                project_id=update_data["project_id"],
+                user_id=update_data["user_id"],
+                content=update_data["content"],
+                update_type=update_data.get("type", "GENERAL"),
+                created_at=update_data["created_at"],
+                updated_at=update_data["created_at"],
+            )
+            db.add(update)
+        print(f"Inserted {len(SEED_PROJECT_UPDATES)} project updates")
+
         db.commit()
+
+        # Generate the initial AI analysis snapshots (prediction, anomalies,
+        # emerging risks) so the demo surfaces early warnings immediately.
+        analyzed = 0
+        for project_data in SEED_PROJECTS:
+            try:
+                from ai.ai_service import analyze_project
+
+                analyze_project(db, project_data["id"])
+                analyzed += 1
+            except Exception as exc:
+                print(f"  [warn] AI analysis skipped for {project_data['id']}: {exc}")
+        print(f"Rendered AI analysis snapshots for {analyzed} projects")
+
         print("=" * 40)
         print("Seed complete!")
         print(f"  Projects: {len(SEED_PROJECTS)}")

@@ -23,6 +23,9 @@ import {
   FileText,
   FolderOpen,
   Activity,
+  Brain,
+  AlertOctagon,
+  Sparkles,
 } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { LoadingState } from '../components/ui/LoadingState';
@@ -37,7 +40,10 @@ import {
   resetUserPassword,
   getAuditLogs,
   getProjects,
+  getAiHealth,
+  getAiInsights,
 } from '../services/api';
+import type { AiInsights } from '../services/api';
 
 interface User {
   id: string;
@@ -316,6 +322,37 @@ export default function AdminPanel() {
     fetchProjects();
   }, [fetchProjects]);
 
+  const [aiHealth, setAiHealth] = useState<{ available: boolean; provider: string; model: string; fallback_enabled: boolean } | null>(null);
+  const [aiHealthLoading, setAiHealthLoading] = useState(true);
+  const [aiMap, setAiMap] = useState<Record<string, AiInsights>>({});
+  const [aiLoading, setAiLoading] = useState(false);
+
+  useEffect(() => {
+    getAiHealth()
+      .then(setAiHealth)
+      .catch(() => setAiHealth(null))
+      .finally(() => setAiHealthLoading(false));
+  }, []);
+
+  useEffect(() => {
+    if (!projects.length) return;
+    const top = [...projects]
+      .sort((a: any, b: any) => b.riskScore - a.riskScore)
+      .slice(0, 6);
+    setAiLoading(true);
+    Promise.allSettled(
+      top.map(async (p: any) => ({ name: p.name, id: p.id, ins: await getAiInsights(p.id, false) }))
+    )
+      .then((results) => {
+        const map: Record<string, AiInsights> = {};
+        results.forEach((r) => {
+          if (r.status === 'fulfilled' && r.value.ins.ai_available) map[r.value.name] = r.value.ins;
+        });
+        setAiMap(map);
+      })
+      .finally(() => setAiLoading(false));
+  }, [projects]);
+
   function refreshAll() {
     fetchStats();
     fetchUsers();
@@ -553,6 +590,153 @@ export default function AdminPanel() {
               );
             })}
       </div>
+
+      {/* ── AI Monitoring ──────────────────────────────────────────── */}
+      <section className="mb-8 rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50/60 to-white p-5 lg:p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div className="flex items-center gap-2">
+            <div className="rounded-lg bg-purple-100 p-2">
+              <Brain className="h-5 w-5 text-purple-700" />
+            </div>
+            <h2 className="text-base font-semibold text-navy-900 lg:text-lg">
+              AI Monitoring &amp; Early-Warning Engine
+            </h2>
+          </div>
+          <div className="flex flex-wrap items-center gap-2">
+            {aiHealth && (
+              <span
+                className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-semibold ${
+                  aiHealth.available
+                    ? 'bg-green-100 text-green-700'
+                    : 'bg-amber-100 text-amber-700'
+                }`}
+              >
+                <Sparkles className="h-3 w-3" />
+                {aiHealth.available ? 'LLM Connected' : 'Deterministic Only'}
+              </span>
+            )}
+            {aiHealth?.provider && (
+              <span className="rounded-full bg-white px-2.5 py-1 text-xs font-medium text-gray-600 ring-1 ring-purple-100">
+                {aiHealth.provider}{aiHealth.model ? ` / ${aiHealth.model}` : ''}
+              </span>
+            )}
+          </div>
+        </div>
+
+        {aiHealthLoading ? (
+          <LoadingState text="Loading AI health..." />
+        ) : aiHealth ? (
+          <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            <div className="rounded-xl border border-purple-100 bg-white p-4">
+              <p className="text-xs font-medium text-gray-500">LLM Availability</p>
+              <p className={`mt-1 text-xl font-bold ${aiHealth.available ? 'text-green-600' : 'text-amber-600'}`}>
+                {aiHealth.available ? 'Available' : 'Unavailable'}
+              </p>
+              <p className="mt-0.5 text-[11px] text-gray-400">
+                {aiHealth.available
+                  ? 'Emerging-risk & explanation enrichment live'
+                  : 'Deterministic engine only — keyword fallback active'}
+              </p>
+            </div>
+            <div className="rounded-xl border border-purple-100 bg-white p-4">
+              <p className="text-xs font-medium text-gray-500">Fallback Engine</p>
+              <p className="mt-1 text-xl font-bold text-navy-900">
+                {aiHealth.fallback_enabled ? 'Enabled' : 'Disabled'}
+              </p>
+              <p className="mt-0.5 text-[11px] text-gray-400">
+                Statistical predictor + rule-based detector
+              </p>
+            </div>
+            <div className="rounded-xl border border-purple-100 bg-white p-4">
+              <p className="text-xs font-medium text-gray-500">Projects Analyzed</p>
+              <p className="mt-1 text-xl font-bold text-navy-900">{Object.keys(aiMap).length}</p>
+              <p className="mt-0.5 text-[11px] text-gray-400">Top-risk portfolio monitored</p>
+            </div>
+            <div className="rounded-xl border border-purple-100 bg-white p-4">
+              <p className="text-xs font-medium text-gray-500">Active Signals</p>
+              <p className="mt-1 text-xl font-bold text-red-600">
+                {aiLoading
+                  ? '…'
+                  : Object.values(aiMap).reduce(
+                      (sum, ai) => sum + ai.anomalies.length + ai.emerging_risks.length,
+                      0
+                    )}
+              </p>
+              <p className="mt-0.5 text-[11px] text-gray-400">Anomalies + emerging risks</p>
+            </div>
+          </div>
+        ) : (
+          <p className="mb-5 rounded-lg border border-dashed border-gray-300 py-6 text-center text-xs text-gray-500">
+            AI health endpoint unavailable. Confirm the backend /api/ai/health route is reachable.
+          </p>
+        )}
+
+        {aiLoading ? (
+          <LoadingState text="Loading AI insights for top-risk projects..." />
+        ) : Object.keys(aiMap).length === 0 ? (
+          <EmptyState
+            title="No AI signals yet"
+            description="Run an initial analysis (or reseed) so predictions, anomalies, and emerging risks appear here."
+            icon={<Brain className="h-10 w-10" />}
+          />
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px] text-left text-sm">
+              <thead>
+                <tr className="bg-purple-50/60 text-xs uppercase tracking-wider text-gray-500">
+                  <th className="px-4 py-3 font-semibold lg:px-6">Project</th>
+                  <th className="px-4 py-3 font-semibold">Anomalies</th>
+                  <th className="px-4 py-3 font-semibold">Emerging Risks</th>
+                  <th className="px-4 py-3 font-semibold">Future Risk (90d)</th>
+                  <th className="px-4 py-3 font-semibold">Method</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-gray-100 bg-white">
+                {Object.entries(aiMap).map(([name, ai]) => (
+                  <tr key={name} className="transition-colors hover:bg-purple-50/40">
+                    <td className="max-w-[280px] px-4 py-3 lg:px-6">
+                      <span className="block truncate font-medium text-navy-900" title={name}>{name}</span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center gap-1 text-orange-700">
+                        <AlertOctagon className="h-3.5 w-3.5" />
+                        {ai.anomalies.length}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="inline-flex items-center gap-1 text-purple-700">
+                        <AlertTriangle className="h-3.5 w-3.5" />
+                        {ai.emerging_risks.length}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`font-semibold ${
+                          (ai.prediction?.future_score ?? 0) >= 80
+                            ? 'text-red-600'
+                            : (ai.prediction?.future_score ?? 0) >= 60
+                              ? 'text-orange-600'
+                              : 'text-green-600'
+                        }`}
+                      >
+                        {ai.prediction?.future_score ?? '—'}
+                        <span className="ml-1 text-[11px] font-normal text-gray-400">
+                          {ai.prediction ? `(${ai.prediction.current_score ?? '—'} now)` : ''}
+                        </span>
+                      </span>
+                    </td>
+                    <td className="px-4 py-3">
+                      <span className="rounded-full bg-gray-100 px-2 py-0.5 text-[11px] font-medium text-gray-600">
+                        {(ai.prediction?.prediction_method || '—').replace(/_/g, ' ')}
+                      </span>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
+      </section>
 
       <section className="mb-8 rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
         <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">

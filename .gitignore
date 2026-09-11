@@ -1,1 +1,6 @@
-.db
+*.db
+*.db-journal
+*.sqlite
+.env
+.env.*
+!.env.example

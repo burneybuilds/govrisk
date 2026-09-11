@@ -5,7 +5,7 @@ from database import engine, Base
 from auth.database import auth_engine, AuthBase
 from auth.dependencies import get_current_user
 from migration import run_migrations
-from routers import projects, alerts, dashboard, analytics, risk_map, assistant
+from routers import projects, alerts, dashboard, analytics, risk_map, assistant, ai
 from routers import auth as auth_router
 from routers import users as users_router
 from routers import admin as admin_router
@@ -37,6 +37,7 @@ app.include_router(dashboard.router)
 app.include_router(analytics.router)
 app.include_router(risk_map.router)
 app.include_router(assistant.router)
+app.include_router(ai.router)
 
 
 @app.get("/api/health")

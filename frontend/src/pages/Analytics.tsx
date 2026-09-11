@@ -10,8 +10,10 @@ import {
   BarChart,
   Bar,
   Cell,
+  Legend,
 } from 'recharts';
-import { getAnalytics } from '../services/api';
+import { getAnalytics, getProjects, getAiInsights } from '../services/api';
+import type { AiInsights } from '../services/api';
 import { LoadingState } from '../components/ui/LoadingState';
 
 function getBarColor(value: number): string {
@@ -41,6 +43,8 @@ export default function Analytics() {
   const [sectorPerformance, setSectorPerformance] = useState<any[]>([]);
   const [correlationData, setCorrelationData] = useState<any[]>([]);
   const [ministryRankings, setMinistryRankings] = useState<any[]>([]);
+  const [aiMap, setAiMap] = useState<Record<string, AiInsights>>({});
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     getAnalytics()
@@ -52,6 +56,43 @@ export default function Analytics() {
       .catch((err) => setError(err.message))
       .finally(() => setLoading(false));
   }, []);
+
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const projects = await getProjects();
+        const top = [...projects].sort((a, b) => b.riskScore - a.riskScore).slice(0, 12);
+        setAiLoading(true);
+        const results = await Promise.allSettled(
+          top.map(async (p) => ({ name: p.name, ins: await getAiInsights(p.id, false) }))
+        );
+        if (cancelled) return;
+        const map: Record<string, AiInsights> = {};
+        results.forEach((r) => {
+          if (r.status === 'fulfilled') map[r.value.name] = r.value.ins;
+        });
+        setAiMap(map);
+      } catch {
+        /* AI layer optional - deterministic analytics still render */
+      } finally {
+        if (!cancelled) setAiLoading(false);
+      }
+    })();
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  const aiChartData = Object.entries(aiMap).map(([name, ai]) => ({
+    name,
+    current: ai.prediction?.current_score ?? 0,
+    future: ai.prediction?.future_score ?? 0,
+    delayPct: Math.round((ai.prediction?.schedule_delay_probability ?? 0) * 100),
+    anomalies: ai.anomalies.length,
+    emerging: ai.emerging_risks.length,
+    riskScore: name, // keep tooltip lookup simple
+  }));
 
   const sortedMinistries = [...ministryRankings].sort((a, b) => b.avgRisk - a.avgRisk);
 
@@ -68,6 +109,114 @@ export default function Analytics() {
       </div>
 
       <div className="grid grid-cols-1 gap-6">
+        {/* ── AI Risk Forecast ─────────────────────────────────────── */}
+        <div className="rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50/60 to-white p-5 lg:p-6">
+          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
+            AI Risk Forecast (90-day horizon)
+          </h3>
+          <p className="mt-1 text-xs text-gray-500 lg:text-sm">
+            Current deterministic risk vs projected future risk for the highest-risk projects.
+          </p>
+          {aiLoading ? (
+            <div className="mt-6 flex items-center justify-center gap-2 py-10 text-sm text-gray-400">
+              <span className="h-4 w-4 animate-spin rounded-full border-2 border-purple-300 border-t-purple-600" />
+              Loading AI forecasts...
+            </div>
+          ) : aiChartData.length > 0 ? (
+            <div className="mt-4">
+              <ResponsiveContainer width="100%" height={320}>
+                <BarChart data={aiChartData} margin={{ top: 10, right: 12, left: -12, bottom: 0 }}>
+                  <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
+                  <XAxis
+                    dataKey="name"
+                    tick={{ fontSize: 10, fill: '#6b7280' }}
+                    axisLine={{ stroke: '#e5e7eb' }}
+                    tickLine={false}
+                    interval={0}
+                    angle={-18}
+                    textAnchor="end"
+                    height={60}
+                  />
+                  <YAxis
+                    tick={{ fontSize: 11, fill: '#6b7280' }}
+                    axisLine={false}
+                    tickLine={false}
+                    width={40}
+                    domain={[0, 100]}
+                  />
+                  <Tooltip
+                    contentStyle={tooltipStyle}
+                    cursor={{ fill: '#faf5ff' }}
+                    formatter={(value, name) => [`${value}`, name === 'current' ? 'Current' : 'Future (90d)']}
+                  />
+                  <Legend formatter={(value) => (value === 'current' ? 'Current Risk' : 'Future Risk (90d)')} />
+                  <Bar dataKey="current" fill="#93c5fd" radius={[4, 4, 0, 0]} maxBarSize={24} />
+                  <Bar dataKey="future" fill="#7c3aed" radius={[4, 4, 0, 0]} maxBarSize={24}>
+                    {aiChartData.map((entry, index) => (
+                      <Cell
+                        key={index}
+                        fill={entry.future >= 80 ? '#dc2626' : entry.future >= 60 ? '#ea580c' : entry.future >= 40 ? '#ca8a04' : '#16a34a'}
+                      />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+          ) : (
+            <p className="mt-6 rounded-lg border border-dashed border-gray-300 py-8 text-center text-xs text-gray-500">
+              No AI forecasts available yet.
+            </p>
+          )}
+        </div>
+
+        {/* ── AI Signals (Anomalies + Emerging risks) ───────────────── */}
+        {!aiLoading && aiChartData.filter((d) => d.anomalies + d.emerging > 0).length > 0 && (
+          <div className="rounded-xl border border-purple-200 bg-white p-5 lg:p-6">
+            <h3 className="text-base font-semibold text-navy-900 lg:text-lg">Active AI Signals</h3>
+            <p className="mt-1 text-xs text-gray-500 lg:text-sm">
+              Anomalies and emerging risks detected per project.
+            </p>
+            <div className="mt-4 overflow-x-auto">
+              <table className="w-full min-w-[640px] text-left text-sm">
+                <thead>
+                  <tr className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
+                    <th className="px-4 py-3 font-semibold lg:px-6">Project</th>
+                    <th className="px-4 py-3 font-semibold">Anomalies</th>
+                    <th className="px-4 py-3 font-semibold">Emerging Risks</th>
+                    <th className="px-4 py-3 font-semibold">Delay Risk</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {aiChartData
+                    .filter((d) => d.anomalies + d.emerging > 0)
+                    .map((d) => (
+                      <tr key={d.name} className="transition-colors hover:bg-gray-50">
+                        <td className="max-w-[260px] px-4 py-3 lg:px-6">
+                          <span className="truncate font-medium text-navy-900" title={d.name}>{d.name}</span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${d.anomalies > 0 ? 'bg-orange-100 text-orange-700' : 'bg-gray-100 text-gray-500'}`}>
+                            {d.anomalies}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-semibold ${d.emerging > 0 ? 'bg-purple-100 text-purple-700' : 'bg-gray-100 text-gray-500'}`}>
+                            {d.emerging}
+                          </span>
+                        </td>
+                        <td className="px-4 py-3">
+                          <span className={`font-semibold ${d.delayPct >= 70 ? 'text-red-600' : d.delayPct >= 40 ? 'text-orange-600' : 'text-green-600'}`}>
+                            {d.delayPct}%
+                          </span>
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        )}
+
         <div className="rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
           <h3 className="text-base font-semibold text-navy-900 lg:text-lg">Sector Risk Comparison</h3>
           <p className="mt-1 text-xs text-gray-500 lg:text-sm">

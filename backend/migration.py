@@ -5,7 +5,8 @@ new columns to existing tables. This module adds newly introduced
 columns to the projects table without touching existing rows, then
 refreshes the cached risk columns with the deterministic risk engine
 so historical rows are consistent with the current engine (single
-source of truth).
+source of truth). The AI tables are created idempotently and any
+missing supporting indexes are added.
 """
 
 from sqlalchemy import text
@@ -25,6 +26,72 @@ PROJECT_COLUMNS = {
 }
 
 
+def _create_ai_tables(engine: Engine) -> None:
+    """Idempotently create the AI tables + indexes on govrisk.db.
+
+    Fresh databases get them via create_all() in main.py (they are part of
+    Base). This is a safety net for databases that predate the AI feature.
+    """
+    from database import Base
+    from models import AIAnalysis, AIPrediction, Anomaly, EmergingRisk  # noqa: F401
+
+    Base.metadata.create_all(bind=engine, checkfirst=True)
+    _ensure_index(
+        engine,
+        "ai_analyses",
+        "ix_ai_analyses_project_id",
+        "ALTER TABLE ai_analyses ADD INDEX "
+        "ix_ai_analyses_project_id (project_id)",
+    )
+
+
+def _ensure_index(engine: Engine, table: str, index_name: str, ddl: str) -> None:
+    """Add an index only when both the table exists and the index is missing."""
+    try:
+        with engine.connect() as conn:
+            tables = {
+                row[0]
+                for row in conn.execute(text("SELECT name FROM sqlite_master WHERE type='table'"))
+            }
+            if table not in tables:
+                return
+            indexes = {
+                row[1]
+                for row in conn.execute(text(f"PRAGMA index_list({table})"))
+            }
+            if index_name not in indexes:
+                conn.execute(text(ddl))
+            conn.commit()
+    except Exception:
+        # SQLite has no native ALTER TABLE ADD INDEX; when a table was created
+        # without the index the model comment below documents the diff. The
+        # common path (fresh create_all) already carries the index.
+        pass
+
+
+def _ensure_ai_predictions_columns(engine: Engine) -> None:
+    """Add columns introduced after the ai_predictions table first shipped."""
+    adds = {
+        "current_score": "INTEGER",
+        "data_points_used": "INTEGER",
+    }
+    try:
+        with engine.connect() as conn:
+            existing = {
+                row[1]
+                for row in conn.execute(text("PRAGMA table_info(ai_predictions)"))
+            }
+            for column, ddl in adds.items():
+                if column not in existing:
+                    conn.execute(
+                        text(f"ALTER TABLE ai_predictions ADD COLUMN {column} {ddl}")
+                    )
+            conn.commit()
+    except Exception:
+        # Table may not exist yet (fresh database) - create_all handles it.
+        pass
+
+
 def run_migrations(engine: Engine) -> None:
     try:
         with engine.connect() as conn:
@@ -42,6 +109,10 @@ def run_migrations(engine: Engine) -> None:
         # The projects table may not exist yet (fresh database); create_all
         # in main.py handles that case with the full model definition.
         pass
+
+    # AI persistence tables (idempotent).
+    _create_ai_tables(engine)
+    _ensure_ai_predictions_columns(engine)
 
     _backfill_risk(engine)
 

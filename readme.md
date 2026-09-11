@@ -187,10 +187,21 @@ backend/
 │   ├── dashboard.py
 │   ├── analytics.py
 │   ├── risk_map.py
-│   └── assistant.py
+│   ├── assistant.py       # hybrid: deterministic + AI early-warning note
+│   └── ai.py              # AI/early-warning endpoints
+├── ai/                    # AI early-warning package (predictor, anomalies,
+│   │                      # emerging risk, LLM service, feature engineering)
+│   ├── predictor.py
+│   ├── anomaly_detector.py
+│   ├── emerging_risk.py
+│   ├── llm_service.py
+│   ├── feature_engineering.py
+│   ├── ai_service.py
+│   ├── schemas.py
+│   └── prompts.py
 ├── services/risk_service.py
 ├── database.py            # govrisk.db engine + session
-├── models.py              # Project + Alert models
+├── models.py              # Project/Alert/Update + AI models
 ├── schemas.py
 ├── seed.py                # seeds govrisk.db
 ├── seed_auth.py           # seeds auth.db (idempotent)
@@ -230,4 +241,82 @@ This is an SIH MVP. Before production, consider:
 - Email verification & password reset flows
 - Refresh-token rotation with revocation
 - OAuth/SSO, MFA, OTP as required by enterprise policy
->>>>>>> eb63de5a6db0b315f767d73e66d02cf053cef1e6
+
+## AI Early-Warning Layer
+
+GovRisk combines a **deterministic rule engine** (unchanged - the single
+source of truth for risk scores) with a **hybrid AI layer** that delivers
+95-day early warnings without ever fabricating numbers.
+
+### Architecture
+
+```
+project updates + alerts + risk inputs
+            │
+            ▼
+  ai/feature_engineering.py     flat numeric feature vector (real data only)
+            │
+            ├──▶  ai/predictor.py          5 risk-event probabilities (0-1)
+            ├──▶  ai/anomaly_detector.py   8 statistical deviation detectors
+            └──▶  ai/emerging_risk.py      keyword + LLM risk extraction
+            │
+            ▼
+  ai/ai_service.py              persistence, caching (TTL), alert dedup
+            ▼
+  routers/ai.py                 GET/POST /api/ai/... endpoints
+```
+
+### Design principles
+
+- **No fake AI.** No ML model is claimed: the predictor is a transparent
+  statistical model (`prediction_method` = `rule_statistical_fallback` when
+  there is no update history, `hybrid` once >= 3 updates exist). `model_version`
+  is `govrisk-ai-v1`.
+- **LLM is optional and never trusted for numbers.** A provider is read from
+  `AI_PROVIDER`/`AI_API_KEY` (OpenAI-compatible or Anthropic). It only
+  classifies updates and enriches explanations; output must validate against a
+  Pydantic schema, retries once, and falls back to deterministic keywords.
+- **Cache + audit.** Every analysis is persisted (`ai_analyses`,
+  `ai_predictions`, `ai_anomalies`, `ai_emerging_risks`) and served from cache
+  for `AI_ANALYSIS_TTL_HOURS` (default 6).
+- **Resilient.** LLM failure, network timeouts, or a missing key never breaks
+  the app; AI endpoints return a friendly 503 and the deterministic engine
+  keeps serving.
+- **Deduplicated alerts.** Emerging risks raise `AI Emerging Risk` alerts only
+  once per active category, bounded by `AI_ALERT_DEDUP_HOURS` (default 7 days).
+
+### AI endpoints (all authenticated)
+
+| Endpoint | Purpose |
+| --- | --- |
+| `GET /api/ai/health` | LLM provider availability + fallback status |
+| `GET /api/ai/projects/{id}/prediction` | Latest numeric prediction snapshot |
+| `GET /api/ai/projects/{id}/anomalies` | Recent detected anomalies |
+| `GET /api/ai/projects/{id}/emerging-risks` | Active emerging risks |
+| `GET /api/ai/projects/{id}/explanation` | Grounded explanation of current vs future risk |
+| `GET /api/ai/projects/{id}/insights` | Cached (or fresh on `?refresh=true`) full bundle |
+| `POST /api/ai/projects/{id}/analyze` | Force a fresh full analysis (admin/officer) |
+| `POST /api/ai/projects/{id}/updates/{update_id}/analyze` | Queued update-level analysis |
+
+Posting a project update automatically triggers a background analysis with
+alert creation when a HIGH/CRITICAL emerging risk is detected.
+
+### Configuration
+
+See `backend/.env.example`. Leave `AI_PROVIDER` empty to run deterministic-only;
+set `AI_PROVIDER=openai` (or `anthropic`, `openrouter`, `azure`, `custom`),
+`AI_API_KEY`, `AI_MODEL`, and optionally `AI_API_BASE`.
+
+### Seeded early-warning scenarios
+
+| Project | Scenario |
+| --- | --- |
+| PRJ-001 NH-48 | Stable high-way with mild recurring schedule pressure |
+| PRJ-002 Freight Corridor | Emerging community / stakeholder opposition |
+| PRJ-003 River Basin | Cost escalation + funding / resource stress (CRITICAL) |
+| PRJ-004 Solar Park | Escalation path from supply-chain disruption |
+| PRJ-005 Rural Roads | Improving trend (LOW) |
+| PRJ-006 Regional Airport | Schedule-delay pressure from design/approval revisions |
+
+Seeding also renders initial AI analysis snapshots for all six projects, so
+the demo surfaces early warnings immediately after first `seed.py` run.
