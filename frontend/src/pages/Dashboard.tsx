@@ -17,6 +17,7 @@ import { ProgressBar } from '../components/ui/ProgressBar';
 import { RiskChart } from '../components/charts/RiskChart';
 import { RiskTrendChart } from '../components/charts/RiskTrendChart';
 import { LoadingState } from '../components/ui/LoadingState';
+import { useI18n } from '../i18n';
 
 const sectorFilters = ['All Sectors', 'Transport', 'Energy', 'Water', 'Communication', 'Social Infrastructure'];
 
@@ -34,6 +35,7 @@ function getDelayColor(probability: number) {
 
 export default function Dashboard() {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [activeSector, setActiveSector] = useState('All Sectors');
   const [dashboard, setDashboard] = useState<any>(null);
   const [projects, setProjects] = useState<any[]>([]);
@@ -62,10 +64,10 @@ export default function Dashboard() {
       <div className="min-w-0">
         <div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
           <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
-            Infrastructure Risk Overview
+            {t('dashboard.title')}
           </h1>
           <p className="mt-1 text-sm text-gray-600 lg:text-base">
-            Predictive intelligence for India's infrastructure project portfolio
+            {t('dashboard.subtitle')}
           </p>
         </div>
         <LoadingState text="Loading dashboard..." />
@@ -78,10 +80,10 @@ export default function Dashboard() {
       <div className="min-w-0">
         <div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
           <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
-            Infrastructure Risk Overview
+            {t('dashboard.title')}
           </h1>
           <p className="mt-1 text-sm text-gray-600 lg:text-base">
-            Predictive intelligence for India's infrastructure project portfolio
+            {t('dashboard.subtitle')}
           </p>
         </div>
         <div className="flex flex-col items-center py-12">
@@ -115,45 +117,45 @@ export default function Dashboard() {
   };
 
   const secondaryKpis = [
-    { title: 'Portfolio Value', value: formatCurrency(dashboard.portfolioValue ?? 0), subtitle: 'Original approved cost', icon: <TrendingUp className="h-5 w-5 text-blue-600" /> },
-    { title: 'Revised Value', value: formatCurrency(dashboard.revisedValue ?? 0), subtitle: 'Current revised cost', icon: <BarChart3 className="h-5 w-5 text-blue-600" /> },
+    { title: t('kpi.portfolioValue'), value: formatCurrency(dashboard.portfolioValue ?? 0), subtitle: t('kpi.portfolioValueSub'), icon: <TrendingUp className="h-5 w-5 text-blue-600" /> },
+    { title: t('kpi.revisedValue'), value: formatCurrency(dashboard.revisedValue ?? 0), subtitle: t('kpi.revisedValueSub'), icon: <BarChart3 className="h-5 w-5 text-blue-600" /> },
   ];
 
   return (
     <div className="min-w-0">
 <div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
         <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
-          Infrastructure Risk Overview
+          {t('dashboard.title')}
         </h1>
         <p className="mt-1 text-sm text-gray-600 lg:text-base">
-          Predictive intelligence for India's infrastructure project portfolio
+          {t('dashboard.subtitle')}
         </p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         <KpiCard
-          title="Total Projects"
+          title={t('kpi.totalProjects')}
           value={String(dashboard.totalProjects ?? 0)}
-          subtitle="Currently monitored"
+          subtitle={t('kpi.totalProjectsSub')}
           icon={<FolderOpen className="h-5 w-5 text-blue-600" />}
         />
         <KpiCard
-          title="High Risk Projects"
+          title={t('kpi.highRisk')}
           value={String(dashboard.highRiskProjects ?? 0)}
-          subtitle="Require attention"
+          subtitle={t('kpi.highRiskSub')}
           icon={<AlertTriangle className="h-5 w-5 text-red-600" />}
           trend={{ value: 4.2, isPositive: false }}
         />
         <KpiCard
-          title="Schedule Risk"
+          title={t('kpi.scheduleRisk')}
           value={String(dashboard.scheduleRiskCount ?? 0)}
-          subtitle="Projects showing delay signals"
+          subtitle={t('kpi.scheduleRiskSub')}
           icon={<Clock className="h-5 w-5 text-orange-600" />}
         />
         <KpiCard
-          title="Cost Risk"
+          title={t('kpi.costRisk')}
           value={String(dashboard.costRiskCount ?? 0)}
-          subtitle="Projects showing escalation signals"
+          subtitle={t('kpi.costRiskSub')}
           icon={<DollarSign className="h-5 w-5 text-yellow-600" />}
         />
       </div>
@@ -180,17 +182,17 @@ export default function Dashboard() {
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-gray-100 px-5 py-4 lg:px-6">
           <div>
             <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
-              Projects Requiring Immediate Attention
+              {t('dashboard.attentionTitle')}
             </h3>
             <p className="mt-0.5 text-xs text-gray-500 lg:text-sm">
-              Projects with elevated probability of cost escalation, schedule delay, or implementation risk.
+              {t('dashboard.attentionSub')}
             </p>
           </div>
           <button
             onClick={() => navigate('/projects')}
             className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 px-3.5 py-2 text-sm font-medium text-navy-900 transition-colors hover:bg-gray-50 hover:text-blue-700"
           >
-            View all projects
+            {t('dashboard.viewAll')}
             <ArrowRight size={14} />
           </button>
         </div>
@@ -198,15 +200,15 @@ export default function Dashboard() {
           <table className="w-full min-w-[900px] text-left text-sm">
             <thead>
               <tr className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
-                <th className="px-4 py-3 font-semibold lg:px-6">Project</th>
-                <th className="px-4 py-3 font-semibold">Ministry</th>
-                <th className="px-4 py-3 font-semibold">Sector</th>
-                <th className="px-4 py-3 font-semibold">State</th>
-                <th className="px-4 py-3 font-semibold">Progress</th>
-                <th className="px-4 py-3 font-semibold">Cost Overrun</th>
-                <th className="px-4 py-3 font-semibold">Delay Probability</th>
-                <th className="px-4 py-3 font-semibold">Risk Score</th>
-                <th className="px-4 py-3 font-semibold">Status</th>
+                <th className="px-4 py-3 font-semibold lg:px-6">{t('table.project')}</th>
+                <th className="px-4 py-3 font-semibold">{t('table.ministry')}</th>
+                <th className="px-4 py-3 font-semibold">{t('table.sector')}</th>
+                <th className="px-4 py-3 font-semibold">{t('table.state')}</th>
+                <th className="px-4 py-3 font-semibold">{t('table.progress')}</th>
+                <th className="px-4 py-3 font-semibold">{t('table.costOverrun')}</th>
+                <th className="px-4 py-3 font-semibold">{t('table.delayProb')}</th>
+                <th className="px-4 py-3 font-semibold">{t('table.riskScore')}</th>
+                <th className="px-4 py-3 font-semibold">{t('table.status')}</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-100">
@@ -258,13 +260,13 @@ export default function Dashboard() {
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <RiskChart
-          title="Portfolio Risk Distribution"
-          description="Share of monitored projects by current risk level."
+          title={t('chart.riskDistribution')}
+          description={t('chart.riskDistributionSub')}
           data={riskDistribution}
         />
         <RiskTrendChart
-          title="Portfolio Risk Trend"
-          description="Monthly risk classification over the last six months."
+          title={t('chart.riskTrend')}
+          description={t('chart.riskTrendSub')}
           data={analytics?.riskTrends ?? []}
           filters={sectorFilters}
           activeFilter={activeSector}
@@ -274,16 +276,16 @@ export default function Dashboard() {
 
       <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white px-6 py-3 shadow-md">
         <div className="min-w-0">
-          <p className="text-sm font-semibold text-navy-900">Dive deeper into portfolio analytics</p>
+          <p className="text-sm font-semibold text-navy-900">{t('dashboard.analyticsCta')}</p>
           <p className="mt-0.5 text-xs text-gray-600 lg:text-sm">
-            Sector comparisons, cost overrun drivers, delay analysis, and ministry-wise risk rankings.
+            {t('dashboard.analyticsCtaSub')}
           </p>
         </div>
         <button
           onClick={() => navigate('/analytics')}
           className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-navy-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-navy-800"
         >
-          Open Analytics
+          {t('dashboard.openAnalytics')}
           <ArrowRight size={14} />
         </button>
       </div>

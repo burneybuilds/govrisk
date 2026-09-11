@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { Search, Bell, Menu, LogOut, BellOff, ArrowRight } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { getAlerts } from "../../services/api";
+import LanguageSwitcher from "./LanguageSwitcher";
 
 interface TopbarProps {
   onToggleSidebar?: () => void;
@@ -128,7 +129,7 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
           className="h-10 w-auto shrink-0"
         />
         <div className="min-w-0 border-l border-gray-200 pl-3">
-          <p className="text-sm font-bold tracking-wide text-navy-900">GovRisk</p>
+          <p className="text-sm font-bold tracking-wide text-navy-900 font-heading">GovRisk</p>
           <p className="text-[11px] text-gray-500">Government of India</p>
         </div>
       </div>
@@ -136,7 +137,7 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
       {/* Mobile hamburger */}
       <button
         type="button"
-        onClick={onToggleSidebar}
+        onClick={() => onToggleSidebar?.()}
         className="mr-auto shrink-0 rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:hidden"
         aria-label="Toggle navigation"
       >
@@ -163,6 +164,8 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
         <span className="hidden whitespace-nowrap text-sm font-medium text-gray-500 sm:block">
           {formattedDate}
         </span>
+
+<LanguageSwitcher />
 
         <div ref={notifRef} className="relative">
           <button

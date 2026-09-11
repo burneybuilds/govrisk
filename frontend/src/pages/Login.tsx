@@ -4,11 +4,14 @@ import { Eye, EyeOff, AlertCircle, Lock, ShieldCheck } from 'lucide-react';
 import { login } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import LandmarkSlider from '../components/hero/LandmarkSlider';
+import LanguageSwitcher from '../components/layout/LanguageSwitcher';
+import { useI18n } from '../i18n';
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { setUser } = useAuth();
+  const { t } = useI18n();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [remember, setRemember] = useState(false);
@@ -61,7 +64,7 @@ export default function Login() {
       </div>
 
       {/* Government header */}
-      <header className="relative z-10 shrink-0 border-b border-gray-200 bg-white">
+      <header className="relative z-20 shrink-0 border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-4 sm:px-6">
           <img
             src="/emblem_of_india.svg"
@@ -70,21 +73,24 @@ export default function Login() {
           />
           <div className="min-w-0 flex-1">
             <div className="flex flex-wrap items-baseline gap-x-2">
-              <span className="text-base font-bold tracking-wide text-navy-900 sm:text-lg">
+              <span className="text-base font-bold tracking-wide text-navy-900 sm:text-lg font-heading">
                 GovRisk
               </span>
               <span className="hidden text-xs text-gray-400 sm:inline">|</span>
               <span className="text-sm font-medium text-gray-600">
-                Government of India · Infrastructure Risk Intelligence
+                {t('login.governmentLine')}
               </span>
             </div>
             <p className="text-xs text-gray-500">
-              Ministry of Electronics &amp; Information Technology · Digital Services
+              {t('login.ministryLine')}
             </p>
           </div>
-          <div className="hidden items-center gap-1.5 rounded-md border border-gray-200 px-2.5 py-1 text-xs font-medium text-navy-700 md:flex">
-            <Lock size={13} aria-hidden="true" />
-            Live
+<div className="flex items-center gap-2">
+            <LanguageSwitcher variant="light" />
+            <div className="hidden h-9 items-center gap-1.5 rounded-lg border border-gray-200 px-3 text-xs font-medium text-navy-700 md:flex">
+              <Lock size={13} aria-hidden="true" />
+              {t('login.live')}
+            </div>
           </div>
         </div>
       </header>
@@ -93,17 +99,17 @@ export default function Login() {
       <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-10 sm:py-14">
         <div className="w-full max-w-md">
           <div className="mb-7 text-center">
-            <h1 className="text-2xl font-semibold text-navy-900">Government Portal</h1>
+            <h1 className="text-2xl font-semibold text-navy-900">{t('login.title')}</h1>
             <p className="mt-1.5 text-sm text-white drop-shadow-sm">
-              Secure access to the Government Digital Services Portal
+              {t('login.subtitle')}
             </p>
           </div>
 
           {/* Login card */}
           <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
-            <h2 className="text-lg font-semibold text-navy-900">Sign In</h2>
+            <h2 className="text-lg font-semibold text-navy-900">{t('login.signIn')}</h2>
             <p className="mt-1 text-sm text-gray-500">
-              Enter your credentials to access your account.
+              {t('login.credentialsLine')}
             </p>
 
             {error && (
@@ -118,14 +124,14 @@ export default function Login() {
 
             {showHelp && (
               <div className="mt-4 rounded-md border border-blue-200 bg-blue-50 p-3 text-sm text-navy-800">
-                Please contact your departmental administrator to reset your password.
+                {t('login.helpReset')}
               </div>
             )}
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-5">
               <div>
                 <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-navy-900">
-                  Email / Government ID
+                  {t('login.emailLabel')}
                 </label>
                 <input
                   id="email"
@@ -141,7 +147,7 @@ export default function Login() {
 
               <div>
                 <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-navy-900">
-                  Password
+                  {t('login.passwordLabel')}
                 </label>
                 <div className="relative">
                   <input
@@ -151,7 +157,7 @@ export default function Login() {
                     autoComplete="current-password"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
-                    placeholder="Enter your password"
+                    placeholder={t('login.passwordPlaceholder')}
                     className="h-11 w-full rounded-md border border-gray-300 bg-white px-3.5 pr-11 text-sm text-navy-900 outline-none transition-colors placeholder:text-gray-400 focus:border-navy-700 focus:ring-2 focus:ring-navy-700/20"
                   />
                   <button
@@ -173,14 +179,14 @@ export default function Login() {
                     onChange={(e) => setRemember(e.target.checked)}
                     className="h-4 w-4 rounded border-gray-300 accent-navy-800 focus:ring-navy-700/30"
                   />
-                  Remember me
+                  {t('login.rememberMe')}
                 </label>
                 <button
                   type="button"
                   onClick={() => setShowHelp((s) => !s)}
                   className="text-sm font-medium text-navy-800 underline-offset-2 hover:underline focus:outline-none focus-visible:underline"
                 >
-                  Forgot password?
+                  {t('login.forgotPassword')}
                 </button>
               </div>
 
@@ -189,22 +195,22 @@ export default function Login() {
                 disabled={loading}
                 className="h-11 w-full rounded-md bg-navy-800 text-sm font-semibold tracking-wide text-white transition-colors hover:bg-navy-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-navy-700/40 focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? 'Signing in…' : 'Sign In'}
+                {loading ? t('login.signingIn') : t('login.signIn')}
               </button>
             </form>
 
             <div className="mt-6 flex items-start gap-2 text-xs text-gray-500">
               <ShieldCheck size={15} className="mt-0.5 shrink-0 text-navy-700" aria-hidden="true" />
-              <p>Your information is protected using secure authentication.</p>
+              <p>{t('login.protected')}</p>
             </div>
 
             <div className="mt-6 border-t border-gray-100 pt-4 text-center text-sm text-gray-500">
-              Don't have an account?{' '}
+              {t('login.noAccount')}{' '}
               <Link
                 to="/register"
                 className="font-medium text-navy-800 underline-offset-2 hover:underline"
               >
-                Request access
+                {t('login.requestAccess')}
               </Link>
             </div>
           </div>
@@ -212,7 +218,7 @@ export default function Login() {
           {/* Demo credentials */}
           <div className="mt-6 rounded-lg border border-gray-200 bg-white p-4 shadow-sm">
             <p className="text-xs font-semibold uppercase tracking-wider text-gray-500">
-              Demo credentials
+              {t('login.demoCredentials')}
             </p>
             <div className="mt-2 grid grid-cols-1 gap-x-4 gap-y-1 font-mono text-xs text-gray-600 sm:grid-cols-2">
               <span>admin@govrisk.gov.in / admin123</span>
