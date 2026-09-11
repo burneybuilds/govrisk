@@ -63,7 +63,7 @@ export default function LandmarkSlider({ variant = 'card' }: LandmarkSliderProps
     return (
       <div aria-hidden="true" className="pointer-events-none fixed inset-0 z-0">
         <div
-          className="flex h-full w-full transition-transform duration-1000 ease-in-out"
+          className="flex h-full w-full blur-xs transition-transform duration-1000 ease-in-out"
           style={{ transform: `translateX(-${index * 100}%)` }}
         >
           {slides.map((slide) => (

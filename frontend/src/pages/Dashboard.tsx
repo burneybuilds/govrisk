@@ -60,11 +60,11 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="min-w-0">
-        <div className="mb-6">
+        <div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
           <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
             Infrastructure Risk Overview
           </h1>
-          <p className="mt-1 text-sm text-gray-500 lg:text-base">
+          <p className="mt-1 text-sm text-gray-600 lg:text-base">
             Predictive intelligence for India's infrastructure project portfolio
           </p>
         </div>
@@ -76,11 +76,11 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="min-w-0">
-        <div className="mb-6">
+        <div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
           <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
             Infrastructure Risk Overview
           </h1>
-          <p className="mt-1 text-sm text-gray-500 lg:text-base">
+          <p className="mt-1 text-sm text-gray-600 lg:text-base">
             Predictive intelligence for India's infrastructure project portfolio
           </p>
         </div>
@@ -121,11 +121,11 @@ export default function Dashboard() {
 
   return (
     <div className="min-w-0">
-      <div className="mb-6">
+<div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
         <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
           Infrastructure Risk Overview
         </h1>
-        <p className="mt-1 text-sm text-gray-500 lg:text-base">
+        <p className="mt-1 text-sm text-gray-600 lg:text-base">
           Predictive intelligence for India's infrastructure project portfolio
         </p>
       </div>
@@ -272,16 +272,16 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-xl border border-dashed border-navy-200 bg-navy-50/50 px-5 py-4">
+      <div className="mt-8 flex flex-wrap items-center justify-between gap-4 rounded-2xl bg-white px-6 py-3 shadow-md">
         <div className="min-w-0">
           <p className="text-sm font-semibold text-navy-900">Dive deeper into portfolio analytics</p>
-          <p className="mt-0.5 text-xs text-gray-500 lg:text-sm">
+          <p className="mt-0.5 text-xs text-gray-600 lg:text-sm">
             Sector comparisons, cost overrun drivers, delay analysis, and ministry-wise risk rankings.
           </p>
         </div>
         <button
           onClick={() => navigate('/analytics')}
-          className="inline-flex shrink-0 items-center gap-1.5 rounded-lg bg-navy-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-navy-800"
+          className="inline-flex shrink-0 items-center gap-1.5 rounded-xl bg-navy-900 px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-navy-800"
         >
           Open Analytics
           <ArrowRight size={14} />

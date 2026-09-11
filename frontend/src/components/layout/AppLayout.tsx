@@ -1,12 +1,9 @@
-import { useState } from "react";
 import { Outlet } from "react-router-dom";
 import Sidebar from "./Sidebar";
 import Topbar from "./Topbar";
 import LandmarkSlider from "../hero/LandmarkSlider";
 
 export default function AppLayout() {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-
   return (
     <div className="relative flex min-h-screen flex-col bg-[#f5f6f9]">
       {/* Sliding landmark photo background */}
@@ -29,20 +26,16 @@ export default function AppLayout() {
         <div className="flex-1 bg-navy-800" />
       </div>
 
-      <div className="relative z-10 flex min-h-0 flex-1">
-        <Sidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} />
-
-        <div className="flex min-w-0 flex-1 flex-col">
-          <Topbar
-            onToggleSidebar={() => setSidebarOpen((open) => !open)}
-          />
-          <main className="min-w-0 flex-1 px-5 pb-10 pt-6 sm:px-7 lg:px-8">
-            <div className="mx-auto w-full max-w-[1600px]">
-              <Outlet />
-            </div>
-          </main>
-        </div>
+      <div className="relative z-10 flex min-h-0 flex-1 flex-col">
+        <Topbar />
+        <main className="min-w-0 flex-1 px-5 pb-36 pt-6 sm:px-7 lg:px-8">
+          <div className="mx-auto w-full max-w-[1600px]">
+            <Outlet />
+          </div>
+        </main>
       </div>
+
+      <Sidebar />
     </div>
   );
 }

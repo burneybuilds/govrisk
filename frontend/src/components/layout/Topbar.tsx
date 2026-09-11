@@ -1,10 +1,6 @@
 import { useNavigate } from "react-router-dom";
-import { Search, Bell, Menu, LogOut } from "lucide-react";
+import { Search, Bell, LogOut } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-
-interface TopbarProps {
-  onToggleSidebar: () => void;
-}
 
 function getInitials(name: string): string {
   return name
@@ -16,7 +12,7 @@ function getInitials(name: string): string {
     .toUpperCase();
 }
 
-export default function Topbar({ onToggleSidebar }: TopbarProps) {
+export default function Topbar() {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const today = new Date();
@@ -53,16 +49,6 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
           <p className="text-[11px] text-gray-500">Government of India</p>
         </div>
       </div>
-
-      {/* Mobile hamburger */}
-      <button
-        type="button"
-        onClick={onToggleSidebar}
-        className="mr-auto shrink-0 rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:hidden"
-        aria-label="Toggle navigation"
-      >
-        <Menu size={20} />
-      </button>
 
       {/* Center: Search bar (nudged right) */}
       <div className="flex min-w-0 flex-1 items-center justify-center">

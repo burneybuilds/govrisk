@@ -1,4 +1,3 @@
-import { useState } from "react";
 import { NavLink, useNavigate } from "react-router-dom";
 import {
   BarChart3,
@@ -11,13 +10,8 @@ import {
   Settings,
   ShieldCheck,
   LogOut,
-  X,
-  PanelLeftClose,
-  PanelLeftOpen,
 } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
-
-const STORAGE_KEY = "govrisk-sidebar-collapsed";
 
 const navItems = [
   { to: "/", icon: BarChart3, label: "Dashboard" },
@@ -29,80 +23,72 @@ const navItems = [
   { to: "/reports", icon: FileText, label: "Reports" },
 ];
 
-interface SidebarProps {
-  isOpen: boolean;
-  onClose: () => void;
-}
-
-function CollapsedTooltip({ label }: { label: string }) {
+function AshokaChakra({ size = 11 }: { size?: number }) {
+  const spokes = Array.from({ length: 24 }, (_, i) => i * 15);
   return (
-    <span className="pointer-events-none absolute left-full top-1/2 z-50 ml-3 hidden -translate-y-1/2 whitespace-nowrap rounded-md bg-navy-700 px-2.5 py-1.5 text-xs font-medium text-white opacity-0 shadow-lg ring-1 ring-navy-600 transition-opacity duration-150 lg:block group-hover:opacity-100">
-      {label}
-    </span>
+    <svg width={size} height={size} viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="11.5" fill="#1a237e" />
+      <g stroke="#fff" strokeWidth="0.7">
+        {spokes.map((angle) => (
+          <line
+            key={angle}
+            x1="12"
+            y1="12"
+            x2="12"
+            y2="1.6"
+            transform={`rotate(${angle} 12 12)`}
+          />
+        ))}
+      </g>
+      <circle cx="12" cy="12" r="1.2" fill="#fff" />
+    </svg>
   );
 }
 
-function getInitials(name: string): string {
-  return name
-    .split(" ")
-    .filter(Boolean)
-    .map((n) => n[0])
-    .slice(0, 2)
-    .join("")
-    .toUpperCase();
+function BottomNavItem({
+  to,
+  icon: Icon,
+  label,
+}: {
+  to: string;
+  icon: typeof BarChart3;
+  label: string;
+}) {
+  return (
+    <NavLink
+      to={to}
+      end={to === "/"}
+      className={({ isActive }) =>
+        `group relative flex min-w-[76px] flex-1 flex-col items-center gap-1.5 px-3 py-4 text-[11px] font-medium transition-colors duration-200 ${
+          isActive
+            ? "text-navy-900"
+            : "text-gray-500 hover:text-navy-900"
+        }`
+      }
+    >
+      {({ isActive }) => (
+        <>
+          <Icon
+            size={20}
+            className={`shrink-0 transition-colors ${
+              isActive ? "text-blue-600" : "text-gray-400 group-hover:text-blue-600"
+            }`}
+          />
+          <span className="whitespace-nowrap">{label}</span>
+          {isActive && (
+            <span className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-[#C9A227]" />
+          )}
+        </>
+      )}
+    </NavLink>
+  );
 }
 
-export default function Sidebar({ isOpen, onClose }: SidebarProps) {
-  const [collapsed, setCollapsed] = useState<boolean>(() => {
-    if (typeof window === "undefined") return false;
-    return window.localStorage.getItem(STORAGE_KEY) === "true";
-  });
+export default function BottomBar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
   const displayName = user?.fullName || "GovRisk User";
-  const displayRole = user?.designation || user?.role ? (
-    user.designation && user.role ? `${user.designation} · ${user.role[0].toUpperCase()}${user.role.slice(1)}` : (user.designation || user.role)
-  ) : "Platform User";
-  const initials = getInitials(displayName);
-
-  const toggleCollapsed = () => {
-    setCollapsed((prev) => {
-      const next = !prev;
-      window.localStorage.setItem(STORAGE_KEY, String(next));
-      return next;
-    });
-  };
-
-  const linkClass = ({ isActive }: { isActive: boolean }) =>
-    `group relative flex h-11 w-full items-center rounded-lg px-3 text-sm font-medium transition-all duration-200 ${
-      collapsed ? "lg:h-12 lg:justify-center lg:gap-0" : "lg:gap-3"
-    } ${
-      isActive
-        ? "bg-navy-800 text-white"
-        : "text-navy-300 hover:bg-navy-800/60 hover:text-white"
-    }`;
-
-  const labelClass = `whitespace-nowrap transition-all duration-200 ${
-    collapsed ? "lg:max-w-0 lg:overflow-hidden lg:opacity-0" : ""
-  }`;
-
-  const iconClass = (isActive: boolean) =>
-    `shrink-0 transition-colors ${
-      isActive ? "text-blue-400" : "text-navy-400 group-hover:text-blue-400"
-    }`;
-
-  const sectionHeader = (label: string) => (
-    <div className={collapsed ? "lg:hidden" : ""}>
-      <p className="px-3 pb-2.5 pt-1 text-[11px] font-medium uppercase tracking-widest text-navy-500">
-        {label}
-      </p>
-    </div>
-  );
-
-  const sectionDivider = (
-    <div className={`mx-3 my-5 hidden h-px bg-navy-800 ${collapsed ? "lg:block" : ""}`} />
-  );
 
   const handleLogout = () => {
     logout();
@@ -110,140 +96,64 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   };
 
   return (
-    <>
-      {isOpen && (
-        <div
-          className="fixed inset-0 z-40 bg-navy-950/50 backdrop-blur-sm lg:hidden"
-          onClick={onClose}
-          aria-hidden="true"
-        />
-      )}
-
-      <aside
-        className={`fixed inset-y-0 left-0 z-50 flex w-[280px] flex-col bg-navy-900 text-white shadow-2xl transition-all duration-200 ease-in-out lg:sticky lg:top-0 lg:h-screen lg:translate-x-0 lg:shadow-none ${
-          collapsed ? "lg:w-[78px]" : "lg:w-[248px]"
-        } ${isOpen ? "translate-x-0" : "-translate-x-full"}`}
-      >
+    <aside className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-300 bg-[#e9eaef] shadow-[0_-4px_20px_rgba(15,23,42,0.08)]">
+      <div className="flex items-stretch overflow-x-auto">
         <button
           type="button"
-          onClick={toggleCollapsed}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          title={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="absolute -right-3 top-5 z-20 hidden h-6 w-6 items-center justify-center rounded-full border border-navy-700 bg-navy-800 text-navy-200 shadow-md transition-colors hover:border-blue-500 hover:bg-blue-600 hover:text-white lg:flex"
+          onClick={handleLogout}
+          className="group hidden min-w-0 shrink-0 items-center gap-2.5 px-4 py-4 md:flex"
+          title="Log out"
+          aria-label="Log out"
         >
-          {collapsed ? <PanelLeftOpen size={14} /> : <PanelLeftClose size={14} />}
+          <span
+            className="relative h-12 w-12 shrink-0 rounded-full"
+            title={user?.role === "admin" ? "Administrator" : undefined}
+          >
+            {user?.role === "admin" ? (
+              <>
+                <span className="block h-12 w-12 rounded-full bg-[conic-gradient(from_0deg,#FF9933_0deg_30deg,#FFFFFF_30deg_150deg,#138808_150deg_270deg,#FF9933_270deg_360deg)] shadow-sm [mask-image:radial-gradient(circle,transparent_0_13px,#000_13.5px)]" />
+                <img
+                  src="/emblem_of_india.svg"
+                  alt=""
+                  className="absolute left-1/2 top-1/2 h-[20px] w-[20px] -translate-x-1/2 -translate-y-1/2"
+                />
+                <span className="absolute right-[1px] top-1/2 -translate-y-1/2">
+                  <AshokaChakra size={10} />
+                </span>
+              </>
+            ) : (
+              <span className="block h-12 w-12 rounded-full bg-gray-300" />
+            )}
+          </span>
+          <span className="min-w-0 max-w-[110px]">
+            <span className="block truncate text-xs font-semibold text-navy-900">{displayName}</span>
+            <span className="block truncate text-[10px] text-gray-500">Log out</span>
+          </span>
         </button>
 
-        <div className="flex items-center px-5 pb-4 pt-5">
-          <div
-            className={`flex min-w-0 flex-1 items-center gap-3 overflow-hidden transition-all duration-200 ${
-              collapsed ? "lg:w-0 lg:flex-none lg:opacity-0" : ""
-            }`}
-          >
-            <img
-              src="/emblem_of_india.svg"
-              alt="Indian National Emblem"
-              className="h-11 w-auto shrink-0"
-            />
-            <div className="min-w-0">
-              <h1 className="text-lg font-bold uppercase leading-none tracking-wide text-white">
-                GovRisk
-              </h1>
-              <p className="mt-1.5 text-[11px] leading-snug text-navy-300">
-                Government of India · Infrastructure Risk Intelligence
-              </p>
-            </div>
-          </div>
+        <div className="mx-1 my-2 hidden h-auto w-px shrink-0 bg-gray-300 md:block" />
 
-          <img
-            src="/emblem_of_india.svg"
-            alt=""
-            className={`h-10 w-auto shrink-0 ${
-              collapsed ? "lg:flex" : "hidden"
-            }`}
-          />
-
-          <button
-            type="button"
-            onClick={onClose}
-            className="ml-3 rounded-lg p-1.5 text-navy-300 hover:bg-navy-800 hover:text-white lg:hidden"
-            aria-label="Close navigation"
-          >
-            <X size={18} />
-          </button>
-        </div>
-
-        <div className="mx-6 mb-4 border-t border-navy-800" />
-
-        <nav className="flex-1 space-y-2.5 overflow-y-auto px-3">
-          {!collapsed && sectionHeader("Platform")}
-          {navItems.map(({ to, icon: Icon, label }) => (
-            <NavLink key={to} to={to} end={to === "/"} className={linkClass} onClick={onClose}>
-              {({ isActive }) => (
-                <>
-                  <Icon size={20} className={iconClass(isActive)} />
-                  <span className={labelClass}>{label}</span>
-                  {collapsed && <CollapsedTooltip label={label} />}
-                </>
-              )}
-            </NavLink>
+        <nav className="flex min-w-0 flex-1 items-stretch">
+          {navItems.map((item) => (
+            <BottomNavItem key={item.to} {...item} />
           ))}
-
-          <div className={collapsed ? "hidden" : "pt-3.5 pb-3"}>
-            <div className="mx-3 border-t border-navy-800" />
-          </div>
-
-          {collapsed ? sectionDivider : sectionHeader("System")}
           {user?.role === "admin" && (
-            <NavLink to="/admin" className={linkClass} onClick={onClose}>
-              {({ isActive }) => (
-                <>
-                  <ShieldCheck size={20} className={iconClass(isActive)} />
-                  <span className={labelClass}>Admin Panel</span>
-                  {collapsed && <CollapsedTooltip label="Admin Panel" />}
-                </>
-              )}
-            </NavLink>
+            <BottomNavItem to="/admin" icon={ShieldCheck} label="Admin" />
           )}
-          <NavLink to="/settings" className={linkClass} onClick={onClose}>
-            {({ isActive }) => (
-              <>
-                <Settings size={20} className={iconClass(isActive)} />
-                <span className={labelClass}>Settings</span>
-                {collapsed && <CollapsedTooltip label="Settings" />}
-              </>
-            )}
-          </NavLink>
+          <BottomNavItem to="/settings" icon={Settings} label="Settings" />
         </nav>
 
-        <div className="border-t border-navy-800/60 px-4 pb-[18px] pt-4">
-          <div
-            className={`group relative flex items-center transition-all duration-200 ${
-              collapsed ? "lg:justify-center lg:gap-0" : "lg:gap-3"
-            }`}
-          >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-navy-600 text-sm font-semibold text-white ring-1 ring-navy-500">
-              {initials}
-            </div>
-            <div className={`min-w-0 ${collapsed ? "lg:hidden" : ""}`}>
-              <p className="truncate text-[15px] font-semibold text-white">{displayName}</p>
-              <p className="truncate text-[13px] text-navy-300">{displayRole}</p>
-            </div>
-            {!collapsed && (
-              <button
-                type="button"
-                onClick={handleLogout}
-                title="Log out"
-                aria-label="Log out"
-                className="ml-auto shrink-0 rounded-lg p-2 text-navy-300 transition-colors hover:bg-navy-800 hover:text-red-400"
-              >
-                <LogOut size={16} />
-              </button>
-            )}
-            {collapsed && <CollapsedTooltip label={displayName} />}
-          </div>
-        </div>
-      </aside>
-    </>
+        <button
+          type="button"
+          onClick={handleLogout}
+          className="group flex shrink-0 items-center gap-1 px-3 py-4 text-[11px] font-medium text-gray-500 transition-colors hover:text-navy-900 md:hidden"
+          title="Log out"
+          aria-label="Log out"
+        >
+          <LogOut size={20} className="text-gray-400 transition-colors group-hover:text-blue-600" />
+          <span className="hidden sm:block">Log out</span>
+        </button>
+      </div>
+    </aside>
   );
 }
