@@ -4,6 +4,61 @@ export type Sector = 'Transport' | 'Energy' | 'Water' | 'Communication' | 'Minin
 
 export type AlertSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'RESOLVED';
 
+export interface RiskInputs {
+  weather?: Record<string, any>;
+  ground?: Record<string, any>;
+  calamity?: Record<string, any>;
+  material?: Record<string, any>;
+  workforce?: Record<string, any>;
+  contractor?: Record<string, any>;
+  engineering?: Record<string, any>;
+  clearance?: Record<string, any>;
+  administrative?: Record<string, any>;
+  supplyChain?: Record<string, any>;
+  legalSocial?: Record<string, any>;
+}
+
+export interface RiskFactor {
+  key: string;
+  name: string;
+  score: number;
+  weight: number;
+  contribution: number;
+  probability: number;
+  impact: number;
+  severity: string;
+  reason: string;
+  dataAvailable: boolean;
+}
+
+export interface RiskInteraction {
+  key: string;
+  name: string;
+  penalty: number;
+  reason: string;
+}
+
+export interface RiskAssessment {
+  projectId: string;
+  riskScore: number;
+  riskLevel: RiskLevel;
+  confidence: number;
+  dataCompleteness: number;
+  criticalBlocker: boolean;
+  criticalBlockerReasons: string[];
+  factors: RiskFactor[];
+  interactions: RiskInteraction[];
+  topRisks: string[];
+  recommendations: string[];
+  explanations: string[];
+  missingData: string[];
+  riskTrend?: { available: boolean; note?: string };
+  costOverrunProbability: number;
+  delayProbability: number;
+  implementationRisk: number;
+  calculatedAt?: string;
+}
+
 export interface Project {
   id: string;
   name: string;
@@ -35,6 +90,10 @@ export interface Project {
   lng: number;
   riskFactors: string[];
   recommendations: string[];
+  riskConfidence?: number;
+  criticalBlocker?: boolean;
+  riskInputs?: RiskInputs;
+  riskReport?: RiskAssessment;
   createdAt?: string;
   updatedAt?: string;
 }

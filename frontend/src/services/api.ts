@@ -231,6 +231,10 @@ export async function getProject(id: string) {
   return apiFetch<any>(`/api/projects/${id}`);
 }
 
+export async function getProjectRisk(id: string) {
+  return apiFetch<any>(`/api/projects/${id}/risk`);
+}
+
 export interface ProjectCreateData {
   name: string;
   ministry: string;
@@ -251,6 +255,7 @@ export interface ProjectCreateData {
   contactInfo?: string;
   lat?: number | null;
   lng?: number | null;
+  riskInputs?: Record<string, any>;
 }
 
 export function createProject(data: ProjectCreateData) {

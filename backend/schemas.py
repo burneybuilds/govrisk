@@ -52,11 +52,56 @@ class ProjectResponse(BaseModel):
     lng: float
     riskFactors: list[str]
     recommendations: list[str]
+    riskConfidence: Optional[float] = None
+    criticalBlocker: Optional[bool] = False
+    riskInputs: Optional[dict] = None
+    riskReport: Optional[dict] = None
     createdAt: Optional[str] = None
     updatedAt: Optional[str] = None
 
     class Config:
         from_attributes = True
+
+
+class RiskFactorResponse(BaseModel):
+    key: str
+    name: str
+    score: int
+    weight: int
+    contribution: float
+    probability: float
+    impact: float
+    severity: str
+    reason: str
+    dataAvailable: bool
+
+
+class RiskInteractionResponse(BaseModel):
+    key: str
+    name: str
+    penalty: int
+    reason: str
+
+
+class RiskAssessmentResponse(BaseModel):
+    projectId: str
+    riskScore: int
+    riskLevel: str
+    confidence: int
+    dataCompleteness: int
+    criticalBlocker: bool
+    criticalBlockerReasons: list[str]
+    factors: list[RiskFactorResponse]
+    interactions: list[RiskInteractionResponse]
+    topRisks: list[str]
+    recommendations: list[str]
+    explanations: list[str]
+    missingData: list[str]
+    riskTrend: Optional[dict] = None
+    costOverrunProbability: int
+    delayProbability: int
+    implementationRisk: int
+    calculatedAt: Optional[str] = None
 
 
 class ProjectCreate(BaseModel):
@@ -84,6 +129,7 @@ class ProjectCreate(BaseModel):
 
     lat: Optional[float] = Field(default=None, ge=-90, le=90)
     lng: Optional[float] = Field(default=None, ge=-180, le=180)
+    riskInputs: Optional[dict] = None
 
     @model_validator(mode="after")
     def check_dates(self):
@@ -123,6 +169,7 @@ class ProjectUpdate(BaseModel):
 
     lat: Optional[float] = Field(default=None, ge=-90, le=90)
     lng: Optional[float] = Field(default=None, ge=-180, le=180)
+    riskInputs: Optional[dict] = None
 
 
 class ProjectUpdateCreate(BaseModel):

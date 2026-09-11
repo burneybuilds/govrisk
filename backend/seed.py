@@ -17,6 +17,7 @@ import sys
 from database import engine, SessionLocal, Base
 from models import Project, Alert
 from seed_data import SEED_PROJECTS, SEED_ALERTS
+from services.risk_service import apply_assessment
 
 
 def seed():
@@ -63,6 +64,11 @@ def seed():
                 lng=project_data["lng"],
                 risk_factors=json.dumps(project_data["risk_factors"]),
                 recommendations=json.dumps(project_data["recommendations"]),
+                risk_inputs=json.dumps(project_data.get("risk_inputs") or {}),
+            )
+            apply_assessment(
+                project,
+                predicted=project_data.get("predicted_completion") or None,
             )
             db.add(project)
         print(f"Inserted {len(SEED_PROJECTS)} projects")

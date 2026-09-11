@@ -3,6 +3,8 @@ import { useNavigate } from 'react-router-dom';
 import { X, Check, AlertTriangle, Building2, Database, TrendingUp, Calendar, ShieldAlert, MapPin, Info, Loader2 } from 'lucide-react';
 import { createProject, updateProject, ProjectCreateData } from '../../services/api';
 import { RiskBadge } from '../ui/RiskBadge';
+import { RiskInputs } from '../../types';
+import RiskInputsFields from '../project/RiskInputsFields';
 
 const SECTORS = ['Transport', 'Energy', 'Water', 'Communication', 'Social Infrastructure', 'Mining'];
 
@@ -26,6 +28,7 @@ const EMPTY_FORM = {
   contactInfo: '',
   lat: '',
   lng: '',
+  riskInputs: {} as RiskInputs,
 };
 
 type FormState = typeof EMPTY_FORM;
@@ -217,6 +220,7 @@ export default function AddProjectModal({
         contactInfo: p.contactInfo || '',
         lat: p.lat != null ? String(p.lat) : '',
         lng: p.lng != null ? String(p.lng) : '',
+        riskInputs: p.riskInputs || {},
       });
       setErrors({});
       setSubmitError('');
@@ -326,6 +330,7 @@ export default function AddProjectModal({
       contactInfo: strOrUndef(form.contactInfo),
       lat: numOrDefault(form.lat),
       lng: numOrDefault(form.lng),
+      riskInputs: form.riskInputs,
     };
   }
 
@@ -603,7 +608,11 @@ export default function AddProjectModal({
               )}
             </Section>
 
-            <Section number={6} icon={<MapPin className="h-4 w-4 text-blue-600" />} title="Location (for Risk Map)">
+            <Section number={6} icon={<ShieldAlert className="h-4 w-4 text-blue-600" />} title="On-Ground Risk Inputs (optional)">
+              <RiskInputsFields value={form.riskInputs} onChange={(v) => set('riskInputs', v)} />
+            </Section>
+
+            <Section number={7} icon={<MapPin className="h-4 w-4 text-blue-600" />} title="Location (for Risk Map)">
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="Latitude" error={errors.lat} hint="Between -90 and 90">
                   <input
@@ -626,7 +635,7 @@ export default function AddProjectModal({
               </div>
             </Section>
 
-            <Section number={7} icon={<Info className="h-4 w-4 text-blue-600" />} title="Additional Information">
+            <Section number={8} icon={<Info className="h-4 w-4 text-blue-600" />} title="Additional Information">
               <div className="grid grid-cols-1 gap-4">
                 <Field label="Project Description">
                   <textarea
