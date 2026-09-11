@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle, Lock, ShieldCheck } from 'lucide-react';
 import { login } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import LandmarkSlider from '../components/hero/LandmarkSlider';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -39,6 +40,9 @@ export default function Login() {
 
   return (
     <div className="flex min-h-screen flex-col bg-[#f5f6f9]">
+      {/* Sliding landmark photo background */}
+      <LandmarkSlider variant="background" />
+
       {/* Faint geometric background pattern */}
       <div
         aria-hidden="true"
@@ -51,13 +55,13 @@ export default function Login() {
       />
 
       {/* Top accent line */}
-      <div className="flex h-1 w-full shrink-0">
+      <div className="relative z-10 flex h-1 w-full shrink-0">
         <div className="w-24 bg-[#C9A227]" />
         <div className="flex-1 bg-navy-800" />
       </div>
 
       {/* Government header */}
-      <header className="shrink-0 border-b border-gray-200 bg-white">
+      <header className="relative z-10 shrink-0 border-b border-gray-200 bg-white">
         <div className="mx-auto flex max-w-5xl flex-wrap items-center gap-x-4 gap-y-1 px-4 py-4 sm:px-6">
           <img
             src="/emblem_of_india.svg"
@@ -86,11 +90,11 @@ export default function Login() {
       </header>
 
       {/* Main */}
-      <main className="flex flex-1 items-center justify-center px-4 py-10 sm:py-14">
+      <main className="relative z-10 flex flex-1 items-center justify-center px-4 py-10 sm:py-14">
         <div className="w-full max-w-md">
           <div className="mb-7 text-center">
             <h1 className="text-2xl font-semibold text-navy-900">Government Portal</h1>
-            <p className="mt-1.5 text-sm text-gray-500">
+            <p className="mt-1.5 text-sm text-white drop-shadow-sm">
               Secure access to the Government Digital Services Portal
             </p>
           </div>
@@ -221,7 +225,7 @@ export default function Login() {
       </main>
 
       {/* Footer */}
-      <footer className="shrink-0 border-t border-gray-200 bg-white">
+      <footer className="relative z-10 shrink-0 border-t border-gray-200 bg-white">
         <div className="mx-auto flex max-w-5xl flex-col items-center justify-between gap-2 px-4 py-4 text-xs text-gray-500 sm:flex-row sm:px-6">
           <nav className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1">
             <a href="#help" className="hover:text-navy-800 hover:underline">

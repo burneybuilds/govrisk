@@ -140,26 +140,28 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
               collapsed ? "lg:w-0 lg:flex-none lg:opacity-0" : ""
             }`}
           >
-            <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white">
-              GR
-            </div>
+            <img
+              src="/emblem_of_india.svg"
+              alt="Indian National Emblem"
+              className="h-11 w-auto shrink-0"
+            />
             <div className="min-w-0">
               <h1 className="text-lg font-bold uppercase leading-none tracking-wide text-white">
                 GovRisk
               </h1>
               <p className="mt-1.5 text-[11px] leading-snug text-navy-300">
-                AI Infrastructure Intelligence
+                Government of India · Infrastructure Risk Intelligence
               </p>
             </div>
           </div>
 
-          <div
-            className={`mx-auto hidden h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-blue-600 text-sm font-bold text-white ${
-              collapsed ? "lg:flex" : ""
+          <img
+            src="/emblem_of_india.svg"
+            alt=""
+            className={`h-10 w-auto shrink-0 ${
+              collapsed ? "lg:flex" : "hidden"
             }`}
-          >
-            GR
-          </div>
+          />
 
           <button
             type="button"
