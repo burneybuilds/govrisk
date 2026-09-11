@@ -84,14 +84,6 @@ function formatUpdateTime(iso?: string) {
   });
 }
 
-const riskDriverData = [
-  { name: 'Physical Progress Gap', value: 87 },
-  { name: 'Milestone Delays', value: 81 },
-  { name: 'Cost Escalation', value: 73 },
-  { name: 'Expenditure Variance', value: 64 },
-  { name: 'Historical Sector Risk', value: 58 },
-];
-
 function getBarColor(name: string) {
   switch (name) {
     case 'Original Cost':
@@ -232,6 +224,11 @@ export default function ProjectDetails() {
     { name: 'Predicted Final Cost', value: predictedCost },
   ];
 
+  const riskDrivers = (project.riskReport?.factors || [])
+    .slice()
+    .sort((a: any, b: any) => b.contribution - a.contribution)
+    .map((f: any) => ({ name: f.name, value: Math.round(f.contribution) }));
+
   const sectionLabel = 'text-xs font-semibold uppercase tracking-widest text-blue-600';
 
   return (
@@ -333,7 +330,7 @@ export default function ProjectDetails() {
       </div>
 
       <div className="mb-8">
-        <p className={`${sectionLabel} mb-3`}>AI Risk Assessment</p>
+        <p className={`${sectionLabel} mb-3`}>Risk Assessment</p>
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
           <div className="rounded-xl border border-gray-200 bg-white p-6">
             <div className="flex items-center justify-between">
@@ -346,20 +343,40 @@ export default function ProjectDetails() {
             <p className="text-center text-sm text-gray-400">
               Score <span className="text-xl font-bold text-navy-900">{project.riskScore}</span> / 100
             </p>
-            <p className={`mb-6 mt-1 text-center text-xl font-bold tracking-wide ${getRiskColor(project.riskLevel)}`}>
+            <p className={`mb-3 mt-1 text-center text-xl font-bold tracking-wide ${getRiskColor(project.riskLevel)}`}>
               {project.riskLevel} RISK
             </p>
+            <p className="mb-5 text-center text-xs text-gray-400">
+              {project.riskConfidence !== undefined && project.riskConfidence !== null
+                ? `Model confidence: ${project.riskConfidence}% data completeness`
+                : 'Data-driven, rule-based assessment'}
+            </p>
+
+            {project.criticalBlocker && (
+              <div className="mb-5 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3">
+                <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0 text-red-600" />
+                <div>
+                  <p className="text-xs font-semibold text-red-700">Critical blocker detected</p>
+                  <ul className="mt-1 space-y-0.5 text-xs text-red-600">
+                    {(project.riskReport?.criticalBlockerReasons || ['Unresolved critical issue']).map((r: string, i: number) => (
+                      <li key={i}>• {r}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
             <div className="space-y-4 border-t border-gray-100 pt-4">
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Cost Risk</span>
+                  <span className="text-sm text-gray-600">Cost Overrun Probability</span>
                   <span className="text-sm font-semibold text-gray-800">{project.costOverrunProbability}%</span>
                 </div>
                 <ProgressBar value={project.costOverrunProbability} color={getProgressColor(project.costOverrunProbability)} size="sm" />
               </div>
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Schedule Risk</span>
+                  <span className="text-sm text-gray-600">Schedule Delay Probability</span>
                   <span className="text-sm font-semibold text-gray-800">{project.delayProbability}%</span>
                 </div>
                 <ProgressBar value={project.delayProbability} color={project.delayProbability > 80 ? 'red' : getProgressColor(project.delayProbability)} size="sm" />
@@ -376,18 +393,46 @@ export default function ProjectDetails() {
 
           <div className="space-y-6 lg:col-span-2">
             <div className="rounded-xl border border-gray-200 bg-white p-6">
-              <p className="text-xs font-semibold uppercase tracking-widest text-orange-600">AI Risk Analysis</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-orange-600">Risk Analysis</p>
               <h3 className="mb-4 mt-1 text-base font-semibold text-navy-900 lg:text-lg">
                 Why is this project at risk?
               </h3>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {project.riskFactors.map((factor: string, index: number) => (
-                  <div key={index} className="flex items-start gap-3 rounded-lg bg-orange-50/60 p-3">
-                    <AlertTriangle size={16} className="mt-0.5 shrink-0 text-orange-500" />
-                    <span className="text-sm leading-relaxed text-gray-700">{factor}</span>
-                  </div>
-                ))}
+                {(project.riskReport?.explanations?.length ? project.riskReport.explanations : project.riskFactors).map(
+                  (factor: string, index: number) => (
+                    <div key={index} className="flex items-start gap-3 rounded-lg bg-orange-50/60 p-3">
+                      <AlertTriangle size={16} className="mt-0.5 shrink-0 text-orange-500" />
+                      <span className="text-sm leading-relaxed text-gray-700">{factor}</span>
+                    </div>
+                  )
+                )}
               </div>
+
+              {(project.riskReport?.interactions?.length || 0) > 0 && (
+                <div className="mt-4 space-y-1.5">
+                  <p className="text-xs font-semibold uppercase tracking-widest text-purple-600">
+                    Risk interactions & compounding effects
+                  </p>
+                  {project.riskReport!.interactions.map((it: any) => (
+                    <div key={it.key} className="flex items-start gap-2 rounded-lg bg-purple-50/60 p-2.5 text-sm text-gray-700">
+                      <span className="mt-0.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-500" />
+                      <span>
+                        <span className="font-semibold">{it.name}</span> (+{it.penalty} risk points) — {it.reason}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {(project.riskReport?.missingData?.length || 0) > 0 && (
+                <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
+                  <AlertTriangle size={15} className="mt-0.5 shrink-0 text-amber-500" />
+                  <p className="text-xs text-amber-700">
+                    Limited data for: {project.riskReport!.missingData.join(', ')}. Neutral baselines applied - dry
+                    up these fields to raise confidence.
+                  </p>
+                </div>
+              )}
             </div>
 
             <div className="rounded-xl border border-gray-200 bg-white p-6">
@@ -405,10 +450,6 @@ export default function ProjectDetails() {
                   </div>
                 ))}
               </div>
-              <button className="mt-6 inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-700">
-                <FileText size={15} />
-                Generate Detailed Risk Report
-              </button>
             </div>
           </div>
         </div>
@@ -585,9 +626,9 @@ export default function ProjectDetails() {
       </section>
 
       <RiskFactorChart
-        data={riskDriverData}
+        data={riskDrivers}
         title="What is driving the risk?"
-        description="Relative contribution of key risk drivers to this project's overall risk score."
+        description="Relative contribution of the 15 assessed risk factors to this project's overall score."
       />
 
       {id && (

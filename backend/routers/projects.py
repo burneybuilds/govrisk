@@ -7,13 +7,15 @@ from sqlalchemy.orm import Session
 
 from database import get_db
 from auth.database import get_auth_db
-from models import Project, ProjectUpdate
+from models import Project, ProjectUpdate as ProjectUpdateRecord
 from schemas import (
-    ProjectResponse,
+    AlertResponse,
     ProjectCreate,
-    ProjectUpdate,
+    ProjectResponse,
+    ProjectUpdate as ProjectUpdateSchema,
     ProjectUpdateCreate,
     ProjectUpdateResponse,
+    RiskAssessmentResponse,
 )
 from auth.dependencies import get_current_user, require_roles
 from auth.models import User
@@ -21,14 +23,19 @@ from auth.audit import log_audit, ACTIONS
 from services.project_service import (
     next_project_id,
     planned_progress_from_dates,
-    compute_project_risk,
     create_alert_for_new_project,
 )
+from services.risk_service import apply_assessment, assess_project
 
 router = APIRouter(prefix="/api/projects", tags=["projects"])
 
 
 def _project_to_response(p: Project) -> dict:
+    assessment = assess_project(p)
+    try:
+        risk_inputs = json.loads(p.risk_inputs) if p.risk_inputs else {}
+    except (TypeError, ValueError):
+        risk_inputs = {}
     return {
         "id": p.id,
         "name": p.name,
@@ -49,17 +56,21 @@ def _project_to_response(p: Project) -> dict:
         "startDate": p.start_date,
         "expectedCompletion": p.expected_completion,
         "predictedCompletion": p.predicted_completion,
-        "costOverrunProbability": p.cost_overrun_probability,
-        "delayProbability": p.delay_probability,
-        "implementationRisk": p.implementation_risk,
-        "riskScore": p.risk_score,
-        "riskLevel": p.risk_level,
+        "costOverrunProbability": assessment["costOverrunProbability"],
+        "delayProbability": assessment["delayProbability"],
+        "implementationRisk": assessment["implementationRisk"],
+        "riskScore": assessment["riskScore"],
+        "riskLevel": assessment["riskLevel"],
         "milestonesTotal": p.milestones_total,
         "milestonesDelayed": p.milestones_delayed,
         "lat": p.lat,
         "lng": p.lng,
-        "riskFactors": json.loads(p.risk_factors),
-        "recommendations": json.loads(p.recommendations),
+        "riskFactors": assessment["explanations"],
+        "recommendations": assessment["recommendations"],
+        "riskConfidence": assessment["confidence"],
+        "criticalBlocker": assessment["criticalBlocker"],
+        "riskInputs": risk_inputs,
+        "riskReport": assessment,
         "createdAt": p.created_at,
         "updatedAt": p.updated_at,
     }
@@ -77,7 +88,7 @@ def _now_iso() -> str:
     return datetime.now(timezone.utc).isoformat()
 
 
-def _update_to_response(db_auth: Session, u: ProjectUpdate) -> dict:
+def _update_to_response(db_auth: Session, u: ProjectUpdateRecord) -> dict:
     author = db_auth.query(User).filter(User.user_id == u.user_id).first()
     return {
         "id": u.id,
@@ -148,15 +159,6 @@ def create_project(
     planned = planned_progress_from_dates(data.startDate, data.completionDate)
     planned_progress = planned if planned is not None else physical_progress
 
-    risk = compute_project_risk(
-        physical_progress=physical_progress,
-        planned_progress=planned_progress,
-        original_cost=original_cost,
-        current_cost=current_cost,
-        financial_progress=data.financialProgress,
-        completion_date=data.completionDate,
-    )
-
     project_id = next_project_id(db)
     projected_id_exists = db.query(Project).filter(Project.id == project_id).first()
     if projected_id_exists:
@@ -184,22 +186,25 @@ def create_project(
         planned_progress=planned_progress,
         start_date=data.startDate.strip(),
         expected_completion=data.completionDate.strip(),
-        predicted_completion=data.predictedCompletionDate
-        or risk["predictedCompletion"],
-        cost_overrun_probability=risk["costOverrunProbability"],
-        delay_probability=risk["delayProbability"],
-        implementation_risk=risk["implementationRisk"],
-        risk_score=risk["riskScore"],
-        risk_level=risk["riskLevel"],
+        predicted_completion=data.predictedCompletionDate or "",
+        cost_overrun_probability=0,
+        delay_probability=0,
+        implementation_risk=0,
+        risk_score=0,
+        risk_level="LOW",
         milestones_total=0,
         milestones_delayed=0,
         lat=data.lat or 0.0,
         lng=data.lng or 0.0,
-        risk_factors=json.dumps(risk["riskFactors"]),
-        recommendations=json.dumps(risk["recommendations"]),
+        risk_factors=json.dumps([]),
+        recommendations=json.dumps([]),
+        risk_inputs=json.dumps(data.riskInputs or {}),
         created_at=_now_iso(),
         updated_at=_now_iso(),
     )
+    assessment = apply_assessment(project, predicted=data.predictedCompletionDate)
+    project.risk_score = float(assessment["riskScore"])
+    project.risk_level = assessment["riskLevel"]
     db.add(project)
     db.flush()
 
@@ -221,7 +226,7 @@ def create_project(
 @router.put("/{project_id}", response_model=ProjectResponse)
 def update_project(
     project_id: str,
-    data: ProjectUpdate,
+    data: ProjectUpdateSchema,
     editor: User = Depends(require_roles("admin", "officer")),
     db: Session = Depends(get_db),
     db_auth: Session = Depends(get_auth_db),
@@ -306,25 +311,18 @@ def update_project(
     if data.name is not None or data.originalCost is not None or data.revisedCost is not None \
             or data.expenditure is not None or data.physicalProgress is not None \
             or data.financialProgress is not None or data.startDate is not None \
-            or data.completionDate is not None:
+            or data.completionDate is not None \
+            or data.predictedCompletionDate is not None or data.riskInputs is not None:
         planned = planned_progress_from_dates(project.start_date, project.expected_completion)
         if planned is not None:
             project.planned_progress = planned
-        risk = compute_project_risk(
-            physical_progress=project.physical_progress,
-            planned_progress=project.planned_progress,
-            original_cost=project.original_cost,
-            current_cost=project.current_cost,
-            financial_progress=project.financial_progress,
-            completion_date=project.expected_completion,
+        if data.riskInputs is not None:
+            project.risk_inputs = json.dumps(data.riskInputs)
+        predicted = data.predictedCompletionDate or project.predicted_completion or None
+        apply_assessment(
+            project,
+            predicted=predicted if _valid_date(predicted) else None,
         )
-        project.cost_overrun_probability = risk["costOverrunProbability"]
-        project.delay_probability = risk["delayProbability"]
-        project.implementation_risk = risk["implementationRisk"]
-        project.risk_score = risk["riskScore"]
-        project.risk_level = risk["riskLevel"]
-        project.risk_factors = json.dumps(risk["riskFactors"])
-        project.recommendations = json.dumps(risk["recommendations"])
 
     if data.predictedCompletionDate is not None:
         if not _valid_date(data.predictedCompletionDate):
@@ -350,6 +348,21 @@ def update_project(
 
 
 @router.get(
+    "/{project_id}/risk",
+    response_model=RiskAssessmentResponse,
+)
+def get_project_risk(
+    project_id: str,
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+):
+    project = db.query(Project).filter(Project.id == project_id).first()
+    if not project:
+        raise HTTPException(status_code=404, detail="Project not found")
+    return assess_project(project)
+
+
+@router.get(
     "/{project_id}/updates",
     response_model=list[ProjectUpdateResponse],
 )
@@ -363,9 +376,9 @@ def list_project_updates(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     updates = (
-        db.query(ProjectUpdate)
-        .filter(ProjectUpdate.project_id == project_id)
-        .order_by(ProjectUpdate.created_at.asc())
+        db.query(ProjectUpdateRecord)
+        .filter(ProjectUpdateRecord.project_id == project_id)
+        .order_by(ProjectUpdateRecord.created_at.asc())
         .all()
     )
     return [_update_to_response(db_auth, u) for u in updates]
@@ -387,7 +400,7 @@ def add_project_update(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    update = ProjectUpdate(
+    update = ProjectUpdateRecord(
         project_id=project.id,
         user_id=user.user_id,
         content=data.content.strip(),
@@ -426,10 +439,10 @@ def edit_project_update(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     update = (
-        db.query(ProjectUpdate)
+        db.query(ProjectUpdateRecord)
         .filter(
-            ProjectUpdate.id == update_id,
-            ProjectUpdate.project_id == project_id,
+            ProjectUpdateRecord.id == update_id,
+            ProjectUpdateRecord.project_id == project_id,
         )
         .first()
     )
@@ -464,10 +477,10 @@ def delete_project_update(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
     update = (
-        db.query(ProjectUpdate)
+        db.query(ProjectUpdateRecord)
         .filter(
-            ProjectUpdate.id == update_id,
-            ProjectUpdate.project_id == project_id,
+            ProjectUpdateRecord.id == update_id,
+            ProjectUpdateRecord.project_id == project_id,
         )
         .first()
     )

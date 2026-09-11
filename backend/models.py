@@ -35,6 +35,9 @@ class Project(Base):
     lng = Column(Float, nullable=False)
     risk_factors = Column(Text, nullable=False)
     recommendations = Column(Text, nullable=False)
+    risk_inputs = Column(Text, nullable=True, default="{}")
+    risk_confidence = Column(Float, nullable=True)
+    risk_report = Column(Text, nullable=True)
     created_at = Column(String, nullable=True)
     updated_at = Column(String, nullable=True)
 
