@@ -1,11 +1,35 @@
 import { useEffect, useRef, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { Search, Bell, Menu, LogOut } from "lucide-react";
+import { Search, Bell, Menu, LogOut, BellOff, ArrowRight } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
+import { getAlerts } from "../../services/api";
 
 interface TopbarProps {
-  onToggleSidebar: () => void;
+  onToggleSidebar?: () => void;
 }
+
+const severityConfig: Record<string, { dot: string; badge: string; label: string }> = {
+  CRITICAL: {
+    dot: "bg-red-500",
+    badge: "bg-red-50 text-red-700 ring-1 ring-inset ring-red-100",
+    label: "CRITICAL",
+  },
+  HIGH: {
+    dot: "bg-orange-500",
+    badge: "bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-100",
+    label: "HIGH",
+  },
+  MEDIUM: {
+    dot: "bg-yellow-500",
+    badge: "bg-yellow-50 text-yellow-700 ring-1 ring-inset ring-yellow-100",
+    label: "MEDIUM",
+  },
+  RESOLVED: {
+    dot: "bg-green-500",
+    badge: "bg-green-50 text-green-700 ring-1 ring-inset ring-green-100",
+    label: "RESOLVED",
+  },
+};
 
 function getInitials(name: string): string {
   return name
@@ -28,7 +52,7 @@ function formatDate(date: string) {
   });
 }
 
-export default function Topbar() {
+export default function Topbar({ onToggleSidebar }: TopbarProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   const today = new Date();
@@ -109,18 +133,28 @@ export default function Topbar() {
         </div>
       </div>
 
+      {/* Mobile hamburger */}
+      <button
+        type="button"
+        onClick={onToggleSidebar}
+        className="mr-auto shrink-0 rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:hidden"
+        aria-label="Toggle navigation"
+      >
+        <Menu size={20} />
+      </button>
+
       {/* Center: Search bar (nudged right) */}
       <div className="flex min-w-0 flex-1 items-center justify-center">
         <div className="w-full max-w-sm shrink-0 translate-x-7 sm:max-w-md sm:translate-x-8 lg:max-w-lg">
-        <div className="relative w-full">
-          <Search className="pointer-events-none absolute left-4 top-1/2 z-10 h-[18px] w-[18px] -translate-y-1/2 text-gray-400" />
-          <input
-            type="text"
-            placeholder="Search projects..."
-            onChange={(e) => handleSearch(e.target.value)}
-            className="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 pl-12 pr-4 text-sm text-navy-900 outline-none transition-all placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/10"
-          />
-        </div>
+          <div className="relative w-full">
+            <Search className="pointer-events-none absolute left-4 top-1/2 z-10 h-[18px] w-[18px] -translate-y-1/2 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search projects..."
+              onChange={(e) => handleSearch(e.target.value)}
+              className="h-11 w-full rounded-lg border border-gray-200 bg-gray-50 pl-12 pr-4 text-sm text-navy-900 outline-none transition-all placeholder:text-gray-400 focus:border-blue-500 focus:bg-white focus:ring-2 focus:ring-blue-500/10"
+            />
+          </div>
         </div>
       </div>
 
