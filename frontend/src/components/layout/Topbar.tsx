@@ -135,14 +135,16 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
       </div>
 
       {/* Mobile hamburger */}
-      <button
-        type="button"
-        onClick={() => onToggleSidebar?.()}
-        className="mr-auto shrink-0 rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:hidden"
-        aria-label="Toggle navigation"
-      >
-        <Menu size={20} />
-      </button>
+      {onToggleSidebar && (
+        <button
+          type="button"
+          onClick={onToggleSidebar}
+          className="mr-auto shrink-0 rounded-lg p-2 text-gray-500 hover:bg-gray-100 lg:hidden"
+          aria-label="Toggle navigation"
+        >
+          <Menu size={20} />
+        </button>
+      )}
 
       {/* Center: Search bar (nudged right) */}
       <div className="flex min-w-0 flex-1 items-center justify-center">

@@ -15,6 +15,11 @@ import {
   Plus,
   PenSquare,
   Trash2,
+  Brain,
+  AlertCircle,
+  AlertOctagon,
+  CheckCircle2,
+  RefreshCw,
 } from 'lucide-react';
 import {
   BarChart,
@@ -26,7 +31,8 @@ import {
   ResponsiveContainer,
   Cell,
 } from 'recharts';
-import { getProject, getProjectUpdates, deleteProjectUpdate } from '../services/api';
+import { getProject, getProjectUpdates, deleteProjectUpdate, getAiInsights } from '../services/api';
+import type { AiInsights } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { RiskBadge } from '../components/ui/RiskBadge';
 import { RiskScore } from '../components/ui/RiskScore';
@@ -131,6 +137,10 @@ export default function ProjectDetails() {
   const [noteToast, setNoteToast] = useState('');
   const [editProjectOpen, setEditProjectOpen] = useState(false);
 
+  const [aiInsights, setAiInsights] = useState<AiInsights | null>(null);
+  const [aiLoading, setAiLoading] = useState(true);
+  const [aiError, setAiError] = useState(false);
+
   const canEditProject = currentUser?.role === 'admin' || currentUser?.role === 'officer';
 
   useEffect(() => {
@@ -164,6 +174,16 @@ export default function ProjectDetails() {
   useEffect(() => {
     fetchUpdates();
   }, [fetchUpdates]);
+
+  useEffect(() => {
+    if (!id) return;
+    setAiLoading(true);
+    setAiError(false);
+    getAiInsights(id)
+      .then(setAiInsights)
+      .catch(() => setAiError(true))
+      .finally(() => setAiLoading(false));
+  }, [id]);
 
   useEffect(() => {
     if (!noteToast) return;
@@ -535,6 +555,288 @@ export default function ProjectDetails() {
           progressGap={project.plannedProgress - project.physicalProgress}
         />
       </div>
+
+      {/* ── AI Early-Warning Section ──────────────────────────────── */}
+      <section className="mb-8 rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50/60 to-white p-5 lg:p-6">
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+          <div>
+            <p className="text-xs font-semibold uppercase tracking-widest text-purple-600">
+              AI Early Warning
+            </p>
+            <h3 className="mt-1 text-base font-semibold text-navy-900 lg:text-lg">
+              AI-Enhanced Risk Intelligence
+            </h3>
+            <p className="mt-0.5 text-xs text-gray-500">
+              Hybrid statistical + LLM early-warning analysis. Updated periodically.
+            </p>
+          </div>
+          {aiInsights && (
+            <button
+              onClick={() => {
+                if (!id) return;
+                setAiLoading(true);
+                getAiInsights(id, true)
+                  .then(setAiInsights)
+                  .catch(() => setAiError(true))
+                  .finally(() => setAiLoading(false));
+              }}
+              className="inline-flex items-center gap-1.5 rounded-lg border border-purple-200 bg-white px-3 py-2 text-xs font-medium text-purple-700 transition-colors hover:bg-purple-50"
+            >
+              <RefreshCw className="h-3.5 w-3.5" />
+              Refresh
+            </button>
+          )}
+        </div>
+
+        {aiLoading ? (
+          <div className="flex items-center justify-center gap-2 py-10 text-sm text-gray-400">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-purple-300 border-t-purple-600" />
+            Loading AI analysis...
+          </div>
+        ) : aiError || !aiInsights ? (
+          <div className="rounded-lg border border-dashed border-gray-300 py-8 text-center">
+            <Brain className="mx-auto mb-2 h-8 w-8 text-gray-300" />
+            <p className="text-sm font-medium text-navy-900">AI analysis unavailable</p>
+            <p className="mt-1 text-xs text-gray-500">No AI insights yet. Run analysis later or check the AI Health panel.</p>
+          </div>
+        ) : !aiInsights.ai_available ? (
+          <div className="rounded-lg border border-dashed border-gray-300 py-8 text-center">
+            <Brain className="mx-auto mb-2 h-8 w-8 text-gray-300" />
+            <p className="text-sm font-medium text-navy-900">AI engine not configured</p>
+            <p className="mt-1 text-xs text-gray-500">Deterministic predictions only. Configure an LLM provider for enhanced analysis.</p>
+          </div>
+        ) : (
+          <>
+            {/* Future Score + Current Score side-by-side */}
+            {aiInsights.prediction && (
+              <div className="mb-5 grid grid-cols-2 gap-4 sm:grid-cols-4">
+                {[
+                  {
+                    label: 'Current Risk',
+                    value: aiInsights.prediction.current_score ?? '—',
+                    color: 'text-navy-900',
+                    sub: 'Rule-based deterministic score',
+                  },
+                  {
+                    label: 'Future Risk (90d)',
+                    value: aiInsights.prediction.future_score ?? '—',
+                    color:
+                      (aiInsights.prediction.future_score ?? 0) >= 80
+                        ? 'text-red-600'
+                        : (aiInsights.prediction.future_score ?? 0) >= 60
+                          ? 'text-orange-600'
+                          : 'text-green-600',
+                    sub: aiInsights.prediction.prediction_method,
+                  },
+                  {
+                    label: 'Delay Risk',
+                    value: `${Math.round(aiInsights.prediction.schedule_delay_probability * 100)}%`,
+                    color:
+                      aiInsights.prediction.schedule_delay_probability >= 0.7
+                        ? 'text-red-600'
+                        : aiInsights.prediction.schedule_delay_probability >= 0.4
+                          ? 'text-orange-600'
+                          : 'text-green-600',
+                    sub: 'Within 90-day horizon',
+                  },
+                  {
+                    label: 'Cost Overrun Risk',
+                    value: `${Math.round(aiInsights.prediction.cost_overrun_probability * 100)}%`,
+                    color:
+                      aiInsights.prediction.cost_overrun_probability >= 0.7
+                        ? 'text-red-600'
+                        : aiInsights.prediction.cost_overrun_probability >= 0.4
+                          ? 'text-orange-600'
+                          : 'text-green-600',
+                    sub: `${aiInsights.prediction.data_points_used} data points`,
+                  },
+                ].map((kpi) => (
+                  <div
+                    key={kpi.label}
+                    className="rounded-lg border border-purple-100 bg-white p-3"
+                  >
+                    <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
+                      {kpi.label}
+                    </p>
+                    <p className={`mt-1 text-xl font-bold ${kpi.color}`}>{kpi.value}</p>
+                    <p className="mt-0.5 text-[11px] text-gray-400">{kpi.sub}</p>
+                  </div>
+                ))}
+              </div>
+            )}
+
+            {/* Explanation summary */}
+            {aiInsights.explanation && (
+              <div className="mb-5 rounded-lg border border-purple-100 bg-white p-4">
+                <p className="text-xs font-semibold uppercase tracking-wider text-purple-600">Explanation</p>
+                <p className="mt-2 text-sm leading-relaxed text-gray-700">
+                  {aiInsights.explanation.summary}
+                </p>
+                {aiInsights.explanation.main_drivers.length > 0 && (
+                  <div className="mt-3">
+                    <p className="text-[11px] font-semibold text-gray-500">Main Drivers</p>
+                    <div className="mt-1 flex flex-wrap gap-1.5">
+                      {aiInsights.explanation.main_drivers.map((d) => (
+                        <span
+                          key={d}
+                          className="rounded-full bg-purple-100 px-2 py-0.5 text-[11px] font-medium text-purple-700"
+                        >
+                          {d}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
+            {/* Anomalies */}
+            {aiInsights.anomalies.length > 0 && (
+              <div className="mb-5">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-orange-600">
+                  Detected Anomalies ({aiInsights.anomalies.length})
+                </p>
+                <div className="space-y-2">
+                  {aiInsights.anomalies.slice(0, 5).map((anomaly, i) => {
+                    const sevColors: Record<string, string> = {
+                      CRITICAL: 'border-red-300 bg-red-50',
+                      HIGH: 'border-orange-300 bg-orange-50',
+                      MEDIUM: 'border-amber-300 bg-amber-50',
+                      LOW: 'border-gray-200 bg-gray-50',
+                    };
+                    const sevText: Record<string, string> = {
+                      CRITICAL: 'text-red-700',
+                      HIGH: 'text-orange-700',
+                      MEDIUM: 'text-amber-700',
+                      LOW: 'text-gray-600',
+                    };
+                    const Icon = anomaly.severity === 'CRITICAL' ? AlertOctagon : anomaly.severity === 'HIGH' ? AlertTriangle : AlertCircle;
+                    return (
+                      <div
+                        key={i}
+                        className={`rounded-lg border p-3 ${sevColors[anomaly.severity] || sevColors.MEDIUM}`}
+                      >
+                        <div className="flex items-start gap-2">
+                          <Icon className={`mt-0.5 h-4 w-4 shrink-0 ${sevText[anomaly.severity] || sevText.MEDIUM}`} />
+                          <div className="min-w-0">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-semibold text-navy-900">{anomaly.title}</span>
+                              <span className={`rounded-full px-1.5 py-0.5 text-[10px] font-semibold ${sevText[anomaly.severity] || sevText.MEDIUM}`}>
+                                {anomaly.severity}
+                              </span>
+                            </div>
+                            <p className="mt-0.5 text-xs text-gray-600">{anomaly.description}</p>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Emerging Risks */}
+            {aiInsights.emerging_risks.length > 0 && (
+              <div className="mb-5">
+                <p className="mb-2 text-xs font-semibold uppercase tracking-wider text-red-600">
+                  Emerging Risks ({aiInsights.emerging_risks.length})
+                </p>
+                <div className="space-y-2">
+                  {aiInsights.emerging_risks.slice(0, 5).map((er, i) => {
+                    const sevColors: Record<string, string> = {
+                      CRITICAL: 'border-red-300 bg-red-50',
+                      HIGH: 'border-orange-300 bg-orange-50',
+                      MEDIUM: 'border-amber-300 bg-amber-50',
+                      LOW: 'border-gray-200 bg-gray-50',
+                    };
+                    const Icon = er.severity === 'CRITICAL' ? AlertOctagon : er.severity === 'HIGH' ? AlertTriangle : AlertCircle;
+                    return (
+                      <div
+                        key={i}
+                        className={`rounded-lg border p-3 ${sevColors[er.severity] || sevColors.MEDIUM}`}
+                      >
+                        <div className="flex items-start gap-2">
+                          <Icon className="mt-0.5 h-4 w-4 shrink-0 text-red-600" />
+                          <div className="min-w-0 flex-1">
+                            <div className="flex flex-wrap items-center gap-2">
+                              <span className="text-sm font-semibold text-navy-900">{er.title}</span>
+                              <span className="rounded-full bg-purple-100 px-1.5 py-0.5 text-[10px] font-medium text-purple-700">
+                                {er.category.replace(/_/g, ' ')}
+                              </span>
+                              <span className="rounded-full bg-red-100 px-1.5 py-0.5 text-[10px] font-semibold text-red-700">
+                                {er.severity}
+                              </span>
+                            </div>
+                            <p className="mt-0.5 text-xs text-gray-600">{er.description}</p>
+                            {er.recommended_actions.length > 0 && (
+                              <div className="mt-2 rounded bg-white/60 px-2 py-1.5">
+                                <p className="text-[10px] font-semibold text-gray-500">Suggested Actions</p>
+                                <ul className="mt-0.5 space-y-0.5">
+                                  {er.recommended_actions.map((a, j) => (
+                                    <li key={j} className="text-xs text-gray-600">
+                                      • {a}
+                                    </li>
+                                  ))}
+                                </ul>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Predicted Events + Interventions */}
+            {aiInsights.explanation &&
+              (aiInsights.explanation.predicted_events.length > 0 ||
+                aiInsights.explanation.recommended_interventions.length > 0) && (
+                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                  {aiInsights.explanation.predicted_events.length > 0 && (
+                    <div className="rounded-lg border border-purple-100 bg-white p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-orange-600">
+                        Predicted Events
+                      </p>
+                      <ul className="mt-2 space-y-1">
+                        {aiInsights.explanation.predicted_events.map((e, i) => (
+                          <li key={i} className="flex items-start gap-1.5 text-xs text-gray-700">
+                            <TrendingDown className="mt-0.5 h-3 w-3 shrink-0 text-orange-500" />
+                            {e}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                  {aiInsights.explanation.recommended_interventions.length > 0 && (
+                    <div className="rounded-lg border border-purple-100 bg-white p-4">
+                      <p className="text-[11px] font-semibold uppercase tracking-wider text-green-600">
+                        Recommended Interventions
+                      </p>
+                      <ul className="mt-2 space-y-1">
+                        {aiInsights.explanation.recommended_interventions.map((r, i) => (
+                          <li key={i} className="flex items-start gap-1.5 text-xs text-gray-700">
+                            <CheckCircle2 className="mt-0.5 h-3 w-3 shrink-0 text-green-500" />
+                            {r}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              )}
+
+            {/* Footer */}
+            <p className="mt-4 text-[11px] text-gray-400">
+              Generated: {aiInsights.prediction ? new Date(aiInsights.prediction.generated_at).toLocaleString('en-GB') : '—'} ·
+              Analysis: {aiInsights.analysis_kind} ·
+              Method: {aiInsights.prediction?.prediction_method ?? '—'} ·
+              Model: {aiInsights.prediction?.model_version ?? '—'}
+            </p>
+          </>
+        )}
+      </section>
 
       <section className="mb-8 rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">

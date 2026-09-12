@@ -8,8 +8,10 @@ import {
   FolderOpen,
   TrendingUp,
   ArrowRight,
+  AlertCircle,
 } from 'lucide-react';
-import { getDashboard, getProjects, getAnalytics } from '../services/api';
+import { getDashboard, getProjects, getAnalytics, getAiInsights } from '../services/api';
+import type { AiInsights } from '../services/api';
 import { KpiCard } from '../components/ui/KpiCard';
 import { RiskBadge } from '../components/ui/RiskBadge';
 import { RiskScore } from '../components/ui/RiskScore';
@@ -42,6 +44,8 @@ export default function Dashboard() {
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [aiMap, setAiMap] = useState<Record<string, AiInsights>>({});
+  const [aiLoading, setAiLoading] = useState(false);
 
   useEffect(() => {
     async function load() {
@@ -58,6 +62,28 @@ export default function Dashboard() {
     }
     load();
   }, []);
+
+  // Fetch AI insights for top-risk projects (up to 4)
+  useEffect(() => {
+    if (!projects.length) return;
+    const topProjects = [...projects]
+      .sort((a, b) => b.riskScore - a.riskScore)
+      .slice(0, 4);
+    setAiLoading(true);
+    Promise.allSettled(
+      topProjects.map((p) =>
+        getAiInsights(p.id, false).then((ins) => ({ id: p.id, ins }))
+      )
+    )
+      .then((results) => {
+        const map: Record<string, AiInsights> = {};
+        results.forEach((r) => {
+          if (r.status === 'fulfilled') map[r.value.id] = r.value.ins;
+        });
+        setAiMap(map);
+      })
+      .finally(() => setAiLoading(false));
+  }, [projects]);
 
   if (loading) {
     return (
@@ -257,6 +283,116 @@ export default function Dashboard() {
           </table>
         </div>
       </div>
+
+      {/* ── AI Early-Warning Section ───────────────────────────────── */}
+      {aiLoading ? (
+        <div className="mt-8 rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50/60 to-white p-5">
+          <div className="flex items-center gap-2 text-sm text-gray-400">
+            <span className="h-4 w-4 animate-spin rounded-full border-2 border-purple-300 border-t-purple-600" />
+            Loading AI early-warning data...
+          </div>
+        </div>
+      ) : Object.keys(aiMap).length > 0 ? (
+        <div className="mt-8 rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50/60 to-white p-5 lg:p-6">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-purple-600">
+                AI Early Warnings
+              </p>
+              <h3 className="mt-1 text-base font-semibold text-navy-900 lg:text-lg">
+                AI-Enhanced Project Risk Intelligence
+              </h3>
+              <p className="mt-0.5 text-xs text-gray-500">
+                Hybrid statistical + LLM analysis for top-risk projects. Periodically refreshed.
+              </p>
+            </div>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+            {projects
+              .filter((p) => aiMap[p.id])
+              .sort((a, b) => b.riskScore - a.riskScore)
+              .slice(0, 4)
+              .map((project) => {
+                const ai = aiMap[project.id];
+                if (!ai) return null;
+                const pred = ai.prediction;
+                const topEr = ai.emerging_risks[0];
+                const topAnomaly = ai.anomalies[0];
+                const futureScore = pred?.future_score ?? project.riskScore;
+                return (
+                  <div
+                    key={project.id}
+                    className="cursor-pointer rounded-lg border border-purple-100 bg-white p-4 transition-colors hover:border-purple-300 hover:shadow-sm"
+                    onClick={() => navigate(`/projects/${project.id}`)}
+                  >
+                    <div className="mb-3 flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <p className="truncate text-sm font-semibold text-navy-900">{project.name}</p>
+                        <p className="mt-0.5 text-xs text-gray-500">{project.id} · {project.sector}</p>
+                      </div>
+                      <div className="shrink-0 text-right">
+                        <p className="text-[10px] font-medium uppercase tracking-wider text-gray-400">Future Risk</p>
+                        <p
+                          className={`text-xl font-bold ${
+                            futureScore >= 80
+                              ? 'text-red-600'
+                              : futureScore >= 60
+                                ? 'text-orange-600'
+                                : futureScore >= 40
+                                  ? 'text-amber-600'
+                                  : 'text-green-600'
+                          }`}
+                        >
+                          {futureScore}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="flex flex-wrap gap-3 text-xs text-gray-500">
+                      {pred && (
+                        <span className="inline-flex items-center gap-1">
+                          <Clock className="h-3 w-3 text-orange-400" />
+                          {Math.round(pred.schedule_delay_probability * 100)}% delay risk
+                        </span>
+                      )}
+                      {pred && (
+                        <span className="inline-flex items-center gap-1">
+                          <DollarSign className="h-3 w-3 text-yellow-400" />
+                          {Math.round(pred.cost_overrun_probability * 100)}% cost risk
+                        </span>
+                      )}
+                      {ai.anomalies.length > 0 && (
+                        <span className="inline-flex items-center gap-1 text-orange-600">
+                          <AlertCircle className="h-3 w-3" />
+                          {ai.anomalies.length} anomal{ai.anomalies.length === 1 ? 'y' : 'ies'}
+                        </span>
+                      )}
+                    </div>
+                    {topEr && (
+                      <div className="mt-2.5 rounded bg-purple-50/80 px-2.5 py-1.5">
+                        <p className="text-[11px] font-medium text-purple-700">
+                          🚨 {topEr.title}
+                          <span className="ml-1 text-[10px] text-purple-500">
+                            ({topEr.severity})
+                          </span>
+                        </p>
+                      </div>
+                    )}
+                    {!topEr && topAnomaly && (
+                      <div className="mt-2.5 rounded bg-orange-50/80 px-2.5 py-1.5">
+                        <p className="text-[11px] font-medium text-orange-700">
+                          ⚠ {topAnomaly.title}
+                          <span className="ml-1 text-[10px] text-orange-500">
+                            ({topAnomaly.severity})
+                          </span>
+                        </p>
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+          </div>
+        </div>
+      ) : null}
 
       <div className="mt-8 grid grid-cols-1 gap-6 lg:grid-cols-2">
         <RiskChart

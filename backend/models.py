@@ -1,4 +1,4 @@
-from sqlalchemy import Column, String, Float, Integer, Text
+from sqlalchemy import Column, String, Float, Integer, Text, Boolean, Index
 from database import Base
 
 
@@ -64,3 +64,96 @@ class ProjectUpdate(Base):
     update_type = Column(String, nullable=False, default="GENERAL")
     created_at = Column(String, nullable=True)
     updated_at = Column(String, nullable=True)
+
+
+class AIAnalysis(Base):
+    """Persisted AI run history for a project (cache + audit trail)."""
+
+    __tablename__ = "ai_analyses"
+
+    id = Column(String, primary_key=True)
+    project_id = Column(String, nullable=False, index=True)
+    created_at = Column(String, nullable=False, index=True)
+    analysis_type = Column(String, nullable=False)  # prediction|anomaly|emerging|explanation|insights
+    model = Column(String, nullable=True)
+    prediction_method = Column(String, nullable=True)
+    confidence = Column(Float, nullable=True)
+    summary = Column(Text, nullable=True)
+    raw_result = Column(Text, nullable=True)
+
+    __table_args__ = (
+        Index("ix_ai_analyses_project_created", "project_id", "created_at"),
+    )
+
+
+class AIPrediction(Base):
+    """Latest numeric prediction snapshot per project."""
+
+    __tablename__ = "ai_predictions"
+
+    id = Column(String, primary_key=True)
+    project_id = Column(String, nullable=False, index=True)
+    created_at = Column(String, nullable=False)
+    horizon_days = Column(Integer, nullable=False, default=90)
+    schedule_delay_probability = Column(Float, nullable=False)
+    cost_overrun_probability = Column(Float, nullable=False)
+    risk_escalation_probability = Column(Float, nullable=False)
+    clearance_delay_probability = Column(Float, nullable=False)
+    contractor_failure_probability = Column(Float, nullable=False)
+    expected_delay_min = Column(Integer, nullable=True)
+    expected_delay_max = Column(Integer, nullable=True)
+    future_score = Column(Integer, nullable=True)
+    current_score = Column(Integer, nullable=True)
+    data_points_used = Column(Integer, nullable=True, default=0)
+    confidence = Column(Float, nullable=False)
+    prediction_method = Column(String, nullable=True)
+    model_version = Column(String, nullable=True)
+    drivers = Column(Text, nullable=True)  # JSON: list[str]
+
+    __table_args__ = (
+        Index("ix_ai_predictions_project_created", "project_id", "created_at"),
+    )
+
+
+class Anomaly(Base):
+    """Statistical anomaly detected on a project."""
+
+    __tablename__ = "ai_anomalies"
+
+    id = Column(String, primary_key=True)
+    project_id = Column(String, nullable=False, index=True)
+    created_at = Column(String, nullable=False)
+    type = Column(String, nullable=False)
+    severity = Column(String, nullable=False)
+    score = Column(Float, nullable=False)
+    title = Column(String, nullable=False)
+    description = Column(Text, nullable=False)
+    evidence = Column(Text, nullable=True)  # JSON: list[str]
+    resolved = Column(Boolean, nullable=False, default=False)
+
+    __table_args__ = (
+        Index("ix_ai_anomalies_project_created", "project_id", "created_at"),
+    )
+
+
+class EmergingRisk(Base):
+    """Emerging risk discovered from project updates (AI-extracted)."""
+
+    __tablename__ = "ai_emerging_risks"
+
+    id = Column(String, primary_key=True)
+    project_id = Column(String, nullable=False, index=True)
+    created_at = Column(String, nullable=False)
+    category = Column(String, nullable=False)
+    title = Column(String, nullable=False)
+    confidence = Column(Float, nullable=False)
+    severity = Column(String, nullable=False)
+    description = Column(Text, nullable=True)
+    evidence = Column(Text, nullable=True)  # JSON: list[str]
+    recommendations = Column(Text, nullable=True)  # JSON: list[str]
+    source_update_ids = Column(Text, nullable=True)  # JSON: list[int]
+    status = Column(String, nullable=False, default="ACTIVE")  # ACTIVE|RESOLVED
+
+    __table_args__ = (
+        Index("ix_ai_emerging_risks_project_created", "project_id", "created_at"),
+    )

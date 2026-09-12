@@ -1,7 +1,7 @@
 import json
 from datetime import datetime, timezone
 
-from fastapi import APIRouter, Depends, HTTPException, Response, status
+from fastapi import APIRouter, BackgroundTasks, Depends, HTTPException, Response, status
 from sqlalchemy import func
 from sqlalchemy.orm import Session
 
@@ -26,6 +26,7 @@ from services.project_service import (
     create_alert_for_new_project,
 )
 from services.risk_service import apply_assessment, assess_project
+from ai.ai_service import analyze_update_in_background
 
 router = APIRouter(prefix="/api/projects", tags=["projects"])
 
@@ -392,6 +393,7 @@ def list_project_updates(
 def add_project_update(
     project_id: str,
     data: ProjectUpdateCreate,
+    background: BackgroundTasks,
     user: User = Depends(get_current_user),
     db: Session = Depends(get_db),
     db_auth: Session = Depends(get_auth_db),
@@ -420,6 +422,7 @@ def add_project_update(
     db_auth.commit()
     db.commit()
     db.refresh(update)
+    background.add_task(analyze_update_in_background, update.project_id, update.id)
     return _update_to_response(db_auth, update)
 
 

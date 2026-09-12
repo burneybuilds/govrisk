@@ -327,3 +327,115 @@ export async function sendAssistantMessage(query: string) {
     body: JSON.stringify({ query }),
   });
 }
+
+// ---------------------------------------------------------------------------
+// AI early-warning API
+// ---------------------------------------------------------------------------
+export interface AiPrediction {
+  schedule_delay_probability: number;
+  cost_overrun_probability: number;
+  risk_escalation_probability: number;
+  clearance_delay_probability: number;
+  contractor_failure_probability: number;
+  expected_delay_months: { min: number; max: number };
+  risk_horizon_days: number;
+  prediction_confidence: number;
+  future_score: number | null;
+  current_score: number | null;
+  prediction_method: string;
+  model_version: string;
+  data_points_used: number;
+  generated_at: string;
+  top_drivers: string[];
+}
+
+export interface AiAnomaly {
+  type: string;
+  severity: string;
+  score: number;
+  title: string;
+  description: string;
+  evidence: string[];
+  generated_at?: string;
+}
+
+export interface AiEmergingRisk {
+  category: string;
+  title: string;
+  confidence: number;
+  severity: string;
+  description: string;
+  evidence: string[];
+  recommended_actions: string[];
+  source_update_ids: number[];
+  status?: string;
+  generated_at?: string;
+}
+
+export interface AiExplanation {
+  summary: string;
+  current_risk: number;
+  future_risk: number;
+  main_drivers: string[];
+  predicted_events: string[];
+  recommended_interventions: string[];
+  ai_evidence: string[];
+}
+
+export interface AiInsights {
+  project_id: string;
+  prediction: AiPrediction | null;
+  anomalies: AiAnomaly[];
+  emerging_risks: AiEmergingRisk[];
+  explanation: AiExplanation | null;
+  generated_at: string;
+  ai_available: boolean;
+  analysis_kind: 'cached' | 'fresh';
+}
+
+export function getAiHealth() {
+  return apiFetch<{ available: boolean; provider: string; model: string; fallback_enabled: boolean }>('/api/ai/health');
+}
+
+export function getAiPrediction(projectId: string) {
+  return apiFetch<AiPrediction>(`/api/ai/projects/${projectId}/prediction`);
+}
+
+export function getAiAnomalies(projectId: string) {
+  return apiFetch<AiAnomaly[]>(`/api/ai/projects/${projectId}/anomalies`);
+}
+
+export function getAiEmergingRisks(projectId: string) {
+  return apiFetch<AiEmergingRisk[]>(`/api/ai/projects/${projectId}/emerging-risks`);
+}
+
+export function getAiExplanation(projectId: string) {
+  return apiFetch<AiExplanation>(`/api/ai/projects/${projectId}/explanation`);
+}
+
+export function getAiInsights(projectId: string, refresh = false) {
+  return apiFetch<AiInsights>(`/api/ai/projects/${projectId}/insights${refresh ? '?refresh=true' : ''}`);
+}
+
+export function analyzeProjectAi(projectId: string) {
+  return apiFetch<AiInsights>(`/api/ai/projects/${projectId}/analyze`, { method: 'POST' });
+}
+
+export function analyzeUpdateAi(projectId: string, updateId: number) {
+  return apiFetch<{ status: string; projectId: string; updateId: number }>(
+    `/api/ai/projects/${projectId}/updates/${updateId}/analyze`,
+    { method: 'POST' }
+  );
+}
+
+export function resolveEmergingRisk(projectId: string, riskId: string) {
+  return apiFetch<{ status: string }>(`/api/ai/projects/${projectId}/emerging-risks/${riskId}/resolve`, {
+    method: 'POST',
+  });
+}
+
+export function resolveAiAnomaly(projectId: string, anomalyId: string) {
+  return apiFetch<{ status: string }>(`/api/ai/projects/${projectId}/anomalies/${anomalyId}/resolve`, {
+    method: 'POST',
+  });
+}
