@@ -1,6 +1,7 @@
 export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 
-export type Sector = 'Transport' | 'Energy' | 'Water' | 'Communication' | 'Mining' | 'Social Infrastructure';
+export type Sector =
+  'Transport' | 'Energy' | 'Water' | 'Communication' | 'Mining' | 'Social Infrastructure';
 
 export type AlertSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'RESOLVED';
 
@@ -148,12 +149,7 @@ export interface RiskTrend {
 }
 
 export type ProjectUpdateType =
-  | 'GENERAL'
-  | 'PROGRESS'
-  | 'RISK'
-  | 'FINANCIAL'
-  | 'MILESTONE'
-  | 'FIELD_VISIT';
+  'GENERAL' | 'PROGRESS' | 'RISK' | 'FINANCIAL' | 'MILESTONE' | 'FIELD_VISIT';
 
 export interface ProjectUpdate {
   id: number;

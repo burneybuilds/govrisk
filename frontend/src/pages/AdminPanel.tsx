@@ -389,10 +389,22 @@ export default function AdminPanel() {
   async function handleCreate() {
     setCreateError('');
     const f = createForm;
-    if (!f.fullName.trim()) { setCreateError('Full name is required'); return; }
-    if (!f.email.trim()) { setCreateError('Email is required'); return; }
-    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) { setCreateError('Invalid email format'); return; }
-    if (f.temporaryPassword.length < 6) { setCreateError('Password must be at least 6 characters'); return; }
+    if (!f.fullName.trim()) {
+      setCreateError('Full name is required');
+      return;
+    }
+    if (!f.email.trim()) {
+      setCreateError('Email is required');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(f.email)) {
+      setCreateError('Invalid email format');
+      return;
+    }
+    if (f.temporaryPassword.length < 6) {
+      setCreateError('Password must be at least 6 characters');
+      return;
+    }
     setCreateSaving(true);
     try {
       const created = await createUser({
@@ -436,8 +448,14 @@ export default function AdminPanel() {
     if (!editTarget) return;
     setEditError('');
     const f = editForm;
-    if (!f.fullName.trim()) { setEditError('Full name is required'); return; }
-    if (!f.email.trim()) { setEditError('Email is required'); return; }
+    if (!f.fullName.trim()) {
+      setEditError('Full name is required');
+      return;
+    }
+    if (!f.email.trim()) {
+      setEditError('Email is required');
+      return;
+    }
     setEditSaving(true);
     try {
       await adminUpdateUser(editTarget.id, {
@@ -463,7 +481,7 @@ export default function AdminPanel() {
   async function handleRoleChange(u: User, newRole: string) {
     if (u.id === currentUser?.id) return;
     const confirmed = window.confirm(
-      `Are you sure you want to change ${u.fullName} from ${roleLabels[u.role] || u.role} to ${roleLabels[newRole] || newRole}?`
+      `Are you sure you want to change ${u.fullName} from ${roleLabels[u.role] || u.role} to ${roleLabels[newRole] || newRole}?`,
     );
     if (!confirmed) return;
     try {
@@ -554,21 +572,14 @@ export default function AdminPanel() {
   return (
     <div className="mx-auto min-w-0 max-w-[1200px] px-4 py-6 lg:px-8">
       <div className="mb-8">
-        <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
-          Admin Panel
-        </h1>
-        <p className="mt-1 text-sm text-gray-500">
-          User management, roles, and system activity
-        </p>
+        <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">Admin Panel</h1>
+        <p className="mt-1 text-sm text-gray-500">User management, roles, and system activity</p>
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-3 sm:grid-cols-3 lg:grid-cols-7 lg:gap-4">
         {statsLoading
           ? Array.from({ length: 7 }).map((_, i) => (
-              <div
-                key={i}
-                className="rounded-xl border border-gray-200 bg-white p-5 animate-pulse"
-              >
+              <div key={i} className="rounded-xl border border-gray-200 bg-white p-5 animate-pulse">
                 <div className="mb-3 h-9 w-9 rounded-lg bg-gray-100" />
                 <div className="mb-1 h-7 w-12 rounded bg-gray-100" />
                 <div className="h-3 w-16 rounded bg-gray-100" />
@@ -577,10 +588,7 @@ export default function AdminPanel() {
           : kpiCards.map((kpi) => {
               const Icon = kpi.icon;
               return (
-                <div
-                  key={kpi.label}
-                  className="rounded-xl border border-gray-200 bg-white p-5"
-                >
+                <div key={kpi.label} className="rounded-xl border border-gray-200 bg-white p-5">
                   <div className="mb-2 rounded-lg bg-blue-50 p-2 inline-flex">
                     <Icon className="h-5 w-5 text-blue-600" />
                   </div>
@@ -763,7 +771,10 @@ export default function AdminPanel() {
         <div className="mb-5 grid grid-cols-2 gap-3 sm:grid-cols-4">
           {projectsLoading
             ? Array.from({ length: 4 }).map((_, i) => (
-                <div key={i} className="rounded-xl border border-gray-200 bg-gray-50 p-4 animate-pulse">
+                <div
+                  key={i}
+                  className="rounded-xl border border-gray-200 bg-gray-50 p-4 animate-pulse"
+                >
                   <div className="mb-2 h-6 w-6 rounded-lg bg-gray-200" />
                   <div className="mb-1 h-6 w-10 rounded bg-gray-200" />
                   <div className="h-3 w-14 rounded bg-gray-200" />
@@ -839,7 +850,10 @@ export default function AdminPanel() {
                         className="block w-full text-left"
                       >
                         <div className="flex items-center justify-between gap-2">
-                          <span className="text-xs font-medium text-gray-500" style={{ fontFamily: 'ui-monospace, monospace' }}>
+                          <span
+                            className="text-xs font-medium text-gray-500"
+                            style={{ fontFamily: 'ui-monospace, monospace' }}
+                          >
                             {p.id}
                           </span>
                           <span
@@ -856,7 +870,10 @@ export default function AdminPanel() {
                             {p.riskLevel}
                           </span>
                         </div>
-                        <p className="mt-0.5 truncate text-sm font-medium text-navy-900" title={p.name}>
+                        <p
+                          className="mt-0.5 truncate text-sm font-medium text-navy-900"
+                          title={p.name}
+                        >
                           {p.name}
                         </p>
                       </button>
@@ -875,14 +892,15 @@ export default function AdminPanel() {
             <div className="rounded-lg bg-blue-50 p-2">
               <Users className="h-5 w-5 text-blue-600" />
             </div>
-            <h2 className="text-base font-semibold text-navy-900 lg:text-lg">
-              User Management
-            </h2>
+            <h2 className="text-base font-semibold text-navy-900 lg:text-lg">User Management</h2>
             <span className="ml-1 rounded-full bg-gray-100 px-2 py-0.5 text-xs font-medium text-gray-600">
               {usersTotal}
             </span>
           </div>
-          <button onClick={openCreate} className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500">
+          <button
+            onClick={openCreate}
+            className="inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2 text-sm font-semibold text-white hover:bg-blue-500"
+          >
             <Plus className="h-4 w-4" />
             Create User
           </button>
@@ -901,7 +919,10 @@ export default function AdminPanel() {
           </div>
           <select
             value={roleFilter}
-            onChange={(e) => { setRoleFilter(e.target.value); setUsersPage(1); }}
+            onChange={(e) => {
+              setRoleFilter(e.target.value);
+              setUsersPage(1);
+            }}
             className="h-11 rounded-lg border border-gray-200 bg-white px-3.5 text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
           >
             <option value="">All Roles</option>
@@ -912,7 +933,10 @@ export default function AdminPanel() {
           </select>
           <select
             value={statusFilter}
-            onChange={(e) => { setStatusFilter(e.target.value); setUsersPage(1); }}
+            onChange={(e) => {
+              setStatusFilter(e.target.value);
+              setUsersPage(1);
+            }}
             className="h-11 rounded-lg border border-gray-200 bg-white px-3.5 text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
           >
             <option value="">All Status</option>
@@ -935,23 +959,47 @@ export default function AdminPanel() {
             </button>
           </div>
         ) : users.length === 0 ? (
-          <EmptyState title="No users found" description="Try adjusting your search or filters." icon={<Users className="h-10 w-10" />} />
+          <EmptyState
+            title="No users found"
+            description="Try adjusting your search or filters."
+            icon={<Users className="h-10 w-10" />}
+          />
         ) : (
           <>
             <div className="overflow-x-auto rounded-xl border border-gray-200">
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50">
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">User ID</th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Name</th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Email</th>
-                    <th className="hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 lg:table-cell">Department</th>
-                    <th className="hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 lg:table-cell">Designation</th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Role</th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Status</th>
-                    <th className="hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 xl:table-cell">Created</th>
-                    <th className="hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 xl:table-cell">Last Login</th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Actions</th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      User ID
+                    </th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Name
+                    </th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Email
+                    </th>
+                    <th className="hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 lg:table-cell">
+                      Department
+                    </th>
+                    <th className="hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 lg:table-cell">
+                      Designation
+                    </th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Role
+                    </th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Status
+                    </th>
+                    <th className="hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 xl:table-cell">
+                      Created
+                    </th>
+                    <th className="hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 xl:table-cell">
+                      Last Login
+                    </th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Actions
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -961,40 +1009,67 @@ export default function AdminPanel() {
                       className={`cursor-pointer transition-colors hover:bg-blue-50/40 ${i % 2 === 1 ? 'bg-gray-50/50' : ''}`}
                       onClick={() => openDetails(u)}
                     >
-                      <td className="whitespace-nowrap px-4 py-3 text-sm font-medium text-navy-900" style={{ fontFamily: 'ui-monospace, monospace' }}>
+                      <td
+                        className="whitespace-nowrap px-4 py-3 text-sm font-medium text-navy-900"
+                        style={{ fontFamily: 'ui-monospace, monospace' }}
+                      >
                         {u.userId || u.id.slice(0, 8)}
                       </td>
-                      <td className="whitespace-nowrap px-4 py-3 font-medium text-navy-900">{u.fullName}</td>
-                      <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">{u.email}</td>
-                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-600 lg:table-cell">{u.department || '—'}</td>
-                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-600 lg:table-cell">{u.designation || '—'}</td>
+                      <td className="whitespace-nowrap px-4 py-3 font-medium text-navy-900">
+                        {u.fullName}
+                      </td>
+                      <td className="whitespace-nowrap px-4 py-3 text-sm text-gray-500">
+                        {u.email}
+                      </td>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-600 lg:table-cell">
+                        {u.department || '—'}
+                      </td>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-600 lg:table-cell">
+                        {u.designation || '—'}
+                      </td>
                       <td className="whitespace-nowrap px-4 py-3">
                         {u.id === currentUser?.id ? (
-                          <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${ROLE_BADGE[u.role] || ''}`}>
+                          <span
+                            className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${ROLE_BADGE[u.role] || ''}`}
+                          >
                             {roleLabels[u.role] || u.role}
                           </span>
                         ) : (
                           <select
                             value={u.role}
-                            onChange={(e) => { e.stopPropagation(); handleRoleChange(u, e.target.value); }}
+                            onChange={(e) => {
+                              e.stopPropagation();
+                              handleRoleChange(u, e.target.value);
+                            }}
                             onClick={(e) => e.stopPropagation()}
                             className="cursor-pointer rounded-full border-0 px-2 py-0.5 text-xs font-medium outline-none"
                             style={{ backgroundColor: 'transparent' }}
                           >
                             {Object.entries(roleLabels).map(([val, lbl]) => (
-                              <option key={val} value={val}>{lbl}</option>
+                              <option key={val} value={val}>
+                                {lbl}
+                              </option>
                             ))}
                           </select>
                         )}
                       </td>
                       <td className="whitespace-nowrap px-4 py-3">
-                        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${u.isActive ? 'bg-green-50 text-green-700 ring-green-200' : 'bg-gray-100 text-gray-600 ring-gray-200'}`}>
+                        <span
+                          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${u.isActive ? 'bg-green-50 text-green-700 ring-green-200' : 'bg-gray-100 text-gray-600 ring-gray-200'}`}
+                        >
                           {u.isActive ? 'Active' : 'Inactive'}
                         </span>
                       </td>
-                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-600 xl:table-cell">{formatDate(u.createdAt)}</td>
-                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-600 xl:table-cell">{formatDate(u.lastLogin)}</td>
-                      <td className="whitespace-nowrap px-4 py-3" onClick={(e) => e.stopPropagation()}>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-600 xl:table-cell">
+                        {formatDate(u.createdAt)}
+                      </td>
+                      <td className="hidden whitespace-nowrap px-4 py-3 text-sm text-gray-600 xl:table-cell">
+                        {formatDate(u.lastLogin)}
+                      </td>
+                      <td
+                        className="whitespace-nowrap px-4 py-3"
+                        onClick={(e) => e.stopPropagation()}
+                      >
                         <div className="flex items-center gap-1.5">
                           <button
                             onClick={() => openEdit(u)}
@@ -1055,9 +1130,7 @@ export default function AdminPanel() {
           <div className="rounded-lg bg-blue-50 p-2">
             <Shield className="h-5 w-5 text-blue-600" />
           </div>
-          <h2 className="text-base font-semibold text-navy-900 lg:text-lg">
-            Role Management
-          </h2>
+          <h2 className="text-base font-semibold text-navy-900 lg:text-lg">Role Management</h2>
         </div>
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
           {(['admin', 'officer', 'analyst', 'viewer'] as const).map((role) => {
@@ -1066,7 +1139,9 @@ export default function AdminPanel() {
               <div key={role} className="rounded-xl border border-gray-200 bg-white p-5">
                 <div className="mb-3 flex items-center gap-2">
                   {info.icon}
-                  <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${ROLE_BADGE[role]}`}>
+                  <span
+                    className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${ROLE_BADGE[role]}`}
+                  >
                     {info.label}
                   </span>
                 </div>
@@ -1082,9 +1157,7 @@ export default function AdminPanel() {
           <div className="rounded-lg bg-blue-50 p-2">
             <FileText className="h-5 w-5 text-blue-600" />
           </div>
-          <h2 className="text-base font-semibold text-navy-900 lg:text-lg">
-            Recent Activity
-          </h2>
+          <h2 className="text-base font-semibold text-navy-900 lg:text-lg">Recent Activity</h2>
         </div>
         {logsLoading ? (
           <LoadingState text="Loading activity..." />
@@ -1100,11 +1173,21 @@ export default function AdminPanel() {
               <table className="w-full text-left text-sm">
                 <thead>
                   <tr className="border-b border-gray-200 bg-gray-50">
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Time</th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Admin</th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Action</th>
-                    <th className="hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 md:table-cell">Target</th>
-                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">Details</th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Time
+                    </th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Admin
+                    </th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Action
+                    </th>
+                    <th className="hidden px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500 md:table-cell">
+                      Target
+                    </th>
+                    <th className="px-4 py-3 text-xs font-semibold uppercase tracking-wider text-gray-500">
+                      Details
+                    </th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -1176,7 +1259,12 @@ export default function AdminPanel() {
             <div className="mb-4 rounded-lg bg-gray-50 p-4 text-left space-y-2">
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">User ID</span>
-                <span className="font-medium text-navy-900" style={{ fontFamily: 'ui-monospace, monospace' }}>{createdUser.userId}</span>
+                <span
+                  className="font-medium text-navy-900"
+                  style={{ fontFamily: 'ui-monospace, monospace' }}
+                >
+                  {createdUser.userId}
+                </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Name</span>
@@ -1188,13 +1276,18 @@ export default function AdminPanel() {
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Role</span>
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${ROLE_BADGE[createdUser.role] || ''}`}>
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${ROLE_BADGE[createdUser.role] || ''}`}
+                >
                   {roleLabels[createdUser.role] || capitalize(createdUser.role)}
                 </span>
               </div>
               <div className="flex justify-between text-sm">
                 <span className="text-gray-500">Temporary Password</span>
-                <span className="font-medium text-navy-900" style={{ fontFamily: 'ui-monospace, monospace' }}>
+                <span
+                  className="font-medium text-navy-900"
+                  style={{ fontFamily: 'ui-monospace, monospace' }}
+                >
                   {createdUser.temporaryPassword}
                 </span>
               </div>
@@ -1262,7 +1355,9 @@ export default function AdminPanel() {
                   />
                 </div>
                 <div>
-                  <label className="mb-1 block text-sm font-medium text-gray-700">Designation</label>
+                  <label className="mb-1 block text-sm font-medium text-gray-700">
+                    Designation
+                  </label>
                   <input
                     type="text"
                     value={createForm.designation}
@@ -1279,25 +1374,35 @@ export default function AdminPanel() {
                   className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3.5 text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 >
                   {Object.entries(roleLabels).map(([val, lbl]) => (
-                    <option key={val} value={val}>{lbl}</option>
+                    <option key={val} value={val}>
+                      {lbl}
+                    </option>
                   ))}
                 </select>
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Temporary Password *</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Temporary Password *
+                </label>
                 <input
                   type="text"
                   value={createForm.temporaryPassword}
-                  onChange={(e) => setCreateForm((f) => ({ ...f, temporaryPassword: e.target.value }))}
+                  onChange={(e) =>
+                    setCreateForm((f) => ({ ...f, temporaryPassword: e.target.value }))
+                  }
                   className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3.5 text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                   placeholder="Min 6 characters"
                 />
               </div>
               <div>
-                <label className="mb-1 block text-sm font-medium text-gray-700">Account Status</label>
+                <label className="mb-1 block text-sm font-medium text-gray-700">
+                  Account Status
+                </label>
                 <select
                   value={createForm.isActive ? 'active' : 'inactive'}
-                  onChange={(e) => setCreateForm((f) => ({ ...f, isActive: e.target.value === 'active' }))}
+                  onChange={(e) =>
+                    setCreateForm((f) => ({ ...f, isActive: e.target.value === 'active' }))
+                  }
                   className="h-11 w-full rounded-lg border border-gray-200 bg-white px-3.5 text-sm text-gray-700 outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-500/20"
                 >
                   <option value="active">Active</option>
@@ -1386,7 +1491,11 @@ export default function AdminPanel() {
         </div>
       </ModalShell>
 
-      <ModalShell open={detailsModalOpen} onClose={() => setDetailsModalOpen(false)} maxWidth="max-w-lg">
+      <ModalShell
+        open={detailsModalOpen}
+        onClose={() => setDetailsModalOpen(false)}
+        maxWidth="max-w-lg"
+      >
         {detailsTarget && (
           <>
             <h3 className="mb-5 text-lg font-semibold text-navy-900">User Details</h3>
@@ -1401,42 +1510,61 @@ export default function AdminPanel() {
                 { label: 'Updated At', value: formatDateTime(detailsTarget.updatedAt) },
                 { label: 'Last Login', value: formatDateTime(detailsTarget.lastLogin) },
               ].map((row) => (
-                <div key={row.label} className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
+                <div
+                  key={row.label}
+                  className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2"
+                >
                   <span className="text-sm text-gray-500">{row.label}</span>
-                  <span className={`text-sm font-medium text-navy-900 ${row.mono ? '' : ''}`} style={row.mono ? { fontFamily: 'ui-monospace, monospace' } : undefined}>
+                  <span
+                    className={`text-sm font-medium text-navy-900 ${row.mono ? '' : ''}`}
+                    style={row.mono ? { fontFamily: 'ui-monospace, monospace' } : undefined}
+                  >
                     {row.value}
                   </span>
                 </div>
               ))}
               <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
                 <span className="text-sm text-gray-500">Role</span>
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${ROLE_BADGE[detailsTarget.role] || ''}`}>
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${ROLE_BADGE[detailsTarget.role] || ''}`}
+                >
                   {roleLabels[detailsTarget.role] || detailsTarget.role}
                 </span>
               </div>
               <div className="flex items-center justify-between rounded-lg bg-gray-50 px-3 py-2">
                 <span className="text-sm text-gray-500">Status</span>
-                <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${detailsTarget.isActive ? 'bg-green-50 text-green-700 ring-green-200' : 'bg-gray-100 text-gray-600 ring-gray-200'}`}>
+                <span
+                  className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${detailsTarget.isActive ? 'bg-green-50 text-green-700 ring-green-200' : 'bg-gray-100 text-gray-600 ring-gray-200'}`}
+                >
                   {detailsTarget.isActive ? 'Active' : 'Inactive'}
                 </span>
               </div>
             </div>
             <div className="mt-6 flex flex-wrap gap-2">
               <button
-                onClick={() => { setDetailsModalOpen(false); openEdit(detailsTarget); }}
+                onClick={() => {
+                  setDetailsModalOpen(false);
+                  openEdit(detailsTarget);
+                }}
                 className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-navy-900 hover:bg-gray-50"
               >
                 Edit User
               </button>
               <button
-                onClick={() => { setDetailsModalOpen(false); handleResetPassword(detailsTarget); }}
+                onClick={() => {
+                  setDetailsModalOpen(false);
+                  handleResetPassword(detailsTarget);
+                }}
                 className="rounded-lg border border-gray-200 bg-white px-3 py-2 text-sm font-medium text-navy-900 hover:bg-gray-50"
               >
                 Reset Password
               </button>
               {detailsTarget.id !== currentUser?.id && (
                 <button
-                  onClick={() => { setDetailsModalOpen(false); handleStatusToggle(detailsTarget); }}
+                  onClick={() => {
+                    setDetailsModalOpen(false);
+                    handleStatusToggle(detailsTarget);
+                  }}
                   className={`rounded-lg px-3 py-2 text-sm font-semibold text-white ${detailsTarget.isActive ? 'bg-red-600 hover:bg-red-500' : 'bg-green-600 hover:bg-green-500'}`}
                 >
                   {detailsTarget.isActive ? 'Deactivate' : 'Activate'}

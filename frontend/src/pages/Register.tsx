@@ -71,8 +71,8 @@ export default function Register() {
               Join the platform keeping India's infrastructure on track.
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-navy-300">
-              Government officers, analysts, and stakeholders can register to access
-              AI-powered risk monitoring for infrastructure projects across ministries.
+              Government officers, analysts, and stakeholders can register to access AI-powered risk
+              monitoring for infrastructure projects across ministries.
             </p>
           </div>
           <p className="text-xs text-navy-500">
@@ -108,7 +108,10 @@ export default function Register() {
 
             <form onSubmit={handleSubmit} className="mt-6 space-y-4">
               <div>
-                <label htmlFor="fullName" className="mb-1.5 block text-sm font-medium text-navy-100">
+                <label
+                  htmlFor="fullName"
+                  className="mb-1.5 block text-sm font-medium text-navy-100"
+                >
                   Full Name
                 </label>
                 <input
@@ -138,7 +141,10 @@ export default function Register() {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-navy-100">
+                  <label
+                    htmlFor="password"
+                    className="mb-1.5 block text-sm font-medium text-navy-100"
+                  >
                     Password
                   </label>
                   <div className="relative">
@@ -162,7 +168,10 @@ export default function Register() {
                   </div>
                 </div>
                 <div>
-                  <label htmlFor="confirmPassword" className="mb-1.5 block text-sm font-medium text-navy-100">
+                  <label
+                    htmlFor="confirmPassword"
+                    className="mb-1.5 block text-sm font-medium text-navy-100"
+                  >
                     Confirm Password
                   </label>
                   <input
@@ -179,7 +188,10 @@ export default function Register() {
 
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div>
-                  <label htmlFor="department" className="mb-1.5 block text-sm font-medium text-navy-100">
+                  <label
+                    htmlFor="department"
+                    className="mb-1.5 block text-sm font-medium text-navy-100"
+                  >
                     Department <span className="text-navy-500">(optional)</span>
                   </label>
                   <input
@@ -192,7 +204,10 @@ export default function Register() {
                   />
                 </div>
                 <div>
-                  <label htmlFor="designation" className="mb-1.5 block text-sm font-medium text-navy-100">
+                  <label
+                    htmlFor="designation"
+                    className="mb-1.5 block text-sm font-medium text-navy-100"
+                  >
                     Designation <span className="text-navy-500">(optional)</span>
                   </label>
                   <input

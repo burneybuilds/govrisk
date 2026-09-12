@@ -93,9 +93,7 @@ export default function AddUpdateModal({
 
         <div className="space-y-4">
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-gray-500">
-              Update Type
-            </label>
+            <label className="mb-1.5 block text-xs font-medium text-gray-500">Update Type</label>
             <select
               value={updateType}
               onChange={(e) => setUpdateType(e.target.value)}
@@ -110,9 +108,7 @@ export default function AddUpdateModal({
           </div>
 
           <div>
-            <label className="mb-1.5 block text-xs font-medium text-gray-500">
-              Message
-            </label>
+            <label className="mb-1.5 block text-xs font-medium text-gray-500">Message</label>
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
@@ -134,8 +130,10 @@ export default function AddUpdateModal({
                 <Loader2 className="h-4 w-4 animate-spin" />
                 Saving...
               </>
+            ) : isEdit ? (
+              'Save Update'
             ) : (
-              isEdit ? 'Save Update' : 'Add Update'
+              'Add Update'
             )}
           </button>
           <button

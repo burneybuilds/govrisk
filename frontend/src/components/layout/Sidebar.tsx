@@ -1,4 +1,4 @@
-import { NavLink, useNavigate } from "react-router-dom";
+import { NavLink, useNavigate } from 'react-router-dom';
 import {
   BarChart3,
   FolderOpen,
@@ -10,17 +10,17 @@ import {
   Settings,
   ShieldCheck,
   LogOut,
-} from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
+} from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
 
 const navItems = [
-  { to: "/", icon: BarChart3, label: "Dashboard" },
-  { to: "/projects", icon: FolderOpen, label: "Projects" },
-  { to: "/risk-map", icon: MapPin, label: "Risk Map" },
-  { to: "/analytics", icon: TrendingUp, label: "Analytics" },
-  { to: "/alerts", icon: AlertTriangle, label: "Early Warnings" },
-  { to: "/assistant", icon: Bot, label: "AI Assistant" },
-  { to: "/reports", icon: FileText, label: "Reports" },
+  { to: '/', icon: BarChart3, label: 'Dashboard' },
+  { to: '/projects', icon: FolderOpen, label: 'Projects' },
+  { to: '/risk-map', icon: MapPin, label: 'Risk Map' },
+  { to: '/analytics', icon: TrendingUp, label: 'Analytics' },
+  { to: '/alerts', icon: AlertTriangle, label: 'Early Warnings' },
+  { to: '/assistant', icon: Bot, label: 'AI Assistant' },
+  { to: '/reports', icon: FileText, label: 'Reports' },
 ];
 
 function AshokaChakra({ size = 11 }: { size?: number }) {
@@ -30,14 +30,7 @@ function AshokaChakra({ size = 11 }: { size?: number }) {
       <circle cx="12" cy="12" r="11.5" fill="#1a237e" />
       <g stroke="#fff" strokeWidth="0.7">
         {spokes.map((angle) => (
-          <line
-            key={angle}
-            x1="12"
-            y1="12"
-            x2="12"
-            y2="1.6"
-            transform={`rotate(${angle} 12 12)`}
-          />
+          <line key={angle} x1="12" y1="12" x2="12" y2="1.6" transform={`rotate(${angle} 12 12)`} />
         ))}
       </g>
       <circle cx="12" cy="12" r="1.2" fill="#fff" />
@@ -57,12 +50,10 @@ function BottomNavItem({
   return (
     <NavLink
       to={to}
-      end={to === "/"}
+      end={to === '/'}
       className={({ isActive }) =>
         `group relative flex min-w-[76px] flex-1 flex-col items-center gap-1.5 px-3 py-4 text-[11px] font-medium transition-colors duration-200 ${
-          isActive
-            ? "text-navy-900"
-            : "text-gray-500 hover:text-navy-900"
+          isActive ? 'text-navy-900' : 'text-gray-500 hover:text-navy-900'
         }`
       }
     >
@@ -71,7 +62,7 @@ function BottomNavItem({
           <Icon
             size={20}
             className={`shrink-0 transition-colors ${
-              isActive ? "text-blue-600" : "text-gray-400 group-hover:text-blue-600"
+              isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600'
             }`}
           />
           <span className="whitespace-nowrap">{label}</span>
@@ -88,11 +79,11 @@ export default function BottomBar() {
   const { user, logout } = useAuth();
   const navigate = useNavigate();
 
-  const displayName = user?.fullName || "GovRisk User";
+  const displayName = user?.fullName || 'GovRisk User';
 
   const handleLogout = () => {
     logout();
-    navigate("/login", { replace: true });
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -107,9 +98,9 @@ export default function BottomBar() {
         >
           <span
             className="relative h-12 w-12 shrink-0 rounded-full"
-            title={user?.role === "admin" ? "Administrator" : undefined}
+            title={user?.role === 'admin' ? 'Administrator' : undefined}
           >
-            {user?.role === "admin" ? (
+            {user?.role === 'admin' ? (
               <>
                 <span className="block h-12 w-12 rounded-full bg-[conic-gradient(from_0deg,#FF9933_0deg_30deg,#FFFFFF_30deg_150deg,#138808_150deg_270deg,#FF9933_270deg_360deg)] shadow-sm [mask-image:radial-gradient(circle,transparent_0_13px,#000_13.5px)]" />
                 <img
@@ -126,7 +117,9 @@ export default function BottomBar() {
             )}
           </span>
           <span className="min-w-0 max-w-[110px]">
-            <span className="block truncate text-xs font-semibold text-navy-900">{displayName}</span>
+            <span className="block truncate text-xs font-semibold text-navy-900">
+              {displayName}
+            </span>
             <span className="block truncate text-[10px] text-gray-500">Log out</span>
           </span>
         </button>
@@ -137,9 +130,7 @@ export default function BottomBar() {
           {navItems.map((item) => (
             <BottomNavItem key={item.to} {...item} />
           ))}
-          {user?.role === "admin" && (
-            <BottomNavItem to="/admin" icon={ShieldCheck} label="Admin" />
-          )}
+          {user?.role === 'admin' && <BottomNavItem to="/admin" icon={ShieldCheck} label="Admin" />}
           <BottomNavItem to="/settings" icon={Settings} label="Settings" />
         </nav>
 

@@ -34,7 +34,9 @@ export function ProjectTimeline({
           </div>
           <div className="ml-5 h-8 w-0.5 bg-gray-200" />
           <div className="flex items-start gap-4">
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${onTime ? 'bg-green-100' : 'bg-red-100'}`}>
+            <div
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${onTime ? 'bg-green-100' : 'bg-red-100'}`}
+            >
               <Clock size={18} className={onTime ? 'text-green-600' : 'text-red-600'} />
             </div>
             <div>

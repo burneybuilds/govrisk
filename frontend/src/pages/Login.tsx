@@ -51,8 +51,7 @@ export default function Login() {
         aria-hidden="true"
         className="pointer-events-none fixed inset-0"
         style={{
-          backgroundImage:
-            'radial-gradient(circle, rgba(20,30,53,0.06) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, rgba(20,30,53,0.06) 1px, transparent 1px)',
           backgroundSize: '24px 24px',
         }}
       />
@@ -77,15 +76,11 @@ export default function Login() {
                 GovRisk
               </span>
               <span className="hidden text-xs text-gray-400 sm:inline">|</span>
-              <span className="text-sm font-medium text-gray-600">
-                {t('login.governmentLine')}
-              </span>
+              <span className="text-sm font-medium text-gray-600">{t('login.governmentLine')}</span>
             </div>
-            <p className="text-xs text-gray-500">
-              {t('login.ministryLine')}
-            </p>
+            <p className="text-xs text-gray-500">{t('login.ministryLine')}</p>
           </div>
-<div className="flex items-center gap-2">
+          <div className="flex items-center gap-2">
             <LanguageSwitcher variant="light" />
             <div className="hidden h-9 items-center gap-1.5 rounded-lg border border-gray-200 px-3 text-xs font-medium text-navy-700 md:flex">
               <Lock size={13} aria-hidden="true" />
@@ -100,17 +95,13 @@ export default function Login() {
         <div className="w-full max-w-md">
           <div className="mb-7 text-center">
             <h1 className="text-2xl font-semibold text-navy-900">{t('login.title')}</h1>
-            <p className="mt-1.5 text-sm text-white drop-shadow-sm">
-              {t('login.subtitle')}
-            </p>
+            <p className="mt-1.5 text-sm text-white drop-shadow-sm">{t('login.subtitle')}</p>
           </div>
 
           {/* Login card */}
           <div className="rounded-lg border border-gray-200 bg-white p-6 shadow-sm sm:p-8">
             <h2 className="text-lg font-semibold text-navy-900">{t('login.signIn')}</h2>
-            <p className="mt-1 text-sm text-gray-500">
-              {t('login.credentialsLine')}
-            </p>
+            <p className="mt-1 text-sm text-gray-500">{t('login.credentialsLine')}</p>
 
             {error && (
               <div
@@ -146,7 +137,10 @@ export default function Login() {
               </div>
 
               <div>
-                <label htmlFor="password" className="mb-1.5 block text-sm font-medium text-navy-900">
+                <label
+                  htmlFor="password"
+                  className="mb-1.5 block text-sm font-medium text-navy-900"
+                >
                   {t('login.passwordLabel')}
                 </label>
                 <div className="relative">
@@ -247,9 +241,7 @@ export default function Login() {
               Terms
             </a>
           </nav>
-          <p className="text-center">
-            © {new Date().getFullYear()} Government of India · GovRisk
-          </p>
+          <p className="text-center">© {new Date().getFullYear()} Government of India · GovRisk</p>
         </div>
       </footer>
     </div>

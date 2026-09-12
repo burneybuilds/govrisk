@@ -7,11 +7,11 @@ import { RiskBadge } from '../components/ui/RiskBadge';
 import { RiskScore } from '../components/ui/RiskScore';
 
 const suggestedQuestions: string[] = [
-  "Which projects are at highest risk?",
-  "Why is the River Basin Development Project high risk?",
-  "Which sector has the highest average cost overrun?",
-  "Show me projects likely to be delayed.",
-  "What are the major risk drivers?",
+  'Which projects are at highest risk?',
+  'Why is the River Basin Development Project high risk?',
+  'Which sector has the highest average cost overrun?',
+  'Show me projects likely to be delayed.',
+  'What are the major risk drivers?',
 ];
 
 interface Message {
@@ -72,8 +72,12 @@ export default function Assistant() {
             <Bot className="h-7 w-7 text-blue-600" />
           </span>
           <div>
-            <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">GovRisk AI</h1>
-            <p className="text-sm font-medium text-gray-600">Infrastructure Intelligence Assistant</p>
+            <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
+              GovRisk AI
+            </h1>
+            <p className="text-sm font-medium text-gray-600">
+              Infrastructure Intelligence Assistant
+            </p>
           </div>
         </div>
         <p className="mt-2 text-sm text-gray-500">

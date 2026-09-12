@@ -218,13 +218,18 @@ export default function Analytics() {
         )}
 
         <div className="rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
-          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">Sector Risk Comparison</h3>
+          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
+            Sector Risk Comparison
+          </h3>
           <p className="mt-1 text-xs text-gray-500 lg:text-sm">
             Average risk score across monitored infrastructure sectors.
           </p>
           <div className="mt-4">
             <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={sectorPerformance} margin={{ top: 10, right: 12, left: -12, bottom: 0 }}>
+              <BarChart
+                data={sectorPerformance}
+                margin={{ top: 10, right: 12, left: -12, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
                 <XAxis
                   dataKey="sector"
@@ -256,7 +261,9 @@ export default function Analytics() {
         </div>
 
         <div className="rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
-          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">Cost Overrun Analysis</h3>
+          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
+            Cost Overrun Analysis
+          </h3>
           <p className="mt-1 text-xs text-gray-500 lg:text-sm">
             Cost overrun percentage vs progress gap across projects.
           </p>
@@ -271,7 +278,13 @@ export default function Analytics() {
                   tick={{ fontSize: 11, fill: '#6b7280' }}
                   axisLine={{ stroke: '#e5e7eb' }}
                   tickLine={false}
-                  label={{ value: 'Progress Gap (%)', position: 'bottom', offset: 2, fontSize: 12, fill: '#6b7280' }}
+                  label={{
+                    value: 'Progress Gap (%)',
+                    position: 'bottom',
+                    offset: 2,
+                    fontSize: 12,
+                    fill: '#6b7280',
+                  }}
                 />
                 <YAxis
                   dataKey="costOverrun"
@@ -280,7 +293,13 @@ export default function Analytics() {
                   tick={{ fontSize: 11, fill: '#6b7280' }}
                   axisLine={{ stroke: '#e5e7eb' }}
                   tickLine={false}
-                  label={{ value: 'Cost Overrun (%)', angle: -90, position: 'insideLeft', fontSize: 12, fill: '#6b7280' }}
+                  label={{
+                    value: 'Cost Overrun (%)',
+                    angle: -90,
+                    position: 'insideLeft',
+                    fontSize: 12,
+                    fill: '#6b7280',
+                  }}
                 />
                 <Tooltip
                   cursor={{ strokeDasharray: '3 3' }}
@@ -305,13 +324,19 @@ export default function Analytics() {
         </div>
 
         <div className="rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
-          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">Schedule Delay by Sector</h3>
+          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
+            Schedule Delay by Sector
+          </h3>
           <p className="mt-1 text-xs text-gray-500 lg:text-sm">
             Average schedule delay in months per sector.
           </p>
           <div className="mt-4">
             <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={sectorPerformance} layout="vertical" margin={{ top: 0, right: 24, left: 20, bottom: 0 }}>
+              <BarChart
+                data={sectorPerformance}
+                layout="vertical"
+                margin={{ top: 0, right: 24, left: 20, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
                 <XAxis
                   type="number"
@@ -340,7 +365,9 @@ export default function Analytics() {
 
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
           <div className="border-b border-gray-100 px-5 py-4 lg:px-6">
-            <h3 className="text-base font-semibold text-navy-900 lg:text-lg">Ministry Risk Ranking</h3>
+            <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
+              Ministry Risk Ranking
+            </h3>
             <p className="mt-1 text-xs text-gray-500 lg:text-sm">
               Ministries ranked by average risk score of their projects.
             </p>

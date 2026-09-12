@@ -74,6 +74,21 @@ def _project_to_response(p: Project) -> dict:
         "riskReport": assessment,
         "createdAt": p.created_at,
         "updatedAt": p.updated_at,
+        "status": p.status,
+        "scale": p.scale,
+        "fundingSource": p.funding_source,
+        "externalRef": p.external_ref,
+        "dataSource": (
+            {
+                "name": p.source_name,
+                "url": p.source_url,
+                "retrievedDate": p.retrieved_date,
+                "confidence": p.data_confidence,
+            }
+            if p.source_name
+            else None
+        ),
+        "lastSyncedAt": p.last_synced_at,
     }
 
 
@@ -105,8 +120,41 @@ def _update_to_response(db_auth: Session, u: ProjectUpdateRecord) -> dict:
 
 
 @router.get("", response_model=list[ProjectResponse])
-def list_projects(db: Session = Depends(get_db), _user: User = Depends(get_current_user)):
-    projects = db.query(Project).all()
+def list_projects(
+    sector: str | None = None,
+    status: str | None = None,
+    state: str | None = None,
+    min_cost: float | None = None,
+    max_cost: float | None = None,
+    funding_source: str | None = None,
+    source: str | None = None,
+    q: str | None = None,
+    db: Session = Depends(get_db),
+    _user: User = Depends(get_current_user),
+):
+    """List projects with optional government-reporting filters."""
+    query = db.query(Project)
+    if sector:
+        query = query.filter(func.lower(Project.sector) == sector.strip().lower())
+    if status:
+        query = query.filter(func.lower(Project.status) == status.strip().lower())
+    if state:
+        query = query.filter(func.lower(Project.state) == state.strip().lower())
+    if min_cost is not None:
+        query = query.filter(Project.original_cost >= min_cost)
+    if max_cost is not None:
+        query = query.filter(Project.original_cost <= max_cost)
+    if funding_source:
+        query = query.filter(Project.funding_source == funding_source.strip().upper())
+    if source:
+        query = query.filter(func.lower(Project.source_name).contains(source.strip().lower()))
+    if q:
+        query = query.filter(
+            Project.name.ilike(f"%{q.strip()}%")
+            | Project.agency.ilike(f"%{q.strip()}%")
+            | Project.sector.ilike(f"%{q.strip()}%")
+        )
+    projects = query.order_by(Project.state.asc(), Project.original_cost.desc()).all()
     return [_project_to_response(p) for p in projects]
 
 

@@ -12,7 +12,16 @@ interface ProjectTableProps {
   pageSize?: number;
 }
 
-type SortKey = 'name' | 'ministry' | 'sector' | 'state' | 'originalCost' | 'currentCost' | 'physicalProgress' | 'riskScore' | 'riskLevel';
+type SortKey =
+  | 'name'
+  | 'ministry'
+  | 'sector'
+  | 'state'
+  | 'originalCost'
+  | 'currentCost'
+  | 'physicalProgress'
+  | 'riskScore'
+  | 'riskLevel';
 type SortDir = 'asc' | 'desc';
 
 const rankOfRisk = { LOW: 1, MEDIUM: 2, HIGH: 3, CRITICAL: 4 } as const;
@@ -44,11 +53,16 @@ interface SortHeaderProps {
 function SortHeader({ label, col, align = 'left', sortKey, sortDir, onSort }: SortHeaderProps) {
   const active = sortKey === col;
   const icon = active ? (
-    sortDir === 'asc' ? <ChevronUp size={14} /> : <ChevronDown size={14} />
+    sortDir === 'asc' ? (
+      <ChevronUp size={14} />
+    ) : (
+      <ChevronDown size={14} />
+    )
   ) : (
     <ChevronsUpDown size={14} />
   );
-  const alignClass = align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left';
+  const alignClass =
+    align === 'right' ? 'text-right' : align === 'center' ? 'text-center' : 'text-left';
   return (
     <th className={`px-4 py-3 font-medium ${alignClass}`}>
       <button
@@ -117,15 +131,72 @@ export function ProjectTable({
         <table className="w-full text-left text-sm">
           <thead className="bg-gray-50">
             <tr className="text-xs uppercase tracking-wider text-gray-500">
-              <SortHeader label="Project" col="name" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
-              <SortHeader label="Ministry" col="ministry" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
-              <SortHeader label="Sector" col="sector" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
-              <SortHeader label="State" col="state" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
-              <SortHeader label="Original Cost" col="originalCost" align="right" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
-              <SortHeader label="Current Cost" col="currentCost" align="right" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
-              <SortHeader label="Progress" col="physicalProgress" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
-              <SortHeader label="Risk Score" col="riskScore" align="center" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
-              <SortHeader label="Risk Level" col="riskLevel" sortKey={sortKey} sortDir={sortDir} onSort={toggleSort} />
+              <SortHeader
+                label="Project"
+                col="name"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="Ministry"
+                col="ministry"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="Sector"
+                col="sector"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="State"
+                col="state"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="Original Cost"
+                col="originalCost"
+                align="right"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="Current Cost"
+                col="currentCost"
+                align="right"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="Progress"
+                col="physicalProgress"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="Risk Score"
+                col="riskScore"
+                align="center"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
+              <SortHeader
+                label="Risk Level"
+                col="riskLevel"
+                sortKey={sortKey}
+                sortDir={sortDir}
+                onSort={toggleSort}
+              />
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-100">
@@ -142,8 +213,12 @@ export function ProjectTable({
                 <td className="px-4 py-3 text-gray-700">{project.ministry}</td>
                 <td className="px-4 py-3 text-gray-700">{project.sector}</td>
                 <td className="px-4 py-3 text-gray-700">{project.state}</td>
-                <td className="px-4 py-3 text-right text-gray-700">{formatCost(project.originalCost)}</td>
-                <td className="px-4 py-3 text-right text-gray-700">{formatCost(project.currentCost)}</td>
+                <td className="px-4 py-3 text-right text-gray-700">
+                  {formatCost(project.originalCost)}
+                </td>
+                <td className="px-4 py-3 text-right text-gray-700">
+                  {formatCost(project.currentCost)}
+                </td>
                 <td className="px-4 py-3 w-40">
                   <ProgressBar value={project.physicalProgress} />
                 </td>
@@ -185,9 +260,7 @@ export function ProjectTable({
                 key={page}
                 onClick={() => setCurrentPage(page)}
                 className={`h-8 w-8 rounded-lg text-sm font-medium transition-colors ${
-                  page === safePage
-                    ? 'bg-blue-600 text-white'
-                    : 'text-gray-600 hover:bg-gray-100'
+                  page === safePage ? 'bg-blue-600 text-white' : 'text-gray-600 hover:bg-gray-100'
                 }`}
               >
                 {page}

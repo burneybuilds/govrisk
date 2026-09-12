@@ -95,7 +95,9 @@ export default function Projects() {
     <div className="min-w-0">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">Infrastructure Projects</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
+            Infrastructure Projects
+          </h1>
           <p className="mt-1 text-sm text-gray-500 lg:text-base">
             Monitor project performance, cost, progress and risk.
           </p>
@@ -125,11 +127,7 @@ export default function Projects() {
       <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 lg:p-5">
         <FilterBar>
           <div className="w-full sm:w-72">
-            <SearchBar
-              value={search}
-              onChange={setSearch}
-              placeholder="Search projects..."
-            />
+            <SearchBar value={search} onChange={setSearch} placeholder="Search projects..." />
           </div>
           <FilterSelect
             label="Sector"

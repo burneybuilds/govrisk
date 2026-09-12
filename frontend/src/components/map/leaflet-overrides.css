@@ -1,0 +1,140 @@
+/* GovRisk leaflet theme overrides for the dark navy/amber map chrome. */
+
+.gm-map-tooltip.leaflet-tooltip {
+  background: #141e35;
+  border: 1px solid rgba(251, 191, 36, 0.35);
+  border-radius: 8px;
+  color: #f3f4f6;
+  box-shadow: 0 10px 24px rgba(8, 15, 30, 0.45);
+  padding: 8px 10px;
+  font-size: 12px;
+  line-height: 1.45;
+  max-width: 240px;
+}
+
+.gm-map-tooltip.leaflet-tooltip::before {
+  border-top-color: rgba(251, 191, 36, 0.35);
+}
+
+.gm-map-tooltip .gm-tooltip-title {
+  font-weight: 600;
+  color: #fbbf24;
+}
+
+.gm-map-tooltip .gm-tooltip-row {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.leaflet-container {
+  background: #0b1221;
+  font-family: 'Noto Sans', ui-sans-serif, system-ui, sans-serif;
+}
+
+/* Pulsing severe-weather markers */
+.gm-pulse-wrap {
+  position: relative;
+  width: 22px;
+  height: 22px;
+}
+
+.gm-pulse-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 9999px;
+  border: 2px solid rgba(33, 113, 181, 0.9);
+  animation: gm-pulse 1.6s ease-out infinite;
+}
+
+.gm-pulse-ring--extreme {
+  border-color: rgba(8, 48, 107, 0.95);
+  background: rgba(8, 48, 107, 0.35);
+}
+
+.gm-pulse-dot {
+  position: absolute;
+  inset: 6px;
+  border-radius: 9999px;
+  background: #2171b5;
+}
+
+.gm-pulse-dot--extreme {
+  background: #08306b;
+}
+
+@keyframes gm-pulse {
+  0% {
+    transform: scale(0.6);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1.6);
+    opacity: 0;
+  }
+}
+
+/* Dark leaflet zoom controls */
+.leaflet-bar a {
+  background: #141e35;
+  color: #f3f4f6;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+}
+
+.leaflet-bar a:hover {
+  background: #1e2d4f;
+  color: #fbbf24;
+}
+
+.leaflet-bar {
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  box-shadow: 0 6px 18px rgba(8, 15, 30, 0.4);
+}
+
+.leaflet-control-attribution {
+  background: rgba(11, 18, 33, 0.7) !important;
+  color: #9ca3af !important;
+  font-size: 10px;
+}
+
+.leaflet-control-attribution a {
+  color: #d1d5db !important;
+}
+
+/* Focus rings for keyboard navigation on map controls */
+.leaflet-control a:focus-visible,
+.gm-map-button:focus-visible {
+  outline: 2px solid #fbbf24;
+  outline-offset: 2px;
+}
+
+/* Skeleton shimmer */
+.gm-skeleton {
+  background: linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.06) 25%,
+    rgba(255, 255, 255, 0.14) 50%,
+    rgba(255, 255, 255, 0.06) 75%
+  );
+  background-size: 200% 100%;
+  animation: gm-shimmer 1.4s infinite;
+  border-radius: 6px;
+}
+
+@keyframes gm-shimmer {
+  0% {
+    background-position: 200% 0;
+  }
+  100% {
+    background-position: -200% 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gm-pulse-ring {
+    animation: none;
+  }
+  .gm-skeleton {
+    animation: none;
+  }
+}

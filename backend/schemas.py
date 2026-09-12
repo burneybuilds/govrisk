@@ -58,6 +58,13 @@ class ProjectResponse(BaseModel):
     riskReport: Optional[dict] = None
     createdAt: Optional[str] = None
     updatedAt: Optional[str] = None
+    # Government-ingest provenance (empty for manually created records).
+    status: Optional[str] = None
+    scale: Optional[str] = None
+    fundingSource: Optional[str] = None
+    externalRef: Optional[str] = None
+    dataSource: Optional[dict] = None
+    lastSyncedAt: Optional[str] = None
 
     class Config:
         from_attributes = True

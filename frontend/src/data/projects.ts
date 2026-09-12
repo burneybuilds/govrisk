@@ -179,7 +179,7 @@ export const mockProjects: Project[] = [
     riskLevel: 'CRITICAL',
     milestonesTotal: 16,
     milestonesDelayed: 11,
-    lat: 20.30,
+    lat: 20.3,
     lng: 85.82,
     riskFactors: [
       'Physical progress is 27% behind planned progress',
@@ -335,7 +335,7 @@ export const mockProjects: Project[] = [
     riskLevel: 'CRITICAL',
     milestonesTotal: 24,
     milestonesDelayed: 18,
-    lat: 22.30,
+    lat: 22.3,
     lng: 72.18,
     riskFactors: [
       'Physical progress is 25% behind planned progress',
@@ -882,7 +882,7 @@ export const mockProjects: Project[] = [
     milestonesTotal: 22,
     milestonesDelayed: 8,
     lat: 34.08,
-    lng: 74.80,
+    lng: 74.8,
     riskFactors: [
       'Physical progress is 13% behind planned progress',
       'Cost overrun of 17.9% due to extended winter shutdown periods',
@@ -1076,7 +1076,7 @@ export const mockProjects: Project[] = [
     riskLevel: 'HIGH',
     milestonesTotal: 22,
     milestonesDelayed: 9,
-    lat: 31.10,
+    lat: 31.1,
     lng: 77.17,
     riskFactors: [
       'Physical progress is 15% behind planned progress',
@@ -1193,7 +1193,7 @@ export const mockProjects: Project[] = [
     riskLevel: 'MEDIUM',
     milestonesTotal: 18,
     milestonesDelayed: 5,
-    lat: 23.90,
+    lat: 23.9,
     lng: 71.15,
     riskFactors: [
       'Physical progress is 6% behind planned progress',
@@ -1232,7 +1232,7 @@ export const mockProjects: Project[] = [
     riskLevel: 'MEDIUM',
     milestonesTotal: 16,
     milestonesDelayed: 4,
-    lat: 15.50,
+    lat: 15.5,
     lng: 73.83,
     riskFactors: [
       'Physical progress is 5% behind planned progress',
@@ -1271,7 +1271,7 @@ export const mockProjects: Project[] = [
     riskLevel: 'MEDIUM',
     milestonesTotal: 14,
     milestonesDelayed: 4,
-    lat: 30.90,
+    lat: 30.9,
     lng: 75.86,
     riskFactors: [
       'Physical progress is 6% behind planned progress',
@@ -1428,7 +1428,7 @@ export const mockProjects: Project[] = [
     milestonesTotal: 18,
     milestonesDelayed: 6,
     lat: 30.11,
-    lng: 78.30,
+    lng: 78.3,
     riskFactors: [
       'Physical progress is 10% behind planned progress',
       'Cost overrun of 10.3% due to retaining wall construction additions',
@@ -1466,7 +1466,7 @@ export const mockProjects: Project[] = [
     riskLevel: 'MEDIUM',
     milestonesTotal: 16,
     milestonesDelayed: 4,
-    lat: 24.50,
+    lat: 24.5,
     lng: 78.95,
     riskFactors: [
       'Physical progress is 7% behind planned progress',
@@ -1545,7 +1545,7 @@ export const mockProjects: Project[] = [
     milestonesTotal: 14,
     milestonesDelayed: 4,
     lat: 13.23,
-    lng: 77.10,
+    lng: 77.1,
     riskFactors: [
       'Physical progress is 6% behind planned progress',
       'Cost increase of 10.7% due to advanced recycling technology addition',
@@ -1622,8 +1622,8 @@ export const mockProjects: Project[] = [
     riskLevel: 'MEDIUM',
     milestonesTotal: 20,
     milestonesDelayed: 5,
-    lat: 26.50,
-    lng: 90.20,
+    lat: 26.5,
+    lng: 90.2,
     riskFactors: [
       'Physical progress is 7% behind planned progress',
       'Cost has increased by 11.4% due to flood-related reconstruction',
@@ -1662,7 +1662,7 @@ export const mockProjects: Project[] = [
     milestonesTotal: 18,
     milestonesDelayed: 5,
     lat: 17.98,
-    lng: 79.60,
+    lng: 79.6,
     riskFactors: [
       'Physical progress is 8% behind planned progress',
       'Cost overrun of 9.3% from original estimate',
@@ -1852,8 +1852,8 @@ export const mockProjects: Project[] = [
     riskLevel: 'LOW',
     milestonesTotal: 10,
     milestonesDelayed: 2,
-    lat: 31.30,
-    lng: 75.60,
+    lat: 31.3,
+    lng: 75.6,
     riskFactors: [
       'Physical progress is 3% behind planned progress',
       'Cost increase of 6.3% from original estimate',
@@ -1890,7 +1890,7 @@ export const mockProjects: Project[] = [
     milestonesTotal: 10,
     milestonesDelayed: 2,
     lat: 15.46,
-    lng: 75.00,
+    lng: 75.0,
     riskFactors: [
       'Physical progress is 4% behind planned progress',
       'Cost overrun of 6.2% from original estimate',
@@ -2111,7 +2111,7 @@ export const mockProjects: Project[] = [
     riskLevel: 'LOW',
     milestonesTotal: 12,
     milestonesDelayed: 2,
-    lat: 15.50,
+    lat: 15.5,
     lng: 73.91,
     riskFactors: [
       'Physical progress is 3% behind planned progress',

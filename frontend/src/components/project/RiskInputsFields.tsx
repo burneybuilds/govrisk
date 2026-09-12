@@ -55,11 +55,7 @@ function Select({
   onChange: (v: string) => void;
 }) {
   return (
-    <select
-      value={value || ''}
-      onChange={(e) => onChange(e.target.value)}
-      className={inputClass}
-    >
+    <select value={value || ''} onChange={(e) => onChange(e.target.value)} className={inputClass}>
       <option value="">{placeholder || 'Not provided'}</option>
       {options.map((o) => (
         <option key={o} value={o}>
@@ -149,16 +145,15 @@ export default function RiskInputsFields({
     onChange(next as RiskInputs);
   };
 
-  const g = (group: keyof RiskInputs): Record<string, any> =>
-    (value as any)?.[group] || {};
+  const g = (group: keyof RiskInputs): Record<string, any> => (value as any)?.[group] || {};
 
   return (
     <div className="space-y-2.5">
       <div className="flex items-start gap-2 text-xs text-gray-500">
         <ShieldAlert className="mt-0.5 h-4 w-4 flex-shrink-0 text-amber-500" />
         <p>
-          Optional on-the-ground inputs. Leave groups blank to use neutral baselines
-          (lower confidence). The backend engine derives the rest from core fields.
+          Optional on-the-ground inputs. Leave groups blank to use neutral baselines (lower
+          confidence). The backend engine derives the rest from core fields.
         </p>
       </div>
 
@@ -218,17 +213,23 @@ export default function RiskInputsFields({
       </Group>
 
       <Group title="Natural Calamity Exposure">
-        {(['floodExposure', 'earthquakeExposure', 'cycloneExposure', 'landslideExposure', 'droughtExposure'] as const).map(
-          (key) => (
-            <Labeled key={key} label={key.replace('Exposure', '').replace('Le', 'le') + ' exposure'}>
-              <Select
-                value={g('calamity')[key]}
-                options={['LOW', 'MODERATE', 'HIGH']}
-                onChange={(v) => setGroup('calamity', { [key]: v || undefined })}
-              />
-            </Labeled>
-          )
-        )}
+        {(
+          [
+            'floodExposure',
+            'earthquakeExposure',
+            'cycloneExposure',
+            'landslideExposure',
+            'droughtExposure',
+          ] as const
+        ).map((key) => (
+          <Labeled key={key} label={key.replace('Exposure', '').replace('Le', 'le') + ' exposure'}>
+            <Select
+              value={g('calamity')[key]}
+              options={['LOW', 'MODERATE', 'HIGH']}
+              onChange={(v) => setGroup('calamity', { [key]: v || undefined })}
+            />
+          </Labeled>
+        ))}
       </Group>
 
       <Group title="Material & Supply">
@@ -406,7 +407,9 @@ export default function RiskInputsFields({
           <Select
             value={g('administrative').interDepartmentDependency}
             options={['LOW', 'MODERATE', 'HIGH']}
-            onChange={(v) => setGroup('administrative', { interDepartmentDependency: v || undefined })}
+            onChange={(v) =>
+              setGroup('administrative', { interDepartmentDependency: v || undefined })
+            }
           />
         </Labeled>
         <BoolInput

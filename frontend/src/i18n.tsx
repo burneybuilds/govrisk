@@ -141,12 +141,9 @@ export function I18nProvider({ children }: { children: ReactNode }) {
     document.documentElement.lang = lang;
   }, [lang]);
 
-  const t = (key: TranslationKey) =>
-    dictionaries[lang][key] ?? dictionaries.en[key];
+  const t = (key: TranslationKey) => dictionaries[lang][key] ?? dictionaries.en[key];
 
-  return (
-    <I18nContext.Provider value={{ lang, setLang, t }}>{children}</I18nContext.Provider>
-  );
+  return <I18nContext.Provider value={{ lang, setLang, t }}>{children}</I18nContext.Provider>;
 }
 
 export function useI18n() {

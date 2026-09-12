@@ -1,9 +1,9 @@
-import { useEffect, useRef, useState } from "react";
-import { useNavigate } from "react-router-dom";
-import { Search, Bell, Menu, LogOut, BellOff, ArrowRight } from "lucide-react";
-import { useAuth } from "../../context/AuthContext";
-import { getAlerts } from "../../services/api";
-import LanguageSwitcher from "./LanguageSwitcher";
+import { useEffect, useRef, useState } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { Search, Bell, Menu, LogOut, BellOff, ArrowRight } from 'lucide-react';
+import { useAuth } from '../../context/AuthContext';
+import { getAlerts } from '../../services/api';
+import LanguageSwitcher from './LanguageSwitcher';
 
 interface TopbarProps {
   onToggleSidebar?: () => void;
@@ -11,59 +11,58 @@ interface TopbarProps {
 
 const severityConfig: Record<string, { dot: string; badge: string; label: string }> = {
   CRITICAL: {
-    dot: "bg-red-500",
-    badge: "bg-red-50 text-red-700 ring-1 ring-inset ring-red-100",
-    label: "CRITICAL",
+    dot: 'bg-red-500',
+    badge: 'bg-red-50 text-red-700 ring-1 ring-inset ring-red-100',
+    label: 'CRITICAL',
   },
   HIGH: {
-    dot: "bg-orange-500",
-    badge: "bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-100",
-    label: "HIGH",
+    dot: 'bg-orange-500',
+    badge: 'bg-orange-50 text-orange-700 ring-1 ring-inset ring-orange-100',
+    label: 'HIGH',
   },
   MEDIUM: {
-    dot: "bg-yellow-500",
-    badge: "bg-yellow-50 text-yellow-700 ring-1 ring-inset ring-yellow-100",
-    label: "MEDIUM",
+    dot: 'bg-yellow-500',
+    badge: 'bg-yellow-50 text-yellow-700 ring-1 ring-inset ring-yellow-100',
+    label: 'MEDIUM',
   },
   RESOLVED: {
-    dot: "bg-green-500",
-    badge: "bg-green-50 text-green-700 ring-1 ring-inset ring-green-100",
-    label: "RESOLVED",
+    dot: 'bg-green-500',
+    badge: 'bg-green-50 text-green-700 ring-1 ring-inset ring-green-100',
+    label: 'RESOLVED',
   },
 };
 
 function getInitials(name: string): string {
   return name
-    .split(" ")
+    .split(' ')
     .filter(Boolean)
     .map((n) => n[0])
     .slice(0, 2)
-    .join("")
+    .join('')
     .toUpperCase();
 }
 
 function formatDate(date: string) {
-  if (!date) return "";
+  if (!date) return '';
   const d = new Date(date);
   if (isNaN(d.getTime())) return date;
-  return d.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
+  return d.toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
   });
 }
 
 export default function Topbar({ onToggleSidebar }: TopbarProps) {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
-  const today = new Date();
-  const formattedDate = today.toLocaleDateString("en-GB", {
-    day: "numeric",
-    month: "short",
-    year: "numeric",
+  const formattedDate = new Date().toLocaleDateString('en-GB', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
   });
 
-  const initials = user ? getInitials(user.fullName) : "GR";
+  const initials = user ? getInitials(user.fullName) : 'GR';
 
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -86,7 +85,7 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
     setNotificationsOpen((open) => !open);
   };
 
-  const activeAlerts = alerts.filter((a) => a.severity !== "RESOLVED");
+  const activeAlerts = alerts.filter((a) => a.severity !== 'RESOLVED');
   const recentAlerts = [...activeAlerts].slice(0, 5);
   const unreadCount = activeAlerts.length;
 
@@ -98,25 +97,25 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
       }
     };
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") setNotificationsOpen(false);
+      if (e.key === 'Escape') setNotificationsOpen(false);
     };
-    document.addEventListener("mousedown", handleClickOutside);
-    document.addEventListener("keydown", handleKeyDown);
+    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener('keydown', handleKeyDown);
     return () => {
-      document.removeEventListener("mousedown", handleClickOutside);
-      document.removeEventListener("keydown", handleKeyDown);
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleKeyDown);
     };
   }, [notificationsOpen]);
 
   const handleSearch = (value: string) => {
     if (value.trim().length > 0) {
-      navigate(`/projects?search=${encodeURIComponent(value)}`);
+      navigate(`/projects?search=${encodeURIComponent(value)}`, { replace: true });
     }
   };
 
   const handleLogout = () => {
     logout();
-    navigate("/login", { replace: true });
+    navigate('/login', { replace: true });
   };
 
   return (
@@ -167,14 +166,14 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
           {formattedDate}
         </span>
 
-<LanguageSwitcher />
+        <LanguageSwitcher />
 
         <div ref={notifRef} className="relative">
           <button
             type="button"
             onClick={toggleNotifications}
             className={`relative rounded-lg p-2 transition-colors hover:bg-gray-100 ${
-              notificationsOpen ? "bg-gray-100 text-navy-900" : "text-gray-500 hover:text-navy-900"
+              notificationsOpen ? 'bg-gray-100 text-navy-900' : 'text-gray-500 hover:text-navy-900'
             }`}
             aria-label="Notifications"
             aria-expanded={notificationsOpen}
@@ -182,7 +181,7 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
             <Bell size={18} />
             {unreadCount > 0 && (
               <span className="absolute right-0.5 top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full bg-red-500 px-1 text-[10px] font-bold text-white ring-2 ring-white">
-                {unreadCount > 99 ? "99+" : unreadCount}
+                {unreadCount > 99 ? '99+' : unreadCount}
               </span>
             )}
           </button>
@@ -222,10 +221,14 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
                             }}
                             className="flex w-full items-start gap-3 px-4 py-3 text-left transition-colors hover:bg-gray-50"
                           >
-                            <span className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${config.dot}`} />
+                            <span
+                              className={`mt-1.5 h-2 w-2 shrink-0 rounded-full ${config.dot}`}
+                            />
                             <span className="min-w-0 flex-1">
                               <span className="flex flex-wrap items-center gap-1.5">
-                                <span className={`rounded-full px-2 py-px text-[10px] font-semibold ${config.badge}`}>
+                                <span
+                                  className={`rounded-full px-2 py-px text-[10px] font-semibold ${config.badge}`}
+                                >
                                   {config.label}
                                 </span>
                                 <span className="truncate text-xs font-semibold text-navy-900">
@@ -251,7 +254,7 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
                 type="button"
                 onClick={() => {
                   setNotificationsOpen(false);
-                  navigate("/alerts");
+                  navigate('/alerts');
                 }}
                 className="flex w-full items-center justify-center gap-1.5 border-t border-gray-100 bg-gray-50/60 px-4 py-3 text-sm font-medium text-navy-900 transition-colors hover:bg-gray-100"
               >

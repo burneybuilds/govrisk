@@ -21,7 +21,14 @@ import { RiskTrendChart } from '../components/charts/RiskTrendChart';
 import { LoadingState } from '../components/ui/LoadingState';
 import { useI18n } from '../i18n';
 
-const sectorFilters = ['All Sectors', 'Transport', 'Energy', 'Water', 'Communication', 'Social Infrastructure'];
+const sectorFilters = [
+  'All Sectors',
+  'Transport',
+  'Energy',
+  'Water',
+  'Communication',
+  'Social Infrastructure',
+];
 
 function getCostOverrunColor(overrun: number) {
   if (overrun > 15) return 'text-red-600';
@@ -88,13 +95,11 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="min-w-0">
-        <div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
+        <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
             {t('dashboard.title')}
           </h1>
-          <p className="mt-1 text-sm text-gray-600 lg:text-base">
-            {t('dashboard.subtitle')}
-          </p>
+          <p className="mt-1 text-sm text-gray-600 lg:text-base">{t('dashboard.subtitle')}</p>
         </div>
         <LoadingState text="Loading dashboard..." />
       </div>
@@ -104,13 +109,11 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="min-w-0">
-        <div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
+        <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
             {t('dashboard.title')}
           </h1>
-          <p className="mt-1 text-sm text-gray-600 lg:text-base">
-            {t('dashboard.subtitle')}
-          </p>
+          <p className="mt-1 text-sm text-gray-600 lg:text-base">{t('dashboard.subtitle')}</p>
         </div>
         <div className="flex flex-col items-center py-12">
           <AlertTriangle className="h-10 w-10 text-red-500" />
@@ -143,19 +146,27 @@ export default function Dashboard() {
   };
 
   const secondaryKpis = [
-    { title: t('kpi.portfolioValue'), value: formatCurrency(dashboard.portfolioValue ?? 0), subtitle: t('kpi.portfolioValueSub'), icon: <TrendingUp className="h-5 w-5 text-blue-600" /> },
-    { title: t('kpi.revisedValue'), value: formatCurrency(dashboard.revisedValue ?? 0), subtitle: t('kpi.revisedValueSub'), icon: <BarChart3 className="h-5 w-5 text-blue-600" /> },
+    {
+      title: t('kpi.portfolioValue'),
+      value: formatCurrency(dashboard.portfolioValue ?? 0),
+      subtitle: t('kpi.portfolioValueSub'),
+      icon: <TrendingUp className="h-5 w-5 text-blue-600" />,
+    },
+    {
+      title: t('kpi.revisedValue'),
+      value: formatCurrency(dashboard.revisedValue ?? 0),
+      subtitle: t('kpi.revisedValueSub'),
+      icon: <BarChart3 className="h-5 w-5 text-blue-600" />,
+    },
   ];
 
   return (
     <div className="min-w-0">
-<div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
           {t('dashboard.title')}
         </h1>
-        <p className="mt-1 text-sm text-gray-600 lg:text-base">
-          {t('dashboard.subtitle')}
-        </p>
+        <p className="mt-1 text-sm text-gray-600 lg:text-base">{t('dashboard.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -186,7 +197,7 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:max-w-2xl">
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {secondaryKpis.map((kpi) => (
           <div
             key={kpi.title}
@@ -194,7 +205,9 @@ export default function Dashboard() {
           >
             <div className="min-w-0">
               <p className="text-sm font-medium text-gray-500">{kpi.title}</p>
-              <p className="mt-1 text-lg font-bold tracking-tight text-navy-900 lg:text-xl">{kpi.value}</p>
+              <p className="mt-1 text-lg font-bold tracking-tight text-navy-900 lg:text-xl">
+                {kpi.value}
+              </p>
               <p className="mt-0.5 text-xs text-gray-400">{kpi.subtitle}</p>
             </div>
             <div className="shrink-0 rounded-lg bg-white p-2.5 ring-1 ring-inset ring-navy-100">
@@ -210,9 +223,7 @@ export default function Dashboard() {
             <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
               {t('dashboard.attentionTitle')}
             </h3>
-            <p className="mt-0.5 text-xs text-gray-500 lg:text-sm">
-              {t('dashboard.attentionSub')}
-            </p>
+            <p className="mt-0.5 text-xs text-gray-500 lg:text-sm">{t('dashboard.attentionSub')}</p>
           </div>
           <button
             onClick={() => navigate('/projects')}
@@ -239,7 +250,8 @@ export default function Dashboard() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {highRiskProjects.map((project: any) => {
-                const costOverrun = ((project.currentCost - project.originalCost) / project.originalCost) * 100;
+                const costOverrun =
+                  ((project.currentCost - project.originalCost) / project.originalCost) * 100;
                 return (
                   <tr
                     key={project.id}
@@ -252,7 +264,10 @@ export default function Dashboard() {
                       </div>
                       <div className="text-xs text-gray-400">{project.id}</div>
                     </td>
-                    <td className="max-w-[180px] truncate px-4 py-3 text-gray-600" title={project.ministry}>
+                    <td
+                      className="max-w-[180px] truncate px-4 py-3 text-gray-600"
+                      title={project.ministry}
+                    >
                       {project.ministry}
                     </td>
                     <td className="px-4 py-3 text-gray-700">{project.sector}</td>
@@ -266,7 +281,9 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-sm font-semibold ${getDelayColor(project.delayProbability)}`}>
+                      <span
+                        className={`text-sm font-semibold ${getDelayColor(project.delayProbability)}`}
+                      >
                         {project.delayProbability}%
                       </span>
                     </td>

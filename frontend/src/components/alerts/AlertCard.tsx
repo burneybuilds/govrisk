@@ -42,7 +42,9 @@ export function AlertCard({ alert }: { alert: Alert }) {
           <span className={`mt-1 h-2.5 w-2.5 shrink-0 rounded-full ${config.dot}`} />
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-2">
-              <span className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${config.badge}`}>
+              <span
+                className={`rounded-full px-2.5 py-0.5 text-[11px] font-semibold ${config.badge}`}
+              >
                 {alert.severity}
               </span>
               <span className="text-sm font-semibold text-navy-900">{alert.type}</span>

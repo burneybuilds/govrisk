@@ -4,6 +4,8 @@ from sqlalchemy.orm import Session
 from auth.database import get_auth_db
 from auth.models import AuditLog, User
 from auth.dependencies import require_admin
+from database import get_db
+from models import IngestAuditLog
 
 router = APIRouter(prefix="/api/admin", tags=["admin"])
 
@@ -51,3 +53,28 @@ def get_audit_logs(
         "total": total,
         "totalPages": total_pages,
     }
+
+
+@router.get("/ingest-audit")
+def get_ingest_audit(
+    _admin: User = Depends(require_admin),
+    db: Session = Depends(get_db),
+    limit: int = Query(20, ge=1, le=200),
+    last: int = Query(0, ge=0),
+):
+    """Recent ingestion-provenance ledger (append-only ``ingest_audit_log``)."""
+    query = db.query(IngestAuditLog)
+    if last:
+        query = query.filter(IngestAuditLog.id > last)
+    rows = query.order_by(IngestAuditLog.id.desc()).limit(limit).all()
+    return [
+        {
+            "id": r.id,
+            "source": r.source,
+            "projectId": r.project_id,
+            "action": r.action,
+            "detail": r.detail,
+            "timestamp": r.created_at,
+        }
+        for r in rows
+    ]

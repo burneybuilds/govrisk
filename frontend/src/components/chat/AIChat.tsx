@@ -10,9 +10,7 @@ interface AIChatProps {
 }
 
 function formatAssistantContent(content: string) {
-  return content
-    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-    .replace(/\n/g, '<br />');
+  return content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br />');
 }
 
 export function AIChat({
@@ -42,9 +40,7 @@ export function AIChat({
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-6">
         {messages.length === 0 ? (
           <div>
-            <h3 className="text-sm font-medium text-navy-900">
-              Ask GovRisk AI...
-            </h3>
+            <h3 className="text-sm font-medium text-navy-900">Ask GovRisk AI...</h3>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {suggestedQuestions.map((question) => (
                 <button
@@ -76,7 +72,7 @@ export function AIChat({
                     __html: formatAssistantContent(message.content),
                   }}
                 />
-              )
+              ),
             )}
             {isTyping && (
               <div className="max-w-[80%] bg-gray-100 rounded-2xl rounded-bl-md px-4 py-3 text-sm">

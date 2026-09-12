@@ -43,7 +43,7 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...(options?.headers as Record<string, string> || {}),
+    ...((options?.headers as Record<string, string>) || {}),
   };
 
   let res = await fetch(`${API_BASE}${path}`, { ...options, headers });
@@ -81,10 +81,13 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
 
 // Auth API
 export async function login(email: string, password: string) {
-  const data = await apiFetch<{ accessToken: string; refreshToken: string; user: any }>('/api/auth/login', {
-    method: 'POST',
-    body: JSON.stringify({ email, password }),
-  });
+  const data = await apiFetch<{ accessToken: string; refreshToken: string; user: any }>(
+    '/api/auth/login',
+    {
+      method: 'POST',
+      body: JSON.stringify({ email, password }),
+    },
+  );
   setTokens(data.accessToken, data.refreshToken);
   return data;
 }
@@ -96,10 +99,13 @@ export async function register(payload: {
   department?: string;
   designation?: string;
 }) {
-  const data = await apiFetch<{ accessToken: string; refreshToken: string; user: any }>('/api/auth/register', {
-    method: 'POST',
-    body: JSON.stringify(payload),
-  });
+  const data = await apiFetch<{ accessToken: string; refreshToken: string; user: any }>(
+    '/api/auth/register',
+    {
+      method: 'POST',
+      body: JSON.stringify(payload),
+    },
+  );
   setTokens(data.accessToken, data.refreshToken);
   return data;
 }
@@ -121,7 +127,11 @@ export function logoutLocal() {
 }
 
 // Profile API
-export async function updateProfile(data: { fullName?: string; department?: string; designation?: string }) {
+export async function updateProfile(data: {
+  fullName?: string;
+  department?: string;
+  designation?: string;
+}) {
   return apiFetch<any>('/api/users/me', { method: 'PUT', body: JSON.stringify(data) });
 }
 
@@ -175,20 +185,32 @@ export function createUser(data: {
   return apiFetch<any>('/api/users', { method: 'POST', body: JSON.stringify(data) });
 }
 
-export function adminUpdateUser(id: string, data: { fullName?: string; email?: string; department?: string; designation?: string }) {
+export function adminUpdateUser(
+  id: string,
+  data: { fullName?: string; email?: string; department?: string; designation?: string },
+) {
   return apiFetch<any>(`/api/users/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 }
 
 export function updateUserRole(id: string, role: string) {
-  return apiFetch<any>(`/api/users/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role }) });
+  return apiFetch<any>(`/api/users/${id}/role`, {
+    method: 'PATCH',
+    body: JSON.stringify({ role }),
+  });
 }
 
 export function updateUserStatus(id: string, isActive: boolean) {
-  return apiFetch<any>(`/api/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ isActive }) });
+  return apiFetch<any>(`/api/users/${id}/status`, {
+    method: 'PATCH',
+    body: JSON.stringify({ isActive }),
+  });
 }
 
 export function resetUserPassword(id: string) {
-  return apiFetch<{ message: string; temporaryPassword: string }>(`/api/users/${id}/reset-password`, { method: 'POST' });
+  return apiFetch<{ message: string; temporaryPassword: string }>(
+    `/api/users/${id}/reset-password`,
+    { method: 'POST' },
+  );
 }
 
 export function getUserStats() {
@@ -218,7 +240,7 @@ export function getAuditLogs(params: AuditLogParams = {}) {
   if (params.user_id) query.set('user_id', params.user_id);
   const qs = query.toString();
   return apiFetch<{ items: any[]; page: number; limit: number; total: number; totalPages: number }>(
-    `/api/admin/audit-logs${qs ? `?${qs}` : ''}`
+    `/api/admin/audit-logs${qs ? `?${qs}` : ''}`,
   );
 }
 
@@ -288,11 +310,7 @@ export function addProjectUpdate(projectId: string, data: ProjectUpdateData) {
   });
 }
 
-export function updateProjectUpdate(
-  projectId: string,
-  updateId: number,
-  data: ProjectUpdateData
-) {
+export function updateProjectUpdate(projectId: string, updateId: number, data: ProjectUpdateData) {
   return apiFetch<any>(`/api/projects/${projectId}/updates/${updateId}`, {
     method: 'PUT',
     body: JSON.stringify(data),

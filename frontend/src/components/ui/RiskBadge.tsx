@@ -19,7 +19,9 @@ const sizeMap = {
 
 export function RiskBadge({ level, size = 'md' }: RiskBadgeProps) {
   return (
-    <span className={`inline-flex items-center rounded-full font-medium ${colorMap[level]} ${sizeMap[size]}`}>
+    <span
+      className={`inline-flex items-center rounded-full font-medium ${colorMap[level]} ${sizeMap[size]}`}
+    >
       {level}
     </span>
   );

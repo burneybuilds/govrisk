@@ -67,7 +67,9 @@ export default function Alerts() {
                 }`}
               >
                 {tab}
-                <span className={`ml-2 rounded-full px-1.5 text-xs ${activeTab === tab ? 'bg-white/20' : 'bg-gray-100 text-gray-500'}`}>
+                <span
+                  className={`ml-2 rounded-full px-1.5 text-xs ${activeTab === tab ? 'bg-white/20' : 'bg-gray-100 text-gray-500'}`}
+                >
                   {tabCounts[tab]}
                 </span>
               </button>

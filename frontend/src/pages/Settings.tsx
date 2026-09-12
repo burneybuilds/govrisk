@@ -96,7 +96,9 @@ export default function Settings() {
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">Settings</h1>
-          <p className="mt-1 text-sm text-gray-500 lg:text-base">Profile, security, and application preferences</p>
+          <p className="mt-1 text-sm text-gray-500 lg:text-base">
+            Profile, security, and application preferences
+          </p>
         </div>
       </div>
 
@@ -119,7 +121,9 @@ export default function Settings() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Role</span>
-              <span className="text-sm font-medium text-navy-900">{roleLabels[user?.role ?? 'viewer']}</span>
+              <span className="text-sm font-medium text-navy-900">
+                {roleLabels[user?.role ?? 'viewer']}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Email</span>
@@ -127,11 +131,15 @@ export default function Settings() {
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Account created</span>
-              <span className="text-sm font-medium text-navy-900">{formatDate(user?.createdAt)}</span>
+              <span className="text-sm font-medium text-navy-900">
+                {formatDate(user?.createdAt)}
+              </span>
             </div>
             <div className="flex items-center justify-between">
               <span className="text-sm text-gray-500">Last login</span>
-              <span className="text-sm font-medium text-navy-900">{formatDate(user?.lastLogin)}</span>
+              <span className="text-sm font-medium text-navy-900">
+                {formatDate(user?.lastLogin)}
+              </span>
             </div>
           </div>
 
@@ -151,16 +159,30 @@ export default function Settings() {
           <div className="mt-5 space-y-4">
             <div>
               <label className="mb-1.5 block text-xs font-medium text-gray-500">Full Name</label>
-              <input value={fullName} onChange={(e) => setFullName(e.target.value)} className={inputClass} />
+              <input
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className={inputClass}
+              />
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
                 <label className="mb-1.5 block text-xs font-medium text-gray-500">Department</label>
-                <input value={department} onChange={(e) => setDepartment(e.target.value)} className={inputClass} />
+                <input
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                  className={inputClass}
+                />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-500">Designation</label>
-                <input value={designation} onChange={(e) => setDesignation(e.target.value)} className={inputClass} />
+                <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                  Designation
+                </label>
+                <input
+                  value={designation}
+                  onChange={(e) => setDesignation(e.target.value)}
+                  className={inputClass}
+                />
               </div>
             </div>
             <button
@@ -197,7 +219,9 @@ export default function Settings() {
 
           <div className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-gray-500">Current Password</label>
+              <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                Current Password
+              </label>
               <input
                 type="password"
                 value={currentPassword}
@@ -207,7 +231,9 @@ export default function Settings() {
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-500">New Password</label>
+                <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                  New Password
+                </label>
                 <input
                   type="password"
                   value={newPassword}
@@ -216,7 +242,9 @@ export default function Settings() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-500">Confirm New Password</label>
+                <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                  Confirm New Password
+                </label>
                 <input
                   type="password"
                   value={confirmPassword}
@@ -241,7 +269,9 @@ export default function Settings() {
             <span className="rounded-lg bg-blue-50 p-2">
               <Bell className="h-5 w-5 text-blue-600" />
             </span>
-            <h2 className="text-base font-semibold text-navy-900 lg:text-lg">Notification Preferences</h2>
+            <h2 className="text-base font-semibold text-navy-900 lg:text-lg">
+              Notification Preferences
+            </h2>
           </div>
           <div className="space-y-4">
             <label className="flex items-center justify-between cursor-pointer">

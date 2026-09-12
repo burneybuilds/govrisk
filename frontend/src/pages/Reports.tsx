@@ -59,7 +59,9 @@ export default function Reports() {
       month: 'long',
       year: 'numeric',
     });
-    const highRiskCount = projects.filter((p) => p.riskLevel === 'HIGH' || p.riskLevel === 'CRITICAL').length;
+    const highRiskCount = projects.filter(
+      (p) => p.riskLevel === 'HIGH' || p.riskLevel === 'CRITICAL',
+    ).length;
     const totalCost = projects.reduce((sum, p) => sum + p.currentCost, 0);
 
     const lines = [
@@ -103,8 +105,12 @@ export default function Reports() {
     return (
       <div className="mx-auto min-w-0 max-w-[1200px]">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">Infrastructure Risk Reports</h1>
-          <p className="mt-1 text-sm text-gray-500 lg:text-base">Generate and export project risk reports</p>
+          <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
+            Infrastructure Risk Reports
+          </h1>
+          <p className="mt-1 text-sm text-gray-500 lg:text-base">
+            Generate and export project risk reports
+          </p>
         </div>
         <LoadingState text="Loading projects..." />
       </div>
@@ -115,8 +121,12 @@ export default function Reports() {
     return (
       <div className="mx-auto min-w-0 max-w-[1200px]">
         <div className="mb-6">
-          <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">Infrastructure Risk Reports</h1>
-          <p className="mt-1 text-sm text-gray-500 lg:text-base">Generate and export project risk reports</p>
+          <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
+            Infrastructure Risk Reports
+          </h1>
+          <p className="mt-1 text-sm text-gray-500 lg:text-base">
+            Generate and export project risk reports
+          </p>
         </div>
         <div className="rounded-xl border border-red-200 bg-red-50 p-6 text-center">
           <p className="text-sm font-medium text-red-600">{error}</p>
@@ -135,8 +145,12 @@ export default function Reports() {
   return (
     <div className="mx-auto min-w-0 max-w-[1200px]">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">Infrastructure Risk Reports</h1>
-        <p className="mt-1 text-sm text-gray-500 lg:text-base">Generate and export project risk reports</p>
+        <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
+          Infrastructure Risk Reports
+        </h1>
+        <p className="mt-1 text-sm text-gray-500 lg:text-base">
+          Generate and export project risk reports
+        </p>
       </div>
 
       <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 lg:p-5">
@@ -187,7 +201,10 @@ export default function Reports() {
         {reportTypes.map((report) => {
           const Icon = report.icon;
           return (
-            <div key={report.title} className="rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
+            <div
+              key={report.title}
+              className="rounded-xl border border-gray-200 bg-white p-5 lg:p-6"
+            >
               <div className="flex items-start gap-4">
                 <div className={`rounded-lg p-3 ${report.iconBg}`}>
                   <Icon className={`h-6 w-6 ${report.iconColor}`} />
@@ -220,7 +237,10 @@ export default function Reports() {
       </div>
 
       {viewingReport && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-navy-950/50 p-4" onClick={() => setViewingReport(null)}>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center bg-navy-950/50 p-4"
+          onClick={() => setViewingReport(null)}
+        >
           <div
             className="max-h-[85vh] w-full max-w-3xl overflow-y-auto rounded-xl bg-white shadow-2xl"
             onClick={(e) => e.stopPropagation()}
@@ -231,9 +251,16 @@ export default function Reports() {
                   <p className="text-[10px] font-semibold uppercase tracking-[0.2em] text-navy-300">
                     Government of India · Ministry of Infrastructure Monitoring
                   </p>
-                  <h3 className="mt-1.5 text-lg font-bold text-white sm:text-xl">{viewingReport}</h3>
+                  <h3 className="mt-1.5 text-lg font-bold text-white sm:text-xl">
+                    {viewingReport}
+                  </h3>
                   <p className="mt-0.5 text-xs text-navy-300">
-                    Generated: {new Date().toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' })}
+                    Generated:{' '}
+                    {new Date().toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'long',
+                      year: 'numeric',
+                    })}
                   </p>
                 </div>
                 <button
@@ -247,9 +274,10 @@ export default function Reports() {
             </div>
             <div className="p-6 sm:p-8">
               <div className="mb-6 rounded-lg border border-gray-200 bg-gray-50 p-4 text-sm leading-relaxed text-gray-600">
-                <span className="font-semibold text-navy-900">Executive Summary:</span> This report summarises
-                the risk posture of the monitored infrastructure portfolio. The following projects are flagged
-                as high risk or critical and require review by the project monitoring committee.
+                <span className="font-semibold text-navy-900">Executive Summary:</span> This report
+                summarises the risk posture of the monitored infrastructure portfolio. The following
+                projects are flagged as high risk or critical and require review by the project
+                monitoring committee.
               </div>
               <div className="space-y-3">
                 {projects
@@ -257,9 +285,15 @@ export default function Reports() {
                   .sort((a, b) => b.riskScore - a.riskScore)
                   .slice(0, 8)
                   .map((p, i) => {
-                    const overrun = (((p.currentCost - p.originalCost) / p.originalCost) * 100).toFixed(1);
+                    const overrun = (
+                      ((p.currentCost - p.originalCost) / p.originalCost) *
+                      100
+                    ).toFixed(1);
                     return (
-                      <div key={p.id} className="flex items-start justify-between gap-4 rounded-lg border border-gray-100 p-4">
+                      <div
+                        key={p.id}
+                        className="flex items-start justify-between gap-4 rounded-lg border border-gray-100 p-4"
+                      >
                         <div className="min-w-0">
                           <p className="text-sm font-semibold text-navy-900">
                             <span className="mr-2 inline-flex h-5 w-5 items-center justify-center rounded-full bg-gray-100 text-xs font-bold text-gray-600">
@@ -271,11 +305,14 @@ export default function Reports() {
                             {p.state} · {p.sector} · {p.ministry}
                           </p>
                           <p className="mt-1.5 text-xs text-gray-600">
-                            Progress: {p.physicalProgress}% · Cost Overrun: {overrun}% · Delay Probability: {p.delayProbability}%
+                            Progress: {p.physicalProgress}% · Cost Overrun: {overrun}% · Delay
+                            Probability: {p.delayProbability}%
                           </p>
                         </div>
                         <div className="shrink-0 text-right">
-                          <p className={`text-lg font-bold ${p.riskLevel === 'CRITICAL' ? 'text-red-600' : 'text-orange-600'}`}>
+                          <p
+                            className={`text-lg font-bold ${p.riskLevel === 'CRITICAL' ? 'text-red-600' : 'text-orange-600'}`}
+                          >
                             {p.riskScore}/100
                           </p>
                           <p className="text-xs font-semibold text-gray-500">{p.riskLevel}</p>

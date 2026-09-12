@@ -22,6 +22,14 @@ def get_risk_map_data(db: Session = Depends(get_db), _user: User = Depends(get_c
             "delayProbability": p.delay_probability,
             "lat": p.lat,
             "lng": p.lng,
+            # Project-layer fields (government-ingest provenance).
+            "status": p.status or "ONGOING",
+            "sector": p.sector,
+            "agency": p.agency,
+            "scale": p.scale,
+            "costEstimateCr": p.original_cost,
+            "fundingSource": p.funding_source,
+            "confidence": p.data_confidence,
         }
         for p in projects
         if p.lat is not None and p.lng is not None and not (p.lat == 0 and p.lng == 0)
