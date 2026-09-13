@@ -359,6 +359,35 @@ export interface AiPrediction {
   data_points_used: number;
   generated_at: string;
   top_drivers: string[];
+  ml_forecast?: AiMlForecast | null;
+}
+
+export interface AiMlEarlyWarning {
+  rule_id: string;
+  severity: string;
+  description: string;
+}
+
+export interface AiMlForecast {
+  cost_overrun_probability: number;
+  time_overrun_probability: number;
+  severe_overrun_probability: number;
+  expected_cost_overrun_pct: number;
+  expected_time_overrun_months: number;
+  cost_prediction_p10: number;
+  cost_prediction_p50: number;
+  cost_prediction_p90: number;
+  time_prediction_p10: number;
+  time_prediction_p50: number;
+  time_prediction_p90: number;
+  risk_score: number;
+  risk_band: string;
+  model_version: string;
+  prediction_method: string;
+  data_points_used: number;
+  top_drivers: string[];
+  early_warnings: AiMlEarlyWarning[];
+  recommended_actions: string[];
 }
 
 export interface AiAnomaly {
@@ -411,6 +440,20 @@ export function getAiHealth() {
 
 export function getAiPrediction(projectId: string) {
   return apiFetch<AiPrediction>(`/api/ai/projects/${projectId}/prediction`);
+}
+
+export function getAiMlForecast(projectId: string) {
+  return apiFetch<AiMlForecast>(`/api/ai/projects/${projectId}/ml-forecast`);
+}
+
+export function getAiMlStatus() {
+  return apiFetch<{
+    available: boolean;
+    model_version: string | null;
+    prediction_method: string | null;
+    error: string | null;
+    enabled: boolean;
+  }>('/api/ai/ml-status');
 }
 
 export function getAiAnomalies(projectId: string) {

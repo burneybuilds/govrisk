@@ -50,6 +50,9 @@ AI_MAX_RETRIES = int(os.getenv("AI_MAX_RETRIES", "1"))  # bounded retries - neve
 AI_ANALYSIS_TTL_HOURS = int(os.getenv("AI_ANALYSIS_TTL_HOURS", "6"))  # cached-analysis freshness
 AI_ALERT_DEDUP_HOURS = int(os.getenv("AI_ALERT_DEDUP_HOURS", "168"))  # 7 days dedup window
 
+# PARIKSHAN ML integration
+ML_ENABLED = os.getenv("ML_ENABLED", "1").strip().lower() not in ("0", "false", "")
+
 
 def is_llm_available() -> bool:
     """True when a concrete LLM provider + key are configured."""

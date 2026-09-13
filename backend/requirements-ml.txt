@@ -1,0 +1,30 @@
+# ML dependencies for the PARIKSHAN model integration (GovRisk backend)
+#
+# Install alongside the app stack:
+#     pip install -r requirements.txt -r requirements-ml.txt
+#
+# VERIFIED runtime (this repository):  Python 3.13.0 on Windows
+#   - PARIKSHAN trained with Python 3.12.10 / scikit-learn 1.5.2 /
+#     xgboost 2.1.2 / numpy 1.26.4. We verified every shipped .joblib
+#     artifact loads AND predicts under the exact pins below via
+#     scripts/smoke_ml_models.py.  No pickle/sklearn incompatibility on 3.13.
+#
+# CRITICAL: scikit-learn MUST stay < 1.7.0.  sklearn >= 1.7 drops
+# deserialization support for ColumnTransformer objects pickled by 1.5.2
+# (TypeError: Can't get attribute '_RemainderColsList').  1.6.1 is the newest
+# release with Python 3.13 wheels AND compatible artifact loading.
+#
+# Python 3.12 ALTERNATIVE (matches the training env most closely, if Python
+# 3.13 is not available):  use Python 3.12.10 with numpy==1.26.4,
+# scikit-learn==1.5.2, xgboost==2.1.2, joblib~=1.4, pandas~=2.2.
+#
+# SHAP is optional/guarded at runtime (lazy import); the app still works if it
+# is missing, but the exact pin keeps driver explanations reproducible.
+
+numpy==2.5.3
+pandas==3.0.5
+scikit-learn==1.6.1
+xgboost==3.4.1
+joblib==1.6.0
+shap==0.52.0
+numba==0.67.0

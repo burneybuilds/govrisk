@@ -74,6 +74,24 @@ def _ensure_ai_predictions_columns(engine: Engine) -> None:
     adds = {
         "current_score": "INTEGER",
         "data_points_used": "INTEGER",
+        # PARIKSHAN ML forecast columns (introduced with the ML integration).
+        "ml_risk_score": "FLOAT",
+        "ml_risk_band": "TEXT",
+        "ml_cost_overrun_probability": "FLOAT",
+        "ml_time_overrun_probability": "FLOAT",
+        "ml_severe_overrun_probability": "FLOAT",
+        "ml_expected_cost_overrun_pct": "FLOAT",
+        "ml_expected_time_overrun_months": "FLOAT",
+        "ml_cost_p10": "FLOAT",
+        "ml_cost_p50": "FLOAT",
+        "ml_cost_p90": "FLOAT",
+        "ml_time_p10": "FLOAT",
+        "ml_time_p50": "FLOAT",
+        "ml_time_p90": "FLOAT",
+        "ml_model_version": "TEXT",
+        "ml_top_drivers": "TEXT",
+        "ml_early_warnings": "TEXT",
+        "ml_recommended_actions": "TEXT",
     }
     try:
         with engine.connect() as conn:
@@ -89,6 +107,17 @@ def _ensure_ai_predictions_columns(engine: Engine) -> None:
             conn.commit()
     except Exception:
         # Table may not exist yet (fresh database) - create_all handles it.
+        pass
+
+
+def _ensure_ai_ml_snapshots(engine: Engine) -> None:
+    """Create the ML snapshot-history table on databases that predate it."""
+    try:
+        from database import Base
+        from models import MLSnapshot  # noqa: F401
+
+        Base.metadata.create_all(bind=engine, checkfirst=True)
+    except Exception:
         pass
 
 
@@ -113,6 +142,7 @@ def run_migrations(engine: Engine) -> None:
     # AI persistence tables (idempotent).
     _create_ai_tables(engine)
     _ensure_ai_predictions_columns(engine)
+    _ensure_ai_ml_snapshots(engine)
 
     _backfill_risk(engine)
 

@@ -32,7 +32,7 @@ import {
   Cell,
 } from 'recharts';
 import { getProject, getProjectUpdates, deleteProjectUpdate, getAiInsights } from '../services/api';
-import type { AiInsights } from '../services/api';
+import type { AiInsights, AiMlForecast } from '../services/api';
 import { useAuth } from '../context/AuthContext';
 import { RiskBadge } from '../components/ui/RiskBadge';
 import { RiskScore } from '../components/ui/RiskScore';
@@ -665,7 +665,10 @@ export default function ProjectDetails() {
               </div>
             )}
 
-            {/* Explanation summary */}
+            {/* ML Risk Forecast */}
+            {aiInsights.prediction?.ml_forecast && (
+              <MlRiskForecast forecast={aiInsights.prediction.ml_forecast} />
+            )}
             {aiInsights.explanation && (
               <div className="mb-5 rounded-lg border border-purple-100 bg-white p-4">
                 <p className="text-xs font-semibold uppercase tracking-wider text-purple-600">Explanation</p>
@@ -956,6 +959,189 @@ export default function ProjectDetails() {
           setEditProjectOpen(false);
         }}
       />
+    </div>
+  );
+}
+
+function MlRiskForecast({ forecast }: { forecast: AiMlForecast }) {
+  const bandStyles: Record<string, string> = {
+    Red: 'bg-red-100 text-red-700',
+    Amber: 'bg-amber-100 text-amber-700',
+    Green: 'bg-green-100 text-green-700',
+  };
+  const sevStyles: Record<string, string> = {
+    High: 'border-red-200 bg-red-50 text-red-700',
+    Medium: 'border-amber-200 bg-amber-50 text-amber-700',
+    Low: 'border-green-200 bg-green-50 text-green-700',
+  };
+
+  const intervalBar = (p10: number, p50: number, p90: number) => {
+    const hi = Math.max(p10, p50, p90, 0);
+    const lo = Math.min(p10, p50, p90);
+    const span = hi - lo || 1;
+    const left = ((p10 - lo) / span) * 100;
+    const width = ((p90 - p10) / span) * 100;
+    const midPos = ((p50 - lo) / span) * 100;
+    return { left, width, midPos };
+  };
+
+  const costRange = intervalBar(
+    forecast.cost_prediction_p10,
+    forecast.cost_prediction_p50,
+    forecast.cost_prediction_p90
+  );
+  const timeRange = intervalBar(
+    forecast.time_prediction_p10,
+    forecast.time_prediction_p50,
+    forecast.time_prediction_p90
+  );
+
+  return (
+    <div className="mb-5 rounded-xl border border-indigo-200 bg-gradient-to-br from-indigo-50/60 to-white p-4">
+      <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+        <div>
+          <p className="text-xs font-semibold uppercase tracking-widest text-indigo-600">
+            ML Risk Forecast
+          </p>
+          <p className="mt-0.5 text-[11px] text-gray-500">
+            Trained PARIKSHAN model (synthetic PAIMANA-style data) · {forecast.model_version}
+          </p>
+        </div>
+        <span
+          className={`rounded-full px-2.5 py-1 text-xs font-semibold ${
+            bandStyles[forecast.risk_band] || bandStyles.Amber
+          }`}
+        >
+          ML {forecast.risk_band} · {Math.round(forecast.risk_score)}/100
+        </span>
+      </div>
+
+      <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
+        <div className="rounded-lg border border-indigo-100 bg-white p-3">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
+            Cost Overrun Probability
+          </p>
+          <p className="mt-1 text-xl font-bold text-navy-900">
+            {Math.round(forecast.cost_overrun_probability * 100)}%
+          </p>
+          <p className="mt-0.5 text-[11px] text-gray-400">
+            Est. overrun {forecast.expected_cost_overrun_pct.toFixed(0)}%
+          </p>
+        </div>
+        <div className="rounded-lg border border-indigo-100 bg-white p-3">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
+            Schedule Overrun Probability
+          </p>
+          <p className="mt-1 text-xl font-bold text-navy-900">
+            {Math.round(forecast.time_overrun_probability * 100)}%
+          </p>
+          <p className="mt-0.5 text-[11px] text-gray-400">
+            Est. delay {forecast.expected_time_overrun_months.toFixed(1)} months
+          </p>
+        </div>
+        <div className="rounded-lg border border-indigo-100 bg-white p-3">
+          <p className="text-[11px] font-medium uppercase tracking-wider text-gray-500">
+            Severe Overrun Probability
+          </p>
+          <p className="mt-1 text-xl font-bold text-navy-900">
+            {Math.round(forecast.severe_overrun_probability * 100)}%
+          </p>
+          <p className="mt-0.5 text-[11px] text-gray-400">
+            Combined cost & schedule
+          </p>
+        </div>
+      </div>
+
+      <div className="mt-3 grid grid-cols-1 gap-3 sm:grid-cols-2">
+        <div className="rounded-lg border border-indigo-100 bg-white p-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+            Cost Overrun Interval (P10-P50-P90)
+          </p>
+          <div className="relative mt-3 h-1.5 rounded-full bg-indigo-100">
+            <div
+              className="absolute top-0 h-1.5 rounded-full bg-indigo-400"
+              style={{ left: `${costRange.left}%`, width: `${costRange.width}%` }}
+            />
+            <div
+              className="absolute top-[-3px] h-3 w-0.5 rounded bg-indigo-700"
+              style={{ left: `${costRange.midPos}%` }}
+            />
+          </div>
+          <div className="mt-1.5 flex justify-between text-[11px] text-gray-500">
+            <span>P10 {forecast.cost_prediction_p10.toFixed(0)}%</span>
+            <span>P50 {forecast.cost_prediction_p50.toFixed(0)}%</span>
+            <span>P90 {forecast.cost_prediction_p90.toFixed(0)}%</span>
+          </div>
+        </div>
+        <div className="rounded-lg border border-indigo-100 bg-white p-3">
+          <p className="text-[11px] font-semibold uppercase tracking-wider text-gray-500">
+            Schedule Interval (P10-P50-P90 months)
+          </p>
+          <div className="relative mt-3 h-1.5 rounded-full bg-indigo-100">
+            <div
+              className="absolute top-0 h-1.5 rounded-full bg-indigo-400"
+              style={{ left: `${timeRange.left}%`, width: `${timeRange.width}%` }}
+            />
+            <div
+              className="absolute top-[-3px] h-3 w-0.5 rounded bg-indigo-700"
+              style={{ left: `${timeRange.midPos}%` }}
+            />
+          </div>
+          <div className="mt-1.5 flex justify-between text-[11px] text-gray-500">
+            <span>P10 {forecast.time_prediction_p10.toFixed(1)}m</span>
+            <span>P50 {forecast.time_prediction_p50.toFixed(1)}m</span>
+            <span>P90 {forecast.time_prediction_p90.toFixed(1)}m</span>
+          </div>
+        </div>
+      </div>
+
+      {forecast.top_drivers.length > 0 && (
+        <div className="mt-3">
+          <p className="text-[11px] font-semibold text-gray-500">Top Risk Drivers</p>
+          <div className="mt-1 flex flex-wrap gap-1.5">
+            {forecast.top_drivers.map((d) => (
+              <span
+                key={d}
+                className="rounded-full bg-indigo-100 px-2 py-0.5 text-[11px] font-medium text-indigo-700"
+              >
+                {d.replace(/_/g, ' ')}
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {forecast.early_warnings.length > 0 && (
+        <div className="mt-3">
+          <p className="text-[11px] font-semibold text-gray-500">Early Warnings</p>
+          <div className="mt-1 space-y-1.5">
+            {forecast.early_warnings.map((ew) => (
+              <div
+                key={ew.rule_id}
+                className={`rounded-md border px-2 py-1.5 text-xs ${
+                  sevStyles[ew.severity] || sevStyles.Medium
+                }`}
+              >
+                <span className="mr-1.5 font-mono font-semibold">{ew.rule_id}</span>
+                {ew.description}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {forecast.recommended_actions.length > 0 && (
+        <div className="mt-3">
+          <p className="text-[11px] font-semibold text-gray-500">Recommended Attention</p>
+          <ul className="mt-1 space-y-0.5">
+            {forecast.recommended_actions.map((a, i) => (
+              <li key={i} className="text-xs text-gray-700">
+                • {a}
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
     </div>
   );
 }
