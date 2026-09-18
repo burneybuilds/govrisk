@@ -9,10 +9,36 @@ from typing import Optional
 from pydantic import BaseModel, Field
 
 PREDICTION_METHOD_ML = "ml"
+PREDICTION_METHOD_PARIKSHAN_ML = "parikshan_ml"
 PREDICTION_METHOD_HYBRID = "hybrid"
 PREDICTION_METHOD_RULE = "rule_statistical_fallback"
 
 MODEL_VERSION = "govrisk-ai-v1"
+
+
+class MLForecast(BaseModel):
+    """Structured output of the trained PARIKSHAN models (non-deterministic,
+    additive ML signal — never replaces the deterministic risk fields)."""
+
+    cost_overrun_probability: float = Field(ge=0, le=1)
+    time_overrun_probability: float = Field(ge=0, le=1)
+    severe_overrun_probability: float = Field(ge=0, le=1)
+    expected_cost_overrun_pct: float
+    expected_time_overrun_months: float
+    cost_prediction_p10: float
+    cost_prediction_p50: float
+    cost_prediction_p90: float
+    time_prediction_p10: float
+    time_prediction_p50: float
+    time_prediction_p90: float
+    risk_score: float = Field(ge=0, le=100)
+    risk_band: str
+    model_version: str
+    prediction_method: str = PREDICTION_METHOD_PARIKSHAN_ML
+    data_points_used: int = 37
+    top_drivers: list = Field(default_factory=list)
+    early_warnings: list = Field(default_factory=list)
+    recommended_actions: list = Field(default_factory=list)
 
 
 class PredictionResult(BaseModel):
@@ -33,6 +59,7 @@ class PredictionResult(BaseModel):
     data_points_used: int = 0
     generated_at: Optional[str] = None
     top_drivers: list = Field(default_factory=list)
+    ml_forecast: Optional[MLForecast] = None
 
 
 class AnomalyResult(BaseModel):

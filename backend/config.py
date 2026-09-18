@@ -33,6 +33,13 @@ JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
+# Authentication brute-force protection / rate limiting
+# (must be positive integers; defaults are safe for a demo deployment)
+AUTH_MAX_FAILED_ATTEMPTS = int(os.getenv("AUTH_MAX_FAILED_ATTEMPTS", "5"))
+AUTH_LOCKOUT_MINUTES = int(os.getenv("AUTH_LOCKOUT_MINUTES", "15"))
+AUTH_RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("AUTH_RATE_LIMIT_WINDOW_SECONDS", "300"))
+AUTH_MAX_REQUESTS_PER_WINDOW = int(os.getenv("AUTH_MAX_REQUESTS_PER_WINDOW", "20"))
+
 # AI / LLM layer (`AI_PROVIDER` may be empty to run deterministic-only)
 AI_PROVIDER = os.getenv("AI_PROVIDER", "").strip().lower()
 AI_API_KEY = os.getenv("AI_API_KEY", "").strip()
@@ -42,6 +49,9 @@ AI_TIMEOUT_SECONDS = float(os.getenv("AI_TIMEOUT_SECONDS", "30"))
 AI_MAX_RETRIES = int(os.getenv("AI_MAX_RETRIES", "1"))  # bounded retries - never infinite
 AI_ANALYSIS_TTL_HOURS = int(os.getenv("AI_ANALYSIS_TTL_HOURS", "6"))  # cached-analysis freshness
 AI_ALERT_DEDUP_HOURS = int(os.getenv("AI_ALERT_DEDUP_HOURS", "168"))  # 7 days dedup window
+
+# PARIKSHAN ML integration
+ML_ENABLED = os.getenv("ML_ENABLED", "1").strip().lower() not in ("0", "false", "")
 
 
 def is_llm_available() -> bool:
@@ -58,6 +68,15 @@ def validate_config() -> None:
     missing = []
     if not JWT_SECRET_KEY or "change-this" in JWT_SECRET_KEY or JWT_SECRET_KEY.startswith("govrisk-dev"):
         missing.append("JWT_SECRET_KEY (set a strong, unique value)")
+    auth_limits = {
+        "AUTH_MAX_FAILED_ATTEMPTS": AUTH_MAX_FAILED_ATTEMPTS,
+        "AUTH_LOCKOUT_MINUTES": AUTH_LOCKOUT_MINUTES,
+        "AUTH_RATE_LIMIT_WINDOW_SECONDS": AUTH_RATE_LIMIT_WINDOW_SECONDS,
+        "AUTH_MAX_REQUESTS_PER_WINDOW": AUTH_MAX_REQUESTS_PER_WINDOW,
+    }
+    for name, value in auth_limits.items():
+        if value <= 0:
+            missing.append(f"{name} (must be a positive integer)")
     if APP_ENV == "production":
         if missing:
             raise SystemExit(

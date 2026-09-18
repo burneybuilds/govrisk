@@ -1,7 +1,6 @@
-import { useEffect, useRef, useState } from 'react';
-import type { FormEvent } from 'react';
+import { Fragment, useEffect, useRef, useState } from 'react';
+import type { FormEvent, ReactNode } from 'react';
 import { Send } from 'lucide-react';
-import { useI18n } from '../../i18n';
 
 interface AIChatProps {
   messages: Array<{ id: string; role: 'user' | 'assistant'; content: string }>;
@@ -10,8 +9,34 @@ interface AIChatProps {
   isTyping?: boolean;
 }
 
-function formatAssistantContent(content: string) {
-  return content.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>').replace(/\n/g, '<br />');
+function renderBold(line: string): ReactNode[] {
+  const parts: ReactNode[] = [];
+  const boldPattern = /\*\*(.+?)\*\*/g;
+  let lastIndex = 0;
+  let key = 0;
+  let match = boldPattern.exec(line);
+  while (match) {
+    if (match.index > lastIndex) {
+      parts.push(line.slice(lastIndex, match.index));
+    }
+    parts.push(<strong key={key++}>{match[1]}</strong>);
+    lastIndex = match.index + match[0].length;
+    match = boldPattern.exec(line);
+  }
+  if (lastIndex < line.length) {
+    parts.push(line.slice(lastIndex));
+  }
+  return parts;
+}
+
+function formatAssistantContent(content: string): ReactNode {
+  const lines = content.split('\n');
+  return lines.map((line, lineIndex) => (
+    <Fragment key={lineIndex}>
+      {lineIndex > 0 && <br />}
+      {renderBold(line)}
+    </Fragment>
+  ));
 }
 
 export function AIChat({
@@ -20,7 +45,6 @@ export function AIChat({
   suggestedQuestions = [],
   isTyping = false,
 }: AIChatProps) {
-  const { t } = useI18n();
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -42,7 +66,9 @@ export function AIChat({
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-6">
         {messages.length === 0 ? (
           <div>
-            <h3 className="text-sm font-medium text-navy-900">{t('assistant.ask')}</h3>
+            <h3 className="text-sm font-medium text-navy-900">
+              Ask GovRisk AI...
+            </h3>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {suggestedQuestions.map((question) => (
                 <button
@@ -58,24 +84,26 @@ export function AIChat({
           </div>
         ) : (
           <>
-            {messages.map((message) =>
-              message.role === 'user' ? (
-                <div
-                  key={message.id}
-                  className="ml-auto max-w-[80%] bg-blue-600 text-white rounded-2xl rounded-br-md px-4 py-3 text-sm"
-                >
-                  {message.content}
-                </div>
-              ) : (
+            {messages.map((message) => {
+              if (message.role === 'user') {
+                return (
+                  <div
+                    key={message.id}
+                    className="ml-auto max-w-[80%] bg-blue-600 text-white rounded-2xl rounded-br-md px-4 py-3 text-sm"
+                  >
+                    {message.content}
+                  </div>
+                );
+              }
+              return (
                 <div
                   key={message.id}
                   className="max-w-[80%] bg-gray-100 text-navy-900 rounded-2xl rounded-bl-md px-4 py-3 text-sm"
-                  dangerouslySetInnerHTML={{
-                    __html: formatAssistantContent(message.content),
-                  }}
-                />
-              ),
-            )}
+                >
+                  {formatAssistantContent(message.content)}
+                </div>
+              );
+            })}
             {isTyping && (
               <div className="max-w-[80%] bg-gray-100 rounded-2xl rounded-bl-md px-4 py-3 text-sm">
                 <div className="flex items-center gap-1">
@@ -94,7 +122,7 @@ export function AIChat({
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder={t('assistant.ask')}
+            placeholder="Ask GovRisk AI..."
             className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <button

@@ -43,7 +43,7 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    ...((options?.headers as Record<string, string>) || {}),
+    ...(options?.headers as Record<string, string> || {}),
   };
 
   let res = await fetch(`${API_BASE}${path}`, { ...options, headers });
@@ -81,14 +81,15 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
 
 // Auth API
 export async function login(email: string, password: string) {
-  const data = await apiFetch<{ accessToken: string; refreshToken: string; user: any }>(
-    '/api/auth/login',
-    {
-      method: 'POST',
-      body: JSON.stringify({ email, password }),
-    },
-  );
-  setTokens(data.accessToken, data.refreshToken);
+  const data = await apiFetch<{ accessToken: string; refreshToken: string; user: any }>('/api/auth/login', {
+    method: 'POST',
+    body: JSON.stringify({ email, password }),
+  });
+  // Pending accounts must not start a portfolio session until an admin
+  // approves them - the server gates access anyway, so keep no tokens locally.
+  if (data.user.isApproved !== false) {
+    setTokens(data.accessToken, data.refreshToken);
+  }
   return data;
 }
 
@@ -99,15 +100,13 @@ export async function register(payload: {
   department?: string;
   designation?: string;
 }) {
-  const data = await apiFetch<{ accessToken: string; refreshToken: string; user: any }>(
-    '/api/auth/register',
-    {
-      method: 'POST',
-      body: JSON.stringify(payload),
-    },
-  );
-  setTokens(data.accessToken, data.refreshToken);
-  return data;
+  // Self-registration creates a PENDING account. Tokens returned by the server
+  // are gated behind admin approval (403 until approved), so they are never
+  // stored locally and no session is started.
+  return apiFetch<{ accessToken: string; refreshToken: string; user: any }>('/api/auth/register', {
+    method: 'POST',
+    body: JSON.stringify(payload),
+  });
 }
 
 export async function getMe() {
@@ -127,11 +126,7 @@ export function logoutLocal() {
 }
 
 // Profile API
-export async function updateProfile(data: {
-  fullName?: string;
-  department?: string;
-  designation?: string;
-}) {
+export async function updateProfile(data: { fullName?: string; department?: string; designation?: string }) {
   return apiFetch<any>('/api/users/me', { method: 'PUT', body: JSON.stringify(data) });
 }
 
@@ -145,6 +140,7 @@ export interface UserListParams {
   role?: string;
   status?: string;
   department?: string;
+  approval?: string;
   page?: number;
   limit?: number;
 }
@@ -162,6 +158,7 @@ export function getUsers(params: UserListParams = {}) {
   if (params.search) query.set('search', params.search);
   if (params.role) query.set('role', params.role);
   if (params.status) query.set('status', params.status);
+  if (params.approval) query.set('approval', params.approval);
   if (params.department) query.set('department', params.department);
   if (params.page) query.set('page', String(params.page));
   if (params.limit) query.set('limit', String(params.limit));
@@ -179,38 +176,31 @@ export function createUser(data: {
   role: string;
   department?: string;
   designation?: string;
-  temporaryPassword: string;
   isActive: boolean;
 }) {
-  return apiFetch<any>('/api/users', { method: 'POST', body: JSON.stringify(data) });
+  // The temporary password is generated server-side (CSPRNG) and returned in
+  // the response exactly once; nothing password-related is sent by the client.
+  return apiFetch<{ message?: string } & Record<string, any>>('/api/users', { method: 'POST', body: JSON.stringify(data) });
 }
 
-export function adminUpdateUser(
-  id: string,
-  data: { fullName?: string; email?: string; department?: string; designation?: string },
-) {
+export function adminUpdateUser(id: string, data: { fullName?: string; email?: string; department?: string; designation?: string }) {
   return apiFetch<any>(`/api/users/${id}`, { method: 'PUT', body: JSON.stringify(data) });
 }
 
 export function updateUserRole(id: string, role: string) {
-  return apiFetch<any>(`/api/users/${id}/role`, {
-    method: 'PATCH',
-    body: JSON.stringify({ role }),
-  });
+  return apiFetch<any>(`/api/users/${id}/role`, { method: 'PATCH', body: JSON.stringify({ role }) });
 }
 
 export function updateUserStatus(id: string, isActive: boolean) {
-  return apiFetch<any>(`/api/users/${id}/status`, {
-    method: 'PATCH',
-    body: JSON.stringify({ isActive }),
-  });
+  return apiFetch<any>(`/api/users/${id}/status`, { method: 'PATCH', body: JSON.stringify({ isActive }) });
+}
+
+export function updateUserApproval(id: string, isApproved: boolean) {
+  return apiFetch<any>(`/api/users/${id}/approval`, { method: 'PATCH', body: JSON.stringify({ isApproved }) });
 }
 
 export function resetUserPassword(id: string) {
-  return apiFetch<{ message: string; temporaryPassword: string }>(
-    `/api/users/${id}/reset-password`,
-    { method: 'POST' },
-  );
+  return apiFetch<{ message: string; temporaryPassword: string }>(`/api/users/${id}/reset-password`, { method: 'POST' });
 }
 
 export function getUserStats() {
@@ -240,7 +230,7 @@ export function getAuditLogs(params: AuditLogParams = {}) {
   if (params.user_id) query.set('user_id', params.user_id);
   const qs = query.toString();
   return apiFetch<{ items: any[]; page: number; limit: number; total: number; totalPages: number }>(
-    `/api/admin/audit-logs${qs ? `?${qs}` : ''}`,
+    `/api/admin/audit-logs${qs ? `?${qs}` : ''}`
   );
 }
 
@@ -310,7 +300,11 @@ export function addProjectUpdate(projectId: string, data: ProjectUpdateData) {
   });
 }
 
-export function updateProjectUpdate(projectId: string, updateId: number, data: ProjectUpdateData) {
+export function updateProjectUpdate(
+  projectId: string,
+  updateId: number,
+  data: ProjectUpdateData
+) {
   return apiFetch<any>(`/api/projects/${projectId}/updates/${updateId}`, {
     method: 'PUT',
     body: JSON.stringify(data),
@@ -365,6 +359,35 @@ export interface AiPrediction {
   data_points_used: number;
   generated_at: string;
   top_drivers: string[];
+  ml_forecast?: AiMlForecast | null;
+}
+
+export interface AiMlEarlyWarning {
+  rule_id: string;
+  severity: string;
+  description: string;
+}
+
+export interface AiMlForecast {
+  cost_overrun_probability: number;
+  time_overrun_probability: number;
+  severe_overrun_probability: number;
+  expected_cost_overrun_pct: number;
+  expected_time_overrun_months: number;
+  cost_prediction_p10: number;
+  cost_prediction_p50: number;
+  cost_prediction_p90: number;
+  time_prediction_p10: number;
+  time_prediction_p50: number;
+  time_prediction_p90: number;
+  risk_score: number;
+  risk_band: string;
+  model_version: string;
+  prediction_method: string;
+  data_points_used: number;
+  top_drivers: string[];
+  early_warnings: AiMlEarlyWarning[];
+  recommended_actions: string[];
 }
 
 export interface AiAnomaly {
@@ -417,6 +440,20 @@ export function getAiHealth() {
 
 export function getAiPrediction(projectId: string) {
   return apiFetch<AiPrediction>(`/api/ai/projects/${projectId}/prediction`);
+}
+
+export function getAiMlForecast(projectId: string) {
+  return apiFetch<AiMlForecast>(`/api/ai/projects/${projectId}/ml-forecast`);
+}
+
+export function getAiMlStatus() {
+  return apiFetch<{
+    available: boolean;
+    model_version: string | null;
+    prediction_method: string | null;
+    error: string | null;
+    enabled: boolean;
+  }>('/api/ai/ml-status');
 }
 
 export function getAiAnomalies(projectId: string) {

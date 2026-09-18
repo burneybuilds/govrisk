@@ -123,8 +123,53 @@ class AIPrediction(Base):
     model_version = Column(String, nullable=True)
     drivers = Column(Text, nullable=True)  # JSON: list[str]
 
+    # PARIKSHAN ML forecast (separate from the deterministic fields above).
+    # Populated only when the trained models are available; deterministic
+    # fields are never overwritten by ML output.
+    ml_risk_score = Column(Float, nullable=True)
+    ml_risk_band = Column(String, nullable=True)
+    ml_cost_overrun_probability = Column(Float, nullable=True)
+    ml_time_overrun_probability = Column(Float, nullable=True)
+    ml_severe_overrun_probability = Column(Float, nullable=True)
+    ml_expected_cost_overrun_pct = Column(Float, nullable=True)
+    ml_expected_time_overrun_months = Column(Float, nullable=True)
+    ml_cost_p10 = Column(Float, nullable=True)
+    ml_cost_p50 = Column(Float, nullable=True)
+    ml_cost_p90 = Column(Float, nullable=True)
+    ml_time_p10 = Column(Float, nullable=True)
+    ml_time_p50 = Column(Float, nullable=True)
+    ml_time_p90 = Column(Float, nullable=True)
+    ml_model_version = Column(String, nullable=True)
+    ml_top_drivers = Column(Text, nullable=True)  # JSON: list[str]
+    ml_early_warnings = Column(Text, nullable=True)  # JSON: list[dict]
+    ml_recommended_actions = Column(Text, nullable=True)  # JSON: list[str]
+
     __table_args__ = (
         Index("ix_ai_predictions_project_created", "project_id", "created_at"),
+    )
+
+
+class MLSnapshot(Base):
+    """Per-project ML snapshot history enabling edge-triggered early
+    warnings (EW-01/03/04/07 need two consecutive snapshots to be able to
+    detect an abrupt change instead of a one-off boundary cross)."""
+
+    __tablename__ = "ai_ml_snapshots"
+
+    id = Column(String, primary_key=True)
+    project_id = Column(String, nullable=False, index=True)
+    created_at = Column(String, nullable=False, index=True)
+    ml_risk_score = Column(Float, nullable=False)
+    ml_risk_band = Column(String, nullable=False)
+    ml_severe_overrun_probability = Column(Float, nullable=False)
+    ml_expected_cost_overrun_pct = Column(Float, nullable=False)
+    ml_expected_time_overrun_months = Column(Float, nullable=False)
+    # Snapshot of the raw feature row (JSON) used to trigger history-based
+    # early-warning rules without recomputation or re-fitting.
+    feature_snapshot = Column(Text, nullable=True)  # JSON: dict
+
+    __table_args__ = (
+        Index("ix_ai_ml_snapshots_project_created", "project_id", "created_at"),
     )
 
 

@@ -84,6 +84,24 @@ def _ensure_ai_predictions_columns(engine: Engine) -> None:
     adds = {
         "current_score": "INTEGER",
         "data_points_used": "INTEGER",
+        # PARIKSHAN ML forecast columns (introduced with the ML integration).
+        "ml_risk_score": "FLOAT",
+        "ml_risk_band": "TEXT",
+        "ml_cost_overrun_probability": "FLOAT",
+        "ml_time_overrun_probability": "FLOAT",
+        "ml_severe_overrun_probability": "FLOAT",
+        "ml_expected_cost_overrun_pct": "FLOAT",
+        "ml_expected_time_overrun_months": "FLOAT",
+        "ml_cost_p10": "FLOAT",
+        "ml_cost_p50": "FLOAT",
+        "ml_cost_p90": "FLOAT",
+        "ml_time_p10": "FLOAT",
+        "ml_time_p50": "FLOAT",
+        "ml_time_p90": "FLOAT",
+        "ml_model_version": "TEXT",
+        "ml_top_drivers": "TEXT",
+        "ml_early_warnings": "TEXT",
+        "ml_recommended_actions": "TEXT",
     }
     try:
         with engine.connect() as conn:
@@ -99,6 +117,17 @@ def _ensure_ai_predictions_columns(engine: Engine) -> None:
             conn.commit()
     except Exception:
         # Table may not exist yet (fresh database) - create_all handles it.
+        pass
+
+
+def _ensure_ai_ml_snapshots(engine: Engine) -> None:
+    """Create the ML snapshot-history table on databases that predate it."""
+    try:
+        from database import Base
+        from models import MLSnapshot  # noqa: F401
+
+        Base.metadata.create_all(bind=engine, checkfirst=True)
+    except Exception:
         pass
 
 
@@ -123,8 +152,50 @@ def run_migrations(engine: Engine) -> None:
     # AI persistence tables (idempotent).
     _create_ai_tables(engine)
     _ensure_ai_predictions_columns(engine)
+    _ensure_ai_ml_snapshots(engine)
 
     _backfill_risk(engine)
+
+
+AUTH_USER_COLUMNS = {
+    "failed_login_count": "INTEGER NOT NULL DEFAULT 0",
+    "last_failed_login": "DATETIME",
+    "locked_until": "DATETIME",
+    # Registration governance: existing accounts are treated as approved so
+    # the migration cannot lock out current legitimate/demo users. Pending
+    # state is only introduced for NEW self-registrations (set explicitly
+    # to 0 by the register endpoint).
+    "is_approved": "BOOLEAN NOT NULL DEFAULT 1",
+    # Temporary-password enforcement: default 0 so existing users are never
+    # forced to change a password; only admin-created/reset accounts are
+    # marked (set explicitly to 1 by those endpoints).
+    "must_change_password": "BOOLEAN NOT NULL DEFAULT 0",
+}
+
+
+def run_auth_migrations(auth_engine: Engine) -> None:
+    """Idempotently add brute-force lockout columns to the auth users table.
+
+    create_all() never adds columns to existing tables, so databases created
+    before the lockout feature ships need these added exactly once.
+    """
+    try:
+        with auth_engine.connect() as conn:
+            existing = {
+                row[1]
+                for row in conn.execute(text("PRAGMA table_info(users)"))
+            }
+            for column, ddl in AUTH_USER_COLUMNS.items():
+                if column not in existing:
+                    conn.execute(
+                        text(f"ALTER TABLE users ADD COLUMN {column} {ddl}")
+                    )
+            conn.commit()
+    except Exception:
+        # users table may not exist yet (fresh auth.db); create_all in
+        # main.py creates it from the model definition, which already
+        # carries these columns.
+        pass
 
 
 def _backfill_risk(engine: Engine) -> None:

@@ -1,0 +1,154 @@
+{
+  "naive": {
+    "cost_overrun_pct": {
+      "mae": 47.99447100347184,
+      "rmse": 87.38711665771552,
+      "r2": -0.001043965513535694,
+      "mape_pct": 327.890291439719,
+      "n": 34414
+    },
+    "time_overrun_months": {
+      "mae": 9.521545235875937,
+      "rmse": 11.775219438570288,
+      "r2": -0.020690816427191283,
+      "mape_pct": 166.15776333398858,
+      "n": 34414
+    },
+    "y_cost_overrun": {
+      "pr_auc": 0.2008569596976911,
+      "roc_auc": 0.5734978718115366,
+      "brier": 0.14153055486127783,
+      "f1_at_best_threshold": 0.33052132332931616,
+      "best_threshold": 0.15225806451612903,
+      "base_rate": 0.1708897541698146,
+      "n": 34414
+    },
+    "y_time_overrun": {
+      "pr_auc": 0.49199568822385376,
+      "roc_auc": 0.4443651846391683,
+      "brier": 0.25734869529768495,
+      "f1_at_best_threshold": 0.7043653408128306,
+      "best_threshold": 0.3247422680412371,
+      "base_rate": 0.5436450281862033,
+      "n": 34414
+    },
+    "y_severe": {
+      "pr_auc": 0.2588409279408057,
+      "roc_auc": 0.5949744110386624,
+      "brier": 0.16301951227158012,
+      "f1_at_best_threshold": 0.36773239276368186,
+      "best_threshold": 0.1336405529953917,
+      "base_rate": 0.2078223978613355,
+      "n": 34414
+    }
+  },
+  "ols": {
+    "cost_overrun_pct": {
+      "mae": 47.661571983286194,
+      "rmse": 87.06951503862528,
+      "r2": 0.006219243178064993,
+      "mape_pct": 321.75180274504214,
+      "n": 34414,
+      "summary_r2": 0.03245239700360869,
+      "summary_r2_adj": 0.03186160555027873,
+      "summary_n_obs": 34414,
+      "summary_coefficients": {
+        "Intercept": 0.12013595068759192,
+        "C(sector)[T.Road Transport & Highways]": -0.08546547771364962,
+        "C(sector)[T.Petroleum]": -0.14014356580467957,
+        "C(sector)[T.Power]": -0.010039011018412527,
+        "C(sector)[T.Coal]": -0.0198656937061728,
+        "C(sector)[T.Atomic Energy]": -0.010075076384812583,
+        "C(sector)[T.Civil Aviation]": 0.013457685168583113,
+        "C(sector)[T.Telecommunications]": -0.009302026722013385,
+        "C(sector)[T.Steel]": -0.16189384921641445,
+        "C(sector)[T.Mines]": -0.07901643890092487,
+        "C(sector)[T.Shipping & Ports]": 0.08840937721413028,
+        "C(sector)[T.Water Resources]": -0.019199995691373862,
+        "C(sector)[T.Health & Family Welfare]": -0.13877484549271968,
+        "C(sector)[T.Urban Development]": -0.1556001824145273,
+        "C(sector)[T.Fertilizers]": 0.02519910882425398,
+        "C(sector)[T.Chemicals & Petrochemicals]": 0.014902491505166001,
+        "C(sector)[T.Heavy Industries]": -0.19368590511690104,
+        "C(sector)[T.Defence]": -0.17244034850242831,
+        "C(sector)[T.Higher Education]": -0.060768848777326315,
+        "C(sector)[T.Information & Broadcasting]": -0.05726239076762881,
+        "C(sector)[T.Textiles]": 0.01099259953627997,
+        "C(sector)[T.Food & Public Distribution]": -0.1620939733536839
+      },
+      "summary_pvalues": {
+        "Intercept": 9.22323878788956e-61,
+        "C(sector)[T.Road Transport & Highways]": 5.1878759059937273e-20,
+        "C(sector)[T.Petroleum]": 3.0756113259449852e-27,
+        "C(sector)[T.Power]": 0.3326850108681304,
+        "C(sector)[T.Coal]": 0.13296001304119445,
+        "C(sector)[T.Atomic Energy]": 0.6348383479242341,
+        "C(sector)[T.Civil Aviation]": 0.335366796652794,
+        "C(sector)[T.Telecommunications]": 0.4541748035091214,
+        "C(sector)[T.Steel]": 6.607988781961836e-29,
+        "C(sector)[T.Mines]": 6.15950708843861e-08,
+        "C(sector)[T.Shipping & Ports]": 8.41722496702992e-12,
+        "C(sector)[T.Water Resources]": 0.08813235069149006,
+        "C(sector)[T.Health & Family Welfare]": 2.6507064257515937e-22,
+        "C(sector)[T.Urban Development]": 5.270946331178947e-43,
+        "C(sector)[T.Fertilizers]": 0.058284817469040275,
+        "C(sector)[T.Chemicals & Petrochemicals]": 0.35093813203186186,
+        "C(sector)[T.Heavy Industries]": 4.5664558378499096e-49,
+        "C(sector)[T.Defence]": 1.057884357105929e-42,
+        "C(sector)[T.Higher Education]": 3.362331460437081e-05,
+        "C(sector)[T.Information & Broadcasting]": 0.000815155979423916,
+        "C(sector)[T.Textiles]": 0.5356822656674551,
+        "C(sector)[T.Food & Public Distribution]": 2.1834229329095303e-26
+      },
+      "summary_text": "                            OLS Regression Results                            \n==============================================================================\nDep. Variable:         log_cost_ratio   R-squared:                       0.032\nModel:                            OLS   Adj. R-squared:                  0.032\nMethod:                 Least Squares   F-statistic:                     54.93\nDate:                Sat, 12 Sep 2026   Prob (F-statistic):          4.67e-227\nTime:                        14:27:17   Log-Likelihood:                -17785.\nNo. Observations:               34414   AIC:                         3.561e+04\nDf Residuals:                   34392   BIC:                         3.580e+04\nDf Model:                          21                                         \nCovariance Type:            nonrobust                                         \n===========================================================================================================\n                                              coef    std err          t      P>|t|      [0.025      0.975]\n-----------------------------------------------------------------------------------------------------------\nIntercept                                   0.1201      0.007     16.477      0.000       0.106       0.134\nC(sector)[T.Road Transport & Highways]     -0.0855      0.009     -9.166      0.000      -0.104      -0.067\nC(sector)[T.Petroleum]                     -0.1401      0.013    -10.820      0.000      -0.166      -0.115\nC(sector)[T.Power]                         -0.0100      0.010     -0.969      0.333      -0.030       0.010\nC(sector)[T.Coal]                          -0.0199      0.013     -1.503      0.133      -0.046       0.006\nC(sector)[T.Atomic Energy]                 -0.0101      0.021     -0.475      0.635      -0.052       0.032\nC(sector)[T.Civil Aviation]                 0.0135      0.014      0.963      0.335      -0.014       0.041\nC(sector)[T.Telecommunications]            -0.0093      0.012     -0.748      0.454      -0.034       0.015\nC(sector)[T.Steel]                         -0.1619      0.014    -11.167      0.000      -0.190      -0.133\nC(sector)[T.Mines]                         -0.0790      0.015     -5.415      0.000      -0.108      -0.050\nC(sector)[T.Shipping & Ports]               0.0884      0.013      6.834      0.000       0.063       0.114\nC(sector)[T.Water Resources]               -0.0192      0.011     -1.705      0.088      -0.041       0.003\nC(sector)[T.Health & Family Welfare]       -0.1388      0.014     -9.720      0.000      -0.167      -0.111\nC(sector)[T.Urban Development]             -0.1556      0.011    -13.767      0.000      -0.178      -0.133\nC(sector)[T.Fertilizers]                    0.0252      0.013      1.894      0.058      -0.001       0.051\nC(sector)[T.Chemicals & Petrochemicals]     0.0149      0.016      0.933      0.351      -0.016       0.046\nC(sector)[T.Heavy Industries]              -0.1937      0.013    -14.747      0.000      -0.219      -0.168\nC(sector)[T.Defence]                       -0.1724      0.013    -13.716      0.000      -0.197      -0.148\nC(sector)[T.Higher Education]              -0.0608      0.015     -4.148      0.000      -0.089      -0.032\nC(sector)[T.Information & Broadcasting]    -0.0573      0.017     -3.348      0.001      -0.091      -0.024\nC(sector)[T.Textiles]                       0.0110      0.018      0.619      0.536      -0.024       0.046\nC(sector)[T.Food & Public Distribution]    -0.1621      0.015    -10.638      0.000      -0.192      -0.132\n==============================================================================\nOmnibus:                    17208.851   Durbin-Watson:                   0.073\nProb(Omnibus):                  0.000   Jarque-Bera (JB):            85622.228\nSkew:                           2.504   Prob(JB):                         0.00\nKurtosis:                       8.884   Cond. No.                         17.1\n==============================================================================\n\nNotes:\n[1] Standard Errors assume that the covariance matrix of the errors is correctly specified."
+    }
+  },
+  "logit": {
+    "y_cost_overrun": {
+      "pr_auc": 0.7209308415610337,
+      "roc_auc": 0.9115263745091682,
+      "brier": 0.08255403716684666,
+      "f1_at_best_threshold": 0.6556831683168317,
+      "best_threshold": 0.3040940538934679,
+      "base_rate": 0.1708897541698146,
+      "n": 34414
+    },
+    "y_time_overrun": {
+      "pr_auc": 0.7991093825035656,
+      "roc_auc": 0.7625128501301515,
+      "brier": 0.20011625701317448,
+      "f1_at_best_threshold": 0.7436883390828591,
+      "best_threshold": 0.2791592957886009,
+      "base_rate": 0.5436450281862033,
+      "n": 34414
+    },
+    "y_severe": {
+      "pr_auc": 0.6644152979806027,
+      "roc_auc": 0.8582440380501939,
+      "brier": 0.11108896907003733,
+      "f1_at_best_threshold": 0.6111256544502618,
+      "best_threshold": 0.31987864939971355,
+      "base_rate": 0.2078223978613355,
+      "n": 34414
+    }
+  },
+  "weibull_aft": {
+    "concordance_index_train": 0.9163588544235532,
+    "concordance_index_test": 0.9454820564353119,
+    "n_train": 1250,
+    "n_test": 731,
+    "n_events_train": 1105,
+    "n_events_test": 225,
+    "cut_year": 2018,
+    "concordance_index_test_excl_duration_covariate": 0.7575106552548598
+  },
+  "cox_ph": {
+    "concordance_index_train": 0.9170092574023989,
+    "concordance_index_test": 0.94690275708329,
+    "n_train": 1250,
+    "n_test": 731,
+    "n_events_train": 1105,
+    "n_events_test": 225,
+    "cut_year": 2018
+  }
+}
