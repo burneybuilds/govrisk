@@ -21,7 +21,14 @@ import { RiskTrendChart } from '../components/charts/RiskTrendChart';
 import { LoadingState } from '../components/ui/LoadingState';
 import { useI18n } from '../i18n';
 
-const sectorFilters = ['All Sectors', 'Transport', 'Energy', 'Water', 'Communication', 'Social Infrastructure'];
+const sectorFilters = [
+  'All Sectors',
+  'Transport',
+  'Energy',
+  'Water',
+  'Communication',
+  'Social Infrastructure',
+];
 
 function getCostOverrunColor(overrun: number) {
   if (overrun > 15) return 'text-red-600';
@@ -55,7 +62,7 @@ export default function Dashboard() {
         setProjects(proj);
         setAnalytics(an);
       } catch (err: any) {
-        setError(err.message || 'Failed to load dashboard data');
+        setError(err.message || t('dashboard.failed'));
       } finally {
         setLoading(false);
       }
@@ -88,15 +95,13 @@ export default function Dashboard() {
   if (loading) {
     return (
       <div className="min-w-0">
-        <div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
+        <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
             {t('dashboard.title')}
           </h1>
-          <p className="mt-1 text-sm text-gray-600 lg:text-base">
-            {t('dashboard.subtitle')}
-          </p>
+          <p className="mt-1 text-sm text-gray-600 lg:text-base">{t('dashboard.subtitle')}</p>
         </div>
-        <LoadingState text="Loading dashboard..." />
+        <LoadingState text={t('dashboard.loading')} />
       </div>
     );
   }
@@ -104,13 +109,11 @@ export default function Dashboard() {
   if (error) {
     return (
       <div className="min-w-0">
-        <div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
+        <div className="mb-6">
           <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
             {t('dashboard.title')}
           </h1>
-          <p className="mt-1 text-sm text-gray-600 lg:text-base">
-            {t('dashboard.subtitle')}
-          </p>
+          <p className="mt-1 text-sm text-gray-600 lg:text-base">{t('dashboard.subtitle')}</p>
         </div>
         <div className="flex flex-col items-center py-12">
           <AlertTriangle className="h-10 w-10 text-red-500" />
@@ -119,7 +122,7 @@ export default function Dashboard() {
             onClick={() => window.location.reload()}
             className="mt-4 rounded-lg bg-navy-900 px-4 py-2 text-sm font-medium text-white hover:bg-navy-800"
           >
-            Retry
+            {t('common.retry')}
           </button>
         </div>
       </div>
@@ -129,10 +132,10 @@ export default function Dashboard() {
   const highRiskProjects = dashboard.highRiskTable || [];
 
   const riskDistribution = [
-    { name: 'Low', value: dashboard.riskDistribution?.low ?? 0, color: '#22c55e' },
-    { name: 'Medium', value: dashboard.riskDistribution?.medium ?? 0, color: '#eab308' },
-    { name: 'High', value: dashboard.riskDistribution?.high ?? 0, color: '#f97316' },
-    { name: 'Critical', value: dashboard.riskDistribution?.critical ?? 0, color: '#ef4444' },
+    { name: t('risk.LOW'), value: dashboard.riskDistribution?.low ?? 0, color: '#22c55e' },
+    { name: t('risk.MEDIUM'), value: dashboard.riskDistribution?.medium ?? 0, color: '#eab308' },
+    { name: t('risk.HIGH'), value: dashboard.riskDistribution?.high ?? 0, color: '#f97316' },
+    { name: t('risk.CRITICAL'), value: dashboard.riskDistribution?.critical ?? 0, color: '#ef4444' },
   ];
 
   const formatCurrency = (value: number) => {
@@ -143,19 +146,27 @@ export default function Dashboard() {
   };
 
   const secondaryKpis = [
-    { title: t('kpi.portfolioValue'), value: formatCurrency(dashboard.portfolioValue ?? 0), subtitle: t('kpi.portfolioValueSub'), icon: <TrendingUp className="h-5 w-5 text-blue-600" /> },
-    { title: t('kpi.revisedValue'), value: formatCurrency(dashboard.revisedValue ?? 0), subtitle: t('kpi.revisedValueSub'), icon: <BarChart3 className="h-5 w-5 text-blue-600" /> },
+    {
+      title: t('kpi.portfolioValue'),
+      value: formatCurrency(dashboard.portfolioValue ?? 0),
+      subtitle: t('kpi.portfolioValueSub'),
+      icon: <TrendingUp className="h-5 w-5 text-blue-600" />,
+    },
+    {
+      title: t('kpi.revisedValue'),
+      value: formatCurrency(dashboard.revisedValue ?? 0),
+      subtitle: t('kpi.revisedValueSub'),
+      icon: <BarChart3 className="h-5 w-5 text-blue-600" />,
+    },
   ];
 
   return (
     <div className="min-w-0">
-<div className="mb-6 inline-block rounded-xl bg-white px-6 py-3 shadow-md">
+      <div className="mb-6">
         <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
           {t('dashboard.title')}
         </h1>
-        <p className="mt-1 text-sm text-gray-600 lg:text-base">
-          {t('dashboard.subtitle')}
-        </p>
+        <p className="mt-1 text-sm text-gray-600 lg:text-base">{t('dashboard.subtitle')}</p>
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
@@ -186,7 +197,7 @@ export default function Dashboard() {
         />
       </div>
 
-      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 lg:max-w-2xl">
+      <div className="mt-4 grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
         {secondaryKpis.map((kpi) => (
           <div
             key={kpi.title}
@@ -194,7 +205,9 @@ export default function Dashboard() {
           >
             <div className="min-w-0">
               <p className="text-sm font-medium text-gray-500">{kpi.title}</p>
-              <p className="mt-1 text-lg font-bold tracking-tight text-navy-900 lg:text-xl">{kpi.value}</p>
+              <p className="mt-1 text-lg font-bold tracking-tight text-navy-900 lg:text-xl">
+                {kpi.value}
+              </p>
               <p className="mt-0.5 text-xs text-gray-400">{kpi.subtitle}</p>
             </div>
             <div className="shrink-0 rounded-lg bg-white p-2.5 ring-1 ring-inset ring-navy-100">
@@ -210,9 +223,7 @@ export default function Dashboard() {
             <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
               {t('dashboard.attentionTitle')}
             </h3>
-            <p className="mt-0.5 text-xs text-gray-500 lg:text-sm">
-              {t('dashboard.attentionSub')}
-            </p>
+            <p className="mt-0.5 text-xs text-gray-500 lg:text-sm">{t('dashboard.attentionSub')}</p>
           </div>
           <button
             onClick={() => navigate('/projects')}
@@ -239,7 +250,8 @@ export default function Dashboard() {
             </thead>
             <tbody className="divide-y divide-gray-100">
               {highRiskProjects.map((project: any) => {
-                const costOverrun = ((project.currentCost - project.originalCost) / project.originalCost) * 100;
+                const costOverrun =
+                  ((project.currentCost - project.originalCost) / project.originalCost) * 100;
                 return (
                   <tr
                     key={project.id}
@@ -252,7 +264,10 @@ export default function Dashboard() {
                       </div>
                       <div className="text-xs text-gray-400">{project.id}</div>
                     </td>
-                    <td className="max-w-[180px] truncate px-4 py-3 text-gray-600" title={project.ministry}>
+                    <td
+                      className="max-w-[180px] truncate px-4 py-3 text-gray-600"
+                      title={project.ministry}
+                    >
                       {project.ministry}
                     </td>
                     <td className="px-4 py-3 text-gray-700">{project.sector}</td>
@@ -266,7 +281,9 @@ export default function Dashboard() {
                       </span>
                     </td>
                     <td className="px-4 py-3">
-                      <span className={`text-sm font-semibold ${getDelayColor(project.delayProbability)}`}>
+                      <span
+                        className={`text-sm font-semibold ${getDelayColor(project.delayProbability)}`}
+                      >
                         {project.delayProbability}%
                       </span>
                     </td>
@@ -289,7 +306,7 @@ export default function Dashboard() {
         <div className="mt-8 rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50/60 to-white p-5">
           <div className="flex items-center gap-2 text-sm text-gray-400">
             <span className="h-4 w-4 animate-spin rounded-full border-2 border-purple-300 border-t-purple-600" />
-            Loading AI early-warning data...
+            {t('dashboard.loadingAi')}
           </div>
         </div>
       ) : Object.keys(aiMap).length > 0 ? (
@@ -297,13 +314,13 @@ export default function Dashboard() {
           <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
             <div>
               <p className="text-xs font-semibold uppercase tracking-widest text-purple-600">
-                AI Early Warnings
+                {t('dashboard.aiEarlyWarnings')}
               </p>
               <h3 className="mt-1 text-base font-semibold text-navy-900 lg:text-lg">
-                AI-Enhanced Project Risk Intelligence
+                {t('dashboard.aiEnhanced')}
               </h3>
               <p className="mt-0.5 text-xs text-gray-500">
-                Hybrid statistical + LLM analysis for top-risk projects. Periodically refreshed.
+                {t('dashboard.aiSub')}
               </p>
             </div>
           </div>
@@ -328,10 +345,12 @@ export default function Dashboard() {
                     <div className="mb-3 flex items-start justify-between gap-2">
                       <div className="min-w-0">
                         <p className="truncate text-sm font-semibold text-navy-900">{project.name}</p>
-                        <p className="mt-0.5 text-xs text-gray-500">{project.id} · {project.sector}</p>
+                        <p className="mt-0.5 text-xs text-gray-500">
+                          {t('dashboard.sectorJoined', { id: project.id, sector: project.sector })}
+                        </p>
                       </div>
                       <div className="shrink-0 text-right">
-                        <p className="text-[10px] font-medium uppercase tracking-wider text-gray-400">Future Risk</p>
+                        <p className="text-[10px] font-medium uppercase tracking-wider text-gray-400">{t('dashboard.futureRisk')}</p>
                         <p
                           className={`text-xl font-bold ${
                             futureScore >= 80
@@ -351,13 +370,13 @@ export default function Dashboard() {
                       {pred && (
                         <span className="inline-flex items-center gap-1">
                           <Clock className="h-3 w-3 text-orange-400" />
-                          {Math.round(pred.schedule_delay_probability * 100)}% delay risk
+                          {Math.round(pred.schedule_delay_probability * 100)}% {t('dashboard.delayRiskShort')}
                         </span>
                       )}
                       {pred && (
                         <span className="inline-flex items-center gap-1">
                           <DollarSign className="h-3 w-3 text-yellow-400" />
-                          {Math.round(pred.cost_overrun_probability * 100)}% cost risk
+                          {Math.round(pred.cost_overrun_probability * 100)}% {t('dashboard.costRiskShort')}
                         </span>
                       )}
                       {ai.anomalies.length > 0 && (

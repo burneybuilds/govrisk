@@ -21,9 +21,7 @@ export function KpiCard({ title, value, subtitle, icon, trend }: KpiCardProps) {
           <p className="mt-0.5 truncate text-xs text-gray-400">{subtitle}</p>
         </div>
         <div className="flex shrink-0 flex-col items-end gap-2">
-          <div className="rounded-lg bg-gray-50 p-2.5 ring-1 ring-inset ring-gray-100">
-            {icon}
-          </div>
+          <div className="rounded-lg bg-gray-50 p-2.5 ring-1 ring-inset ring-gray-100">{icon}</div>
           {trend && (
             <span
               className={`inline-flex items-center gap-0.5 text-xs font-semibold ${

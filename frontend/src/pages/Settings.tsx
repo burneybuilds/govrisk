@@ -2,13 +2,7 @@ import { useState, useEffect } from 'react';
 import { Bell, Monitor, User, KeyRound, Save, Check, AlertCircle } from 'lucide-react';
 import { useAuth } from '../context/AuthContext';
 import { updateProfile, changePassword } from '../services/api';
-
-const roleLabels: Record<string, string> = {
-  admin: 'Administrator',
-  officer: 'Project Officer',
-  analyst: 'Risk Analyst',
-  viewer: 'Viewer',
-};
+import { useI18n } from '../i18n';
 
 function formatDate(iso?: string) {
   if (!iso) return '—';
@@ -19,6 +13,7 @@ function formatDate(iso?: string) {
 
 export default function Settings() {
   const { user, setUser } = useAuth();
+  const { t, roleLabel } = useI18n();
 
   const [emailAlerts, setEmailAlerts] = useState(true);
   const [dailySummary, setDailySummary] = useState(true);
@@ -55,9 +50,9 @@ export default function Settings() {
     try {
       const updated = await updateProfile({ fullName, department, designation });
       setUser(updated);
-      setProfileSuccess('Profile updated');
+      setProfileSuccess(t('settings.profileUpdated'));
     } catch (e: any) {
-      setProfileError(e.message || 'Failed to update profile');
+      setProfileError(e.message || t('settings.profileFailed'));
     } finally {
       setProfileSaving(false);
     }
@@ -67,22 +62,22 @@ export default function Settings() {
     setPasswordError('');
     setPasswordSuccess('');
     if (newPassword.length < 6) {
-      setPasswordError('New password must be at least 6 characters');
+      setPasswordError(t('settings.passwordShort'));
       return;
     }
     if (newPassword !== confirmPassword) {
-      setPasswordError('Passwords do not match');
+      setPasswordError(t('settings.passwordMismatch'));
       return;
     }
     setPasswordSaving(true);
     try {
       await changePassword({ currentPassword, newPassword });
-      setPasswordSuccess('Password changed successfully');
+      setPasswordSuccess(t('settings.passwordChanged'));
       setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (e: any) {
-      setPasswordError(e.message || 'Failed to change password');
+      setPasswordError(e.message || t('settings.passwordFailed'));
     } finally {
       setPasswordSaving(false);
     }
@@ -95,8 +90,10 @@ export default function Settings() {
     <div className="mx-auto min-w-0 max-w-[800px]">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">Settings</h1>
-          <p className="mt-1 text-sm text-gray-500 lg:text-base">Profile, security, and application preferences</p>
+          <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">{t('settings.title')}</h1>
+          <p className="mt-1 text-sm text-gray-500 lg:text-base">
+            {t('settings.subtitle')}
+          </p>
         </div>
       </div>
 
@@ -106,32 +103,38 @@ export default function Settings() {
             <span className="rounded-lg bg-blue-50 p-2">
               <User className="h-5 w-5 text-blue-600" />
             </span>
-            <h2 className="text-base font-semibold text-navy-900 lg:text-lg">Profile</h2>
+            <h2 className="text-base font-semibold text-navy-900 lg:text-lg">{t('settings.profile')}</h2>
           </div>
           <div className="space-y-2.5">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">User ID</span>
+              <span className="text-sm text-gray-500">{t('settings.userId')}</span>
               <span className="text-sm font-medium text-navy-900">{user?.userId}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Name</span>
+              <span className="text-sm text-gray-500">{t('settings.name')}</span>
               <span className="text-sm font-medium text-navy-900">{user?.fullName}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Role</span>
-              <span className="text-sm font-medium text-navy-900">{roleLabels[user?.role ?? 'viewer']}</span>
+              <span className="text-sm text-gray-500">{t('settings.role')}</span>
+              <span className="text-sm font-medium text-navy-900">
+                {roleLabel(user?.role ?? 'viewer', true)}
+              </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Email</span>
+              <span className="text-sm text-gray-500">{t('settings.email')}</span>
               <span className="text-sm font-medium text-navy-900">{user?.email}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Account created</span>
-              <span className="text-sm font-medium text-navy-900">{formatDate(user?.createdAt)}</span>
+              <span className="text-sm text-gray-500">{t('settings.accountCreated')}</span>
+              <span className="text-sm font-medium text-navy-900">
+                {formatDate(user?.createdAt)}
+              </span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Last login</span>
-              <span className="text-sm font-medium text-navy-900">{formatDate(user?.lastLogin)}</span>
+              <span className="text-sm text-gray-500">{t('settings.lastLogin')}</span>
+              <span className="text-sm font-medium text-navy-900">
+                {formatDate(user?.lastLogin)}
+              </span>
             </div>
           </div>
 
@@ -150,17 +153,31 @@ export default function Settings() {
 
           <div className="mt-5 space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-gray-500">Full Name</label>
-              <input value={fullName} onChange={(e) => setFullName(e.target.value)} className={inputClass} />
+              <label className="mb-1.5 block text-xs font-medium text-gray-500">{t('settings.fullName')}</label>
+              <input
+                value={fullName}
+                onChange={(e) => setFullName(e.target.value)}
+                className={inputClass}
+              />
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-500">Department</label>
-                <input value={department} onChange={(e) => setDepartment(e.target.value)} className={inputClass} />
+                <label className="mb-1.5 block text-xs font-medium text-gray-500">{t('settings.department')}</label>
+                <input
+                  value={department}
+                  onChange={(e) => setDepartment(e.target.value)}
+                  className={inputClass}
+                />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-500">Designation</label>
-                <input value={designation} onChange={(e) => setDesignation(e.target.value)} className={inputClass} />
+                <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                  {t('settings.designation')}
+                </label>
+                <input
+                  value={designation}
+                  onChange={(e) => setDesignation(e.target.value)}
+                  className={inputClass}
+                />
               </div>
             </div>
             <button
@@ -169,7 +186,7 @@ export default function Settings() {
               className="inline-flex h-10 items-center gap-2 rounded-lg bg-blue-600 px-4 text-sm font-semibold text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
             >
               <Save size={16} />
-              {profileSaving ? 'Saving...' : 'Save changes'}
+              {profileSaving ? 'Saving...' : t('settings.saveChanges')}
             </button>
           </div>
         </div>
@@ -197,7 +214,9 @@ export default function Settings() {
 
           <div className="space-y-4">
             <div>
-              <label className="mb-1.5 block text-xs font-medium text-gray-500">Current Password</label>
+              <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                Current Password
+              </label>
               <input
                 type="password"
                 value={currentPassword}
@@ -207,7 +226,9 @@ export default function Settings() {
             </div>
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-500">New Password</label>
+                <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                  New Password
+                </label>
                 <input
                   type="password"
                   value={newPassword}
@@ -216,7 +237,9 @@ export default function Settings() {
                 />
               </div>
               <div>
-                <label className="mb-1.5 block text-xs font-medium text-gray-500">Confirm New Password</label>
+                <label className="mb-1.5 block text-xs font-medium text-gray-500">
+                  Confirm New Password
+                </label>
                 <input
                   type="password"
                   value={confirmPassword}
@@ -241,7 +264,9 @@ export default function Settings() {
             <span className="rounded-lg bg-blue-50 p-2">
               <Bell className="h-5 w-5 text-blue-600" />
             </span>
-            <h2 className="text-base font-semibold text-navy-900 lg:text-lg">Notification Preferences</h2>
+            <h2 className="text-base font-semibold text-navy-900 lg:text-lg">
+              Notification Preferences
+            </h2>
           </div>
           <div className="space-y-4">
             <label className="flex items-center justify-between cursor-pointer">

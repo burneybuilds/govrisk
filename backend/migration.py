@@ -23,6 +23,16 @@ PROJECT_COLUMNS = {
     "risk_report": "TEXT",
     "created_at": "TEXT",
     "updated_at": "TEXT",
+    # Ingestion provenance (backend/ingest). Existing rows default to ONGOING.
+    "status": "TEXT NOT NULL DEFAULT 'ONGOING'",
+    "scale": "TEXT",
+    "funding_source": "TEXT",
+    "external_ref": "TEXT",
+    "source_name": "TEXT",
+    "source_url": "TEXT",
+    "retrieved_date": "TEXT",
+    "data_confidence": "TEXT",
+    "last_synced_at": "TEXT",
 }
 
 

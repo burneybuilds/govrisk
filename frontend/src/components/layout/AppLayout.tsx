@@ -1,7 +1,7 @@
-import { Outlet } from "react-router-dom";
-import Sidebar from "./Sidebar";
-import Topbar from "./Topbar";
-import LandmarkSlider from "../hero/LandmarkSlider";
+import { Outlet } from 'react-router-dom';
+import Sidebar from './Sidebar';
+import Topbar from './Topbar';
+import LandmarkSlider from '../hero/LandmarkSlider';
 
 export default function AppLayout() {
   return (
@@ -14,8 +14,7 @@ export default function AppLayout() {
         aria-hidden="true"
         className="pointer-events-none fixed inset-0 z-0"
         style={{
-          backgroundImage:
-            'radial-gradient(circle, rgba(20,30,53,0.05) 1px, transparent 1px)',
+          backgroundImage: 'radial-gradient(circle, rgba(20,30,53,0.05) 1px, transparent 1px)',
           backgroundSize: '24px 24px',
         }}
       />

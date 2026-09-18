@@ -41,6 +41,19 @@ class Project(Base):
     created_at = Column(String, nullable=True)
     updated_at = Column(String, nullable=True)
 
+    # --- Government-ingest provenance -------------------------------------------------
+    # Filled by the ingestion pipeline (backend/ingest). Manual records created
+    # through the API leave these NULL / defaulted.
+    status = Column(String, nullable=False, default="ONGOING")  # ONGOING|COMPLETED|DELAYED|STALLED|CANCELLED
+    scale = Column(String, nullable=True)  # MEDIUM|LARGE (see ingest/normalize.py)
+    funding_source = Column(String, nullable=True)
+    external_ref = Column(String, nullable=True)  # source record id (dedup key)
+    source_name = Column(String, nullable=True)
+    source_url = Column(String, nullable=True)
+    retrieved_date = Column(String, nullable=True)
+    data_confidence = Column(String, nullable=True)  # OFFICIAL|VERIFIED_SECONDARY|UNVERIFIED
+    last_synced_at = Column(String, nullable=True)
+
 
 class Alert(Base):
     __tablename__ = "alerts"
@@ -202,3 +215,21 @@ class EmergingRisk(Base):
     __table_args__ = (
         Index("ix_ai_emerging_risks_project_created", "project_id", "created_at"),
     )
+
+
+class IngestAuditLog(Base):
+    """Append-only provenance ledger for the ingestion pipeline.
+
+    Every insert/update/skip/merge/reject writes a row here so every database
+    state change is traceable to a source, a timestamp, and the changed
+    record. No deletes: rows are soft-flagged via the audit record only.
+    """
+
+    __tablename__ = "ingest_audit_log"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    source = Column(String, nullable=False)
+    project_id = Column(String, nullable=True, index=True)
+    action = Column(String, nullable=False)  # INSERT|UPDATE|SKIP|MERGE|REJECT
+    detail = Column(Text, nullable=True)
+    created_at = Column(String, nullable=False)

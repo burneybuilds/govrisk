@@ -81,11 +81,7 @@ export function RiskTrendChart({
               fontSize: 12,
             }}
           />
-          <Legend
-            iconType="circle"
-            iconSize={8}
-            wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
-          />
+          <Legend iconType="circle" iconSize={8} wrapperStyle={{ fontSize: 12, paddingTop: 8 }} />
           {lineConfig.map((line) => (
             <Line
               key={line.key}

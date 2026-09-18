@@ -42,7 +42,9 @@ export function RiskChart({ data, title, description }: RiskChartProps) {
         </ResponsiveContainer>
         <div className="pointer-events-none absolute inset-0 flex items-center justify-center">
           <div className="text-center">
-            <div className="text-2xl font-bold text-navy-900 lg:text-3xl">{total.toLocaleString('en-IN')}</div>
+            <div className="text-2xl font-bold text-navy-900 lg:text-3xl">
+              {total.toLocaleString('en-IN')}
+            </div>
             <div className="text-xs text-gray-500">Total Projects</div>
           </div>
         </div>

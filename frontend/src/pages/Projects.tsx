@@ -12,12 +12,14 @@ import { ProjectCard } from '../components/project/ProjectCard';
 import { EmptyState } from '../components/ui/EmptyState';
 import { FolderSearch } from 'lucide-react';
 import { LoadingState } from '../components/ui/LoadingState';
+import { useI18n } from '../i18n';
 
 type ViewMode = 'table' | 'cards';
 
 export default function Projects() {
   const navigate = useNavigate();
   const { user } = useAuth();
+  const { t, riskLabel } = useI18n();
   const [searchParams] = useSearchParams();
   const [projects, setProjects] = useState<Project[]>([]);
   const [loading, setLoading] = useState(true);
@@ -95,9 +97,11 @@ export default function Projects() {
     <div className="min-w-0">
       <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">Infrastructure Projects</h1>
+          <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
+            {t('projects.title')}
+          </h1>
           <p className="mt-1 text-sm text-gray-500 lg:text-base">
-            Monitor project performance, cost, progress and risk.
+            {t('projects.subtitle')}
           </p>
         </div>
         <div className="flex items-center gap-1 rounded-lg border border-gray-200 bg-white p-1">
@@ -108,7 +112,7 @@ export default function Projects() {
             }`}
           >
             <TableIcon size={14} />
-            Table
+            {t('projects.table')}
           </button>
           <button
             onClick={() => setViewMode('cards')}
@@ -117,7 +121,7 @@ export default function Projects() {
             }`}
           >
             <LayoutGrid size={14} />
-            Cards
+            {t('projects.cards')}
           </button>
         </div>
       </div>
@@ -125,48 +129,44 @@ export default function Projects() {
       <div className="mb-6 rounded-xl border border-gray-200 bg-white p-4 lg:p-5">
         <FilterBar>
           <div className="w-full sm:w-72">
-            <SearchBar
-              value={search}
-              onChange={setSearch}
-              placeholder="Search projects..."
-            />
+            <SearchBar value={search} onChange={setSearch} placeholder={t('projects.searchPlaceholder')} />
           </div>
           <FilterSelect
-            label="Sector"
+            label={t('projects.filterSector')}
             value={sectorFilter}
             onChange={setSectorFilter}
             options={[
-              { value: 'All', label: 'All Sectors' },
+              { value: 'All', label: t('projects.allSectors') },
               ...sectors.map((s) => ({ value: s, label: s })),
             ]}
           />
           <FilterSelect
-            label="Risk Level"
+            label={t('projects.filterRiskLevel')}
             value={riskFilter}
             onChange={setRiskFilter}
             options={[
-              { value: 'All', label: 'All' },
-              { value: 'LOW', label: 'LOW' },
-              { value: 'MEDIUM', label: 'MEDIUM' },
-              { value: 'HIGH', label: 'HIGH' },
-              { value: 'CRITICAL', label: 'CRITICAL' },
+              { value: 'All', label: t('common.all') },
+              { value: 'LOW', label: riskLabel('LOW') },
+              { value: 'MEDIUM', label: riskLabel('MEDIUM') },
+              { value: 'HIGH', label: riskLabel('HIGH') },
+              { value: 'CRITICAL', label: riskLabel('CRITICAL') },
             ]}
           />
           <FilterSelect
-            label="State"
+            label={t('projects.filterState')}
             value={stateFilter}
             onChange={setStateFilter}
             options={[
-              { value: 'All', label: 'All States' },
+              { value: 'All', label: t('projects.allStates') },
               ...states.map((s) => ({ value: s, label: s })),
             ]}
           />
           <FilterSelect
-            label="Ministry"
+            label={t('projects.filterMinistry')}
             value={ministryFilter}
             onChange={setMinistryFilter}
             options={[
-              { value: 'All', label: 'All Ministries' },
+              { value: 'All', label: t('projects.allMinistries') },
               ...ministries.map((m) => ({ value: m, label: m })),
             ]}
           />
@@ -176,30 +176,30 @@ export default function Projects() {
               className="ml-auto inline-flex items-center gap-2 rounded-lg bg-blue-600 px-4 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-blue-500"
             >
               <Plus className="h-4 w-4" />
-              Add Project
+              {t('projects.addProject')}
             </button>
           )}
         </FilterBar>
       </div>
 
       {loading ? (
-        <LoadingState text="Loading projects..." />
+        <LoadingState text={t('projects.loading')} />
       ) : error ? (
         <EmptyState
-          title="Unable to connect to GovRisk services"
-          description="Please check that the GovRisk backend is running and try again."
+          title={t('projects.connectError')}
+          description={t('projects.connectErrorDesc')}
           icon={<FolderSearch size={40} />}
         />
       ) : (
         <>
           <p className="mb-4 text-sm text-gray-500">
-            Showing {filteredProjects.length} of {projects.length} projects
+            {t('projects.showing', { count: filteredProjects.length, total: projects.length })}
           </p>
 
           {filteredProjects.length === 0 ? (
             <EmptyState
-              title="No projects found"
-              description="Try adjusting your search query or clearing some filters."
+              title={t('projects.noProjects')}
+              description={t('projects.noProjectsDesc')}
               icon={<FolderSearch size={40} />}
             />
           ) : viewMode === 'table' ? (

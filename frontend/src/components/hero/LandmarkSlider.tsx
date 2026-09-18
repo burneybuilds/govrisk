@@ -68,12 +68,7 @@ export default function LandmarkSlider({ variant = 'card' }: LandmarkSliderProps
         >
           {slides.map((slide) => (
             <div key={slide.src} className="relative h-full w-full shrink-0">
-              <img
-                src={slide.src}
-                alt=""
-                className="h-full w-full object-cover"
-                loading="lazy"
-              />
+              <img src={slide.src} alt="" className="h-full w-full object-cover" loading="lazy" />
             </div>
           ))}
         </div>
@@ -128,9 +123,7 @@ export default function LandmarkSlider({ variant = 'card' }: LandmarkSliderProps
               aria-label={`Go to ${slide.title}`}
               onClick={() => goTo(i)}
               className={`h-1.5 rounded-full transition-all duration-300 ${
-                i === index
-                  ? 'w-6 bg-[#C9A227]'
-                  : 'w-1.5 bg-white/40 hover:bg-white/80'
+                i === index ? 'w-6 bg-[#C9A227]' : 'w-1.5 bg-white/40 hover:bg-white/80'
               }`}
             />
           ))}

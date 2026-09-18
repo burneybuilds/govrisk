@@ -1,12 +1,31 @@
 import { useState, useRef, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { X, Check, AlertTriangle, Building2, Database, TrendingUp, Calendar, ShieldAlert, MapPin, Info, Loader2 } from 'lucide-react';
+import {
+  X,
+  Check,
+  AlertTriangle,
+  Building2,
+  Database,
+  TrendingUp,
+  Calendar,
+  ShieldAlert,
+  MapPin,
+  Info,
+  Loader2,
+} from 'lucide-react';
 import { createProject, updateProject, ProjectCreateData } from '../../services/api';
 import { RiskBadge } from '../ui/RiskBadge';
 import { RiskInputs } from '../../types';
 import RiskInputsFields from '../project/RiskInputsFields';
 
-const SECTORS = ['Transport', 'Energy', 'Water', 'Communication', 'Social Infrastructure', 'Mining'];
+const SECTORS = [
+  'Transport',
+  'Energy',
+  'Water',
+  'Communication',
+  'Social Infrastructure',
+  'Mining',
+];
 
 const EMPTY_FORM = {
   name: '',
@@ -72,7 +91,8 @@ function previewRisk(v: FormState): RiskPreview | null {
   }
 
   const gap = Math.max(0, round1(planned - physical));
-  const revisedRaw = v.revisedCost !== '' && !isNaN(parseNum(v.revisedCost)) ? parseNum(v.revisedCost) : costRaw;
+  const revisedRaw =
+    v.revisedCost !== '' && !isNaN(parseNum(v.revisedCost)) ? parseNum(v.revisedCost) : costRaw;
   const overrun = costRaw > 0 ? round1(((revisedRaw - costRaw) / costRaw) * 100) : 0;
   const overrunPct = Math.max(0, overrun);
 
@@ -86,8 +106,12 @@ function previewRisk(v: FormState): RiskPreview | null {
 
   const factors: string[] = [];
   if (gap > 5) factors.push(`Physical progress is ${gap.toFixed(0)}% behind planned progress`);
-  if (overrunPct > 5) factors.push(`Cost has increased by ${overrunPct.toFixed(1)}% from original estimate`);
-  if (finLag) factors.push('Financial progress is below physical progress, indicating an expenditure slowdown');
+  if (overrunPct > 5)
+    factors.push(`Cost has increased by ${overrunPct.toFixed(1)}% from original estimate`);
+  if (finLag)
+    factors.push(
+      'Financial progress is below physical progress, indicating an expenditure slowdown',
+    );
   if (physical < 30) factors.push('Very low physical progress relative to project duration');
   if (factors.length === 0) factors.push('Project is progressing broadly as planned');
 
@@ -199,7 +223,8 @@ export default function AddProjectModal({
   useEffect(() => {
     if (open && isEdit && initial) {
       const p = initial;
-      const sameCost = p.currentCost != null && p.originalCost != null && p.currentCost === p.originalCost;
+      const sameCost =
+        p.currentCost != null && p.originalCost != null && p.currentCost === p.originalCost;
       setForm({
         name: p.name || '',
         ministry: p.ministry || '',
@@ -262,7 +287,8 @@ export default function AddProjectModal({
     if (!form.state.trim()) e.state = 'State is required';
 
     const oc = parseNum(form.originalCost);
-    if (form.originalCost === '' || isNaN(oc) || oc <= 0) e.originalCost = 'Enter an approved cost greater than 0';
+    if (form.originalCost === '' || isNaN(oc) || oc <= 0)
+      e.originalCost = 'Enter an approved cost greater than 0';
 
     if (form.revisedCost !== '') {
       const rc = parseNum(form.revisedCost);
@@ -274,7 +300,8 @@ export default function AddProjectModal({
     }
 
     const pp = parseNum(form.physicalProgress);
-    if (form.physicalProgress === '' || isNaN(pp)) e.physicalProgress = 'Physical progress is required';
+    if (form.physicalProgress === '' || isNaN(pp))
+      e.physicalProgress = 'Physical progress is required';
     else if (pp < 0 || pp > 100) e.physicalProgress = 'Must be between 0 and 100';
 
     if (form.financialProgress !== '') {
@@ -287,7 +314,11 @@ export default function AddProjectModal({
     if (form.startDate && form.completionDate && form.completionDate < form.startDate) {
       e.completionDate = 'Completion date cannot be before start date';
     }
-    if (form.predictedCompletionDate && form.startDate && form.predictedCompletionDate < form.startDate) {
+    if (
+      form.predictedCompletionDate &&
+      form.startDate &&
+      form.predictedCompletionDate < form.startDate
+    ) {
       e.predictedCompletionDate = 'Cannot be before start date';
     }
 
@@ -340,7 +371,8 @@ export default function AddProjectModal({
     setSubmitError('');
     try {
       const payload = buildPayload();
-      const res = isEdit && initial ? await updateProject(initial.id, payload) : await createProject(payload);
+      const res =
+        isEdit && initial ? await updateProject(initial.id, payload) : await createProject(payload);
       setCreated(res);
       setStep('success');
       onCreated(res);
@@ -373,7 +405,12 @@ export default function AddProjectModal({
           <div className="mb-4 space-y-2 rounded-lg bg-gray-50 p-4 text-left">
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Project ID</span>
-              <span className="font-medium text-navy-900" style={{ fontFamily: 'ui-monospace, monospace' }}>{created.id}</span>
+              <span
+                className="font-medium text-navy-900"
+                style={{ fontFamily: 'ui-monospace, monospace' }}
+              >
+                {created.id}
+              </span>
             </div>
             <div className="flex justify-between text-sm">
               <span className="text-gray-500">Project Name</span>
@@ -430,7 +467,11 @@ export default function AddProjectModal({
           )}
 
           <div className="grid grid-cols-1 gap-5">
-            <Section number={1} icon={<Building2 className="h-4 w-4 text-blue-600" />} title="Basic Information">
+            <Section
+              number={1}
+              icon={<Building2 className="h-4 w-4 text-blue-600" />}
+              title="Basic Information"
+            >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <div className="sm:col-span-2">
                   <Field label="Project Name" required error={errors.name}>
@@ -459,9 +500,15 @@ export default function AddProjectModal({
                   />
                 </Field>
                 <Field label="Sector" required>
-                  <select value={form.sector} onChange={(e) => set('sector', e.target.value)} className={inputClass}>
+                  <select
+                    value={form.sector}
+                    onChange={(e) => set('sector', e.target.value)}
+                    className={inputClass}
+                  >
                     {SECTORS.map((s) => (
-                      <option key={s} value={s}>{s}</option>
+                      <option key={s} value={s}>
+                        {s}
+                      </option>
                     ))}
                   </select>
                 </Field>
@@ -486,7 +533,11 @@ export default function AddProjectModal({
               </div>
             </Section>
 
-            <Section number={2} icon={<Database className="h-4 w-4 text-blue-600" />} title="Financial Information">
+            <Section
+              number={2}
+              icon={<Database className="h-4 w-4 text-blue-600" />}
+              title="Financial Information"
+            >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Field label="Approved Cost (₹ Cr)" required error={errors.originalCost}>
                   <input
@@ -518,7 +569,11 @@ export default function AddProjectModal({
               </div>
             </Section>
 
-            <Section number={3} icon={<TrendingUp className="h-4 w-4 text-blue-600" />} title="Progress">
+            <Section
+              number={3}
+              icon={<TrendingUp className="h-4 w-4 text-blue-600" />}
+              title="Progress"
+            >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="Physical Progress %" required error={errors.physicalProgress}>
                   <input
@@ -541,7 +596,11 @@ export default function AddProjectModal({
               </div>
             </Section>
 
-            <Section number={4} icon={<Calendar className="h-4 w-4 text-blue-600" />} title="Timeline">
+            <Section
+              number={4}
+              icon={<Calendar className="h-4 w-4 text-blue-600" />}
+              title="Timeline"
+            >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
                 <Field label="Start Date" required error={errors.startDate}>
                   <input
@@ -570,21 +629,38 @@ export default function AddProjectModal({
               </div>
             </Section>
 
-            <Section number={5} icon={<ShieldAlert className="h-4 w-4 text-blue-600" />} title="Risk Assessment (auto-calculated)">
+            <Section
+              number={5}
+              icon={<ShieldAlert className="h-4 w-4 text-blue-600" />}
+              title="Risk Assessment (auto-calculated)"
+            >
               {risk ? (
                 <div className="rounded-lg border border-gray-200 bg-gray-50 p-4">
                   <div className="mb-3 flex flex-wrap items-center gap-4">
                     <div>
                       <p className="text-xs text-gray-500">Risk Score</p>
-                      <p className="text-2xl font-bold text-navy-900">{risk.score}<span className="text-sm font-medium text-gray-400">/100</span></p>
+                      <p className="text-2xl font-bold text-navy-900">
+                        {risk.score}
+                        <span className="text-sm font-medium text-gray-400">/100</span>
+                      </p>
                     </div>
                     <div>
                       <p className="mb-1 text-xs text-gray-500">Risk Level</p>
                       <RiskBadge level={risk.level} size="sm" />
                     </div>
                     <div className="text-xs text-gray-500">
-                      <p>Delay probability: <span className="font-semibold text-navy-900">{risk.delayProbability}%</span></p>
-                      <p>Cost overrun probability: <span className="font-semibold text-navy-900">{risk.costOverrunProbability}%</span></p>
+                      <p>
+                        Delay probability:{' '}
+                        <span className="font-semibold text-navy-900">
+                          {risk.delayProbability}%
+                        </span>
+                      </p>
+                      <p>
+                        Cost overrun probability:{' '}
+                        <span className="font-semibold text-navy-900">
+                          {risk.costOverrunProbability}%
+                        </span>
+                      </p>
                     </div>
                   </div>
                   <p className="mb-1 text-xs font-medium text-gray-500">Key Risk Factors</p>
@@ -597,7 +673,8 @@ export default function AddProjectModal({
                     ))}
                   </ul>
                   <p className="mt-3 text-xs text-gray-400">
-                    Rule-based preview. The backend is the source of truth and will recalculate on submission.
+                    Rule-based preview. The backend is the source of truth and will recalculate on
+                    submission.
                   </p>
                 </div>
               ) : (
@@ -608,11 +685,19 @@ export default function AddProjectModal({
               )}
             </Section>
 
-            <Section number={6} icon={<ShieldAlert className="h-4 w-4 text-blue-600" />} title="On-Ground Risk Inputs (optional)">
+            <Section
+              number={6}
+              icon={<ShieldAlert className="h-4 w-4 text-blue-600" />}
+              title="On-Ground Risk Inputs (optional)"
+            >
               <RiskInputsFields value={form.riskInputs} onChange={(v) => set('riskInputs', v)} />
             </Section>
 
-            <Section number={7} icon={<MapPin className="h-4 w-4 text-blue-600" />} title="Location (for Risk Map)">
+            <Section
+              number={7}
+              icon={<MapPin className="h-4 w-4 text-blue-600" />}
+              title="Location (for Risk Map)"
+            >
               <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                 <Field label="Latitude" error={errors.lat} hint="Between -90 and 90">
                   <input
@@ -635,7 +720,11 @@ export default function AddProjectModal({
               </div>
             </Section>
 
-            <Section number={8} icon={<Info className="h-4 w-4 text-blue-600" />} title="Additional Information">
+            <Section
+              number={8}
+              icon={<Info className="h-4 w-4 text-blue-600" />}
+              title="Additional Information"
+            >
               <div className="grid grid-cols-1 gap-4">
                 <Field label="Project Description">
                   <textarea
@@ -679,8 +768,10 @@ export default function AddProjectModal({
                   <Loader2 className="h-4 w-4 animate-spin" />
                   {isEdit ? 'Saving Changes...' : 'Creating Project...'}
                 </>
+              ) : isEdit ? (
+                'Save Changes'
               ) : (
-                isEdit ? 'Save Changes' : 'Create Project'
+                'Create Project'
               )}
             </button>
             <button

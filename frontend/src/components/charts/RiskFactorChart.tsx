@@ -33,7 +33,12 @@ export function RiskFactorChart({
       {description && <p className="mt-1 text-xs text-gray-500 lg:text-sm">{description}</p>}
       <div className="mt-4">
         <ResponsiveContainer width="100%" height={280}>
-          <BarChart data={data} layout="vertical" margin={{ top: 0, right: 24, left: 0, bottom: 0 }} barCategoryGap={14}>
+          <BarChart
+            data={data}
+            layout="vertical"
+            margin={{ top: 0, right: 24, left: 0, bottom: 0 }}
+            barCategoryGap={14}
+          >
             <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
             <XAxis
               type="number"

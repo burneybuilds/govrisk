@@ -1,4 +1,5 @@
 import React from 'react';
+import { useI18n } from '../../i18n';
 
 interface RiskBadgeProps {
   level: 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
@@ -18,9 +19,12 @@ const sizeMap = {
 };
 
 export function RiskBadge({ level, size = 'md' }: RiskBadgeProps) {
+  const { riskLabel } = useI18n();
   return (
-    <span className={`inline-flex items-center rounded-full font-medium ${colorMap[level]} ${sizeMap[size]}`}>
-      {level}
+    <span
+      className={`inline-flex items-center rounded-full font-medium ${colorMap[level]} ${sizeMap[size]}`}
+    >
+      {riskLabel(level)}
     </span>
   );
 }

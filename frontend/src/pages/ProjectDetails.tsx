@@ -235,7 +235,9 @@ export default function ProjectDetails() {
   }
 
   const predictedCost = Math.round(project.currentCost * 1.087);
-  const costOverrunPercent = Math.round(((predictedCost - project.originalCost) / project.originalCost) * 100);
+  const costOverrunPercent = Math.round(
+    ((predictedCost - project.originalCost) / project.originalCost) * 100,
+  );
   const delayMonths = getMonthDifference(project.expectedCompletion, project.predictedCompletion);
 
   const projectCostData = [
@@ -307,28 +309,36 @@ export default function ProjectDetails() {
               <DollarSign size={16} className="text-blue-500" />
               <span className="text-xs font-medium text-gray-500">Original Cost</span>
             </div>
-            <p className="text-base font-bold text-navy-900 lg:text-lg">{formatCurrency(project.originalCost)}</p>
+            <p className="text-base font-bold text-navy-900 lg:text-lg">
+              {formatCurrency(project.originalCost)}
+            </p>
           </div>
           <div className="rounded-xl border border-gray-200 bg-white p-4">
             <div className="mb-2 flex items-center gap-2">
               <DollarSign size={16} className="text-orange-500" />
               <span className="text-xs font-medium text-gray-500">Current Cost</span>
             </div>
-            <p className="text-base font-bold text-navy-900 lg:text-lg">{formatCurrency(project.currentCost)}</p>
+            <p className="text-base font-bold text-navy-900 lg:text-lg">
+              {formatCurrency(project.currentCost)}
+            </p>
           </div>
           <div className="rounded-xl border border-gray-200 bg-white p-4">
             <div className="mb-2 flex items-center gap-2">
               <TrendingDown size={16} className="text-gray-500" />
               <span className="text-xs font-medium text-gray-500">Expenditure</span>
             </div>
-            <p className="text-base font-bold text-navy-900 lg:text-lg">{formatCurrency(project.expenditure)}</p>
+            <p className="text-base font-bold text-navy-900 lg:text-lg">
+              {formatCurrency(project.expenditure)}
+            </p>
           </div>
           <div className="rounded-xl border border-gray-200 bg-white p-4">
             <div className="mb-2 flex items-center gap-2">
               <Target size={16} className="text-green-500" />
               <span className="text-xs font-medium text-gray-500">Physical Progress</span>
             </div>
-            <p className="mb-1.5 text-base font-bold text-navy-900 lg:text-lg">{project.physicalProgress}%</p>
+            <p className="mb-1.5 text-base font-bold text-navy-900 lg:text-lg">
+              {project.physicalProgress}%
+            </p>
             <ProgressBar value={project.physicalProgress} color="green" />
           </div>
           <div className="rounded-xl border border-gray-200 bg-white p-4">
@@ -336,7 +346,9 @@ export default function ProjectDetails() {
               <Target size={16} className="text-gray-500" />
               <span className="text-xs font-medium text-gray-500">Planned Progress</span>
             </div>
-            <p className="mb-1.5 text-base font-bold text-navy-900 lg:text-lg">{project.plannedProgress}%</p>
+            <p className="mb-1.5 text-base font-bold text-navy-900 lg:text-lg">
+              {project.plannedProgress}%
+            </p>
             <ProgressBar value={project.plannedProgress} color="gray" />
           </div>
           <div className="rounded-xl border border-gray-200 bg-white p-4">
@@ -344,7 +356,9 @@ export default function ProjectDetails() {
               <Calendar size={16} className="text-navy-500" />
               <span className="text-xs font-medium text-gray-500">Expected Completion</span>
             </div>
-            <p className="text-sm font-bold text-navy-900">{formatDate(project.expectedCompletion)}</p>
+            <p className="text-sm font-bold text-navy-900">
+              {formatDate(project.expectedCompletion)}
+            </p>
           </div>
         </div>
       </div>
@@ -361,9 +375,12 @@ export default function ProjectDetails() {
               <RiskScore score={project.riskScore} size="lg" />
             </div>
             <p className="text-center text-sm text-gray-400">
-              Score <span className="text-xl font-bold text-navy-900">{project.riskScore}</span> / 100
+              Score <span className="text-xl font-bold text-navy-900">{project.riskScore}</span> /
+              100
             </p>
-            <p className={`mb-3 mt-1 text-center text-xl font-bold tracking-wide ${getRiskColor(project.riskLevel)}`}>
+            <p
+              className={`mb-3 mt-1 text-center text-xl font-bold tracking-wide ${getRiskColor(project.riskLevel)}`}
+            >
               {project.riskLevel} RISK
             </p>
             <p className="mb-5 text-center text-xs text-gray-400">
@@ -378,7 +395,9 @@ export default function ProjectDetails() {
                 <div>
                   <p className="text-xs font-semibold text-red-700">Critical blocker detected</p>
                   <ul className="mt-1 space-y-0.5 text-xs text-red-600">
-                    {(project.riskReport?.criticalBlockerReasons || ['Unresolved critical issue']).map((r: string, i: number) => (
+                    {(
+                      project.riskReport?.criticalBlockerReasons || ['Unresolved critical issue']
+                    ).map((r: string, i: number) => (
                       <li key={i}>• {r}</li>
                     ))}
                   </ul>
@@ -390,42 +409,70 @@ export default function ProjectDetails() {
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
                   <span className="text-sm text-gray-600">Cost Overrun Probability</span>
-                  <span className="text-sm font-semibold text-gray-800">{project.costOverrunProbability}%</span>
+                  <span className="text-sm font-semibold text-gray-800">
+                    {project.costOverrunProbability}%
+                  </span>
                 </div>
-                <ProgressBar value={project.costOverrunProbability} color={getProgressColor(project.costOverrunProbability)} size="sm" />
+                <ProgressBar
+                  value={project.costOverrunProbability}
+                  color={getProgressColor(project.costOverrunProbability)}
+                  size="sm"
+                />
               </div>
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
                   <span className="text-sm text-gray-600">Schedule Delay Probability</span>
-                  <span className="text-sm font-semibold text-gray-800">{project.delayProbability}%</span>
+                  <span className="text-sm font-semibold text-gray-800">
+                    {project.delayProbability}%
+                  </span>
                 </div>
-                <ProgressBar value={project.delayProbability} color={project.delayProbability > 80 ? 'red' : getProgressColor(project.delayProbability)} size="sm" />
+                <ProgressBar
+                  value={project.delayProbability}
+                  color={
+                    project.delayProbability > 80
+                      ? 'red'
+                      : getProgressColor(project.delayProbability)
+                  }
+                  size="sm"
+                />
               </div>
               <div>
                 <div className="mb-1.5 flex items-center justify-between">
                   <span className="text-sm text-gray-600">Implementation Risk</span>
-                  <span className="text-sm font-semibold text-gray-800">{project.implementationRisk}%</span>
+                  <span className="text-sm font-semibold text-gray-800">
+                    {project.implementationRisk}%
+                  </span>
                 </div>
-                <ProgressBar value={project.implementationRisk} color={getProgressColor(project.implementationRisk)} size="sm" />
+                <ProgressBar
+                  value={project.implementationRisk}
+                  color={getProgressColor(project.implementationRisk)}
+                  size="sm"
+                />
               </div>
             </div>
           </div>
 
           <div className="space-y-6 lg:col-span-2">
             <div className="rounded-xl border border-gray-200 bg-white p-6">
-              <p className="text-xs font-semibold uppercase tracking-widest text-orange-600">Risk Analysis</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-orange-600">
+                Risk Analysis
+              </p>
               <h3 className="mb-4 mt-1 text-base font-semibold text-navy-900 lg:text-lg">
                 Why is this project at risk?
               </h3>
               <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
-                {(project.riskReport?.explanations?.length ? project.riskReport.explanations : project.riskFactors).map(
-                  (factor: string, index: number) => (
-                    <div key={index} className="flex items-start gap-3 rounded-lg bg-orange-50/60 p-3">
-                      <AlertTriangle size={16} className="mt-0.5 shrink-0 text-orange-500" />
-                      <span className="text-sm leading-relaxed text-gray-700">{factor}</span>
-                    </div>
-                  )
-                )}
+                {(project.riskReport?.explanations?.length
+                  ? project.riskReport.explanations
+                  : project.riskFactors
+                ).map((factor: string, index: number) => (
+                  <div
+                    key={index}
+                    className="flex items-start gap-3 rounded-lg bg-orange-50/60 p-3"
+                  >
+                    <AlertTriangle size={16} className="mt-0.5 shrink-0 text-orange-500" />
+                    <span className="text-sm leading-relaxed text-gray-700">{factor}</span>
+                  </div>
+                ))}
               </div>
 
               {(project.riskReport?.interactions?.length || 0) > 0 && (
@@ -434,10 +481,14 @@ export default function ProjectDetails() {
                     Risk interactions & compounding effects
                   </p>
                   {project.riskReport!.interactions.map((it: any) => (
-                    <div key={it.key} className="flex items-start gap-2 rounded-lg bg-purple-50/60 p-2.5 text-sm text-gray-700">
+                    <div
+                      key={it.key}
+                      className="flex items-start gap-2 rounded-lg bg-purple-50/60 p-2.5 text-sm text-gray-700"
+                    >
                       <span className="mt-0.5 h-1.5 w-1.5 flex-shrink-0 rounded-full bg-purple-500" />
                       <span>
-                        <span className="font-semibold">{it.name}</span> (+{it.penalty} risk points) — {it.reason}
+                        <span className="font-semibold">{it.name}</span> (+{it.penalty} risk points)
+                        — {it.reason}
                       </span>
                     </div>
                   ))}
@@ -448,15 +499,17 @@ export default function ProjectDetails() {
                 <div className="mt-4 flex items-start gap-2 rounded-lg border border-amber-200 bg-amber-50 p-3">
                   <AlertTriangle size={15} className="mt-0.5 shrink-0 text-amber-500" />
                   <p className="text-xs text-amber-700">
-                    Limited data for: {project.riskReport!.missingData.join(', ')}. Neutral baselines applied - dry
-                    up these fields to raise confidence.
+                    Limited data for: {project.riskReport!.missingData.join(', ')}. Neutral
+                    baselines applied - dry up these fields to raise confidence.
                   </p>
                 </div>
               )}
             </div>
 
             <div className="rounded-xl border border-gray-200 bg-white p-6">
-              <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">Recommended Interventions</p>
+              <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
+                Recommended Interventions
+              </p>
               <h3 className="mb-4 mt-1 text-base font-semibold text-navy-900 lg:text-lg">
                 Recommended actions for the implementing agency
               </h3>
@@ -476,8 +529,12 @@ export default function ProjectDetails() {
       </div>
 
       <div className="mb-8 rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
-        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">Cost Prediction</p>
-        <h3 className="mb-2 mt-1 text-base font-semibold text-navy-900 lg:text-lg">Predicted final cost</h3>
+        <p className="text-xs font-semibold uppercase tracking-widest text-blue-600">
+          Cost Prediction
+        </p>
+        <h3 className="mb-2 mt-1 text-base font-semibold text-navy-900 lg:text-lg">
+          Predicted final cost
+        </h3>
         <p className="mb-5 text-xs text-gray-500 lg:text-sm">
           Projected cost trajectory based on current escalation trend.
         </p>
@@ -519,12 +576,16 @@ export default function ProjectDetails() {
           </div>
           <div className="flex flex-col justify-center">
             <p className="text-sm text-gray-500">Predicted Cost Overrun</p>
-            <p className="mt-1 text-4xl font-bold tracking-tight text-red-600">+{costOverrunPercent}%</p>
+            <p className="mt-1 text-4xl font-bold tracking-tight text-red-600">
+              +{costOverrunPercent}%
+            </p>
             <p className="mt-1 text-sm text-gray-500">from original estimate</p>
             <div className="mt-5 space-y-2.5 border-t border-gray-100 pt-4">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Original</span>
-                <span className="font-medium text-gray-700">{formatCurrency(project.originalCost)}</span>
+                <span className="font-medium text-gray-700">
+                  {formatCurrency(project.originalCost)}
+                </span>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Predicted Final</span>
@@ -532,7 +593,9 @@ export default function ProjectDetails() {
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-gray-500">Potential Overspend</span>
-                <span className="font-semibold text-red-600">{formatCurrency(predictedCost - project.originalCost)}</span>
+                <span className="font-semibold text-red-600">
+                  {formatCurrency(predictedCost - project.originalCost)}
+                </span>
               </div>
             </div>
           </div>
@@ -540,12 +603,15 @@ export default function ProjectDetails() {
       </div>
 
       <div className="mb-8 rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
-        <p className="text-xs font-semibold uppercase tracking-widest text-orange-600">Schedule Prediction</p>
+        <p className="text-xs font-semibold uppercase tracking-widest text-orange-600">
+          Schedule Prediction
+        </p>
         <h3 className="mb-2 mt-1 text-base font-semibold text-navy-900 lg:text-lg">
           Predicted completion vs original plan
         </h3>
         <p className="mb-5 text-xs text-gray-500 lg:text-sm">
-          {buildStatus(project)} risk project with estimated {delayMonths > 0 ? `${delayMonths} month` : ''} expected schedule slippage.
+          {buildStatus(project)} risk project with estimated{' '}
+          {delayMonths > 0 ? `${delayMonths} month` : ''} expected schedule slippage.
         </p>
         <ProjectTimeline
           expectedCompletion={project.expectedCompletion}
@@ -883,12 +949,8 @@ export default function ProjectDetails() {
               <div key={u.id} className="rounded-xl border border-gray-200 p-4">
                 <div className="mb-2 flex flex-wrap items-center justify-between gap-2">
                   <div className="flex flex-wrap items-center gap-2">
-                    <span className="text-sm font-semibold text-navy-900">
-                      {u.userName}
-                    </span>
-                    <span className="text-sm text-gray-500">
-                      &middot; {roleLabel(u.userRole)}
-                    </span>
+                    <span className="text-sm font-semibold text-navy-900">{u.userName}</span>
+                    <span className="text-sm text-gray-500">&middot; {roleLabel(u.userRole)}</span>
                     <span
                       className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ring-1 ${
                         UPDATE_TYPE_COLORS[u.updateType] || UPDATE_TYPE_COLORS.GENERAL
@@ -898,9 +960,7 @@ export default function ProjectDetails() {
                     </span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <span className="text-xs text-gray-400">
-                      {formatUpdateTime(u.createdAt)}
-                    </span>
+                    <span className="text-xs text-gray-400">{formatUpdateTime(u.createdAt)}</span>
                     {canModifyUpdate(u) && (
                       <>
                         <button

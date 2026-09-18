@@ -1,4 +1,5 @@
 import { CheckCircle, Clock, AlertTriangle, Target } from 'lucide-react';
+import { useI18n } from '../../i18n';
 import { formatDate } from '../../utils/helpers';
 
 interface ProjectTimelineProps {
@@ -16,12 +17,13 @@ export function ProjectTimeline({
   delayProbability,
   progressGap,
 }: ProjectTimelineProps) {
+  const { t } = useI18n();
   const onTime = delayMonths <= 0;
 
   return (
     <div className="grid grid-cols-1 gap-8 md:grid-cols-2">
       <div>
-        <h3 className="mb-4 text-sm font-semibold text-gray-700">Timeline</h3>
+        <h3 className="mb-4 text-sm font-semibold text-gray-700">{t('apm.timeline')}</h3>
         <div className="space-y-4">
           <div className="flex items-start gap-4">
             <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-blue-100">
@@ -34,7 +36,9 @@ export function ProjectTimeline({
           </div>
           <div className="ml-5 h-8 w-0.5 bg-gray-200" />
           <div className="flex items-start gap-4">
-            <div className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${onTime ? 'bg-green-100' : 'bg-red-100'}`}>
+            <div
+              className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full ${onTime ? 'bg-green-100' : 'bg-red-100'}`}
+            >
               <Clock size={18} className={onTime ? 'text-green-600' : 'text-red-600'} />
             </div>
             <div>
@@ -68,7 +72,7 @@ export function ProjectTimeline({
           <div className="rounded-lg bg-gray-50 p-4">
             <div className="flex items-center gap-2">
               <Target size={16} className="text-blue-500" />
-              <span className="text-sm text-gray-500">Progress Gap</span>
+              <span className="text-sm text-gray-500">{t('analytics.progressGap')}</span>
             </div>
             <p className="mt-1 text-2xl font-bold text-navy-900">{progressGap}% behind</p>
           </div>

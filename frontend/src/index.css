@@ -1,4 +1,4 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @theme {
   --color-navy-50: #f0f3f9;
@@ -36,7 +36,13 @@
 }
 
 body {
-  font-family: 'Noto Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  font-family:
+    'Noto Sans',
+    -apple-system,
+    BlinkMacSystemFont,
+    'Segoe UI',
+    Roboto,
+    sans-serif;
   background-color: #f8fafc;
   color: #1e2d4f;
   -webkit-font-smoothing: antialiased;

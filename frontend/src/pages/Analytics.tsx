@@ -15,6 +15,7 @@ import {
 import { getAnalytics, getProjects, getAiInsights } from '../services/api';
 import type { AiInsights } from '../services/api';
 import { LoadingState } from '../components/ui/LoadingState';
+import { useI18n } from '../i18n';
 
 function getBarColor(value: number): string {
   if (value > 75) return '#ef4444';
@@ -38,6 +39,7 @@ const tooltipStyle = {
 };
 
 export default function Analytics() {
+  const { t } = useI18n();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [sectorPerformance, setSectorPerformance] = useState<any[]>([]);
@@ -97,14 +99,14 @@ export default function Analytics() {
   const sortedMinistries = [...ministryRankings].sort((a, b) => b.avgRisk - a.avgRisk);
 
   if (loading) return <LoadingState />;
-  if (error) return <div className="p-6 text-center text-red-600">Error: {error}</div>;
+  if (error) return <div className="p-6 text-center text-red-600">{t('analytics.error', { message: error })}</div>;
 
   return (
     <div className="min-w-0">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">Analytics</h1>
+        <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">{t('analytics.title')}</h1>
         <p className="mt-1 text-sm text-gray-500 lg:text-base">
-          Portfolio performance analytics and insights
+          {t('analytics.subtitle')}
         </p>
       </div>
 
@@ -112,15 +114,15 @@ export default function Analytics() {
         {/* ── AI Risk Forecast ─────────────────────────────────────── */}
         <div className="rounded-xl border border-purple-200 bg-gradient-to-br from-purple-50/60 to-white p-5 lg:p-6">
           <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
-            AI Risk Forecast (90-day horizon)
+            {t('analytics.aiForecastTitle')}
           </h3>
           <p className="mt-1 text-xs text-gray-500 lg:text-sm">
-            Current deterministic risk vs projected future risk for the highest-risk projects.
+            {t('analytics.aiForecastSub')}
           </p>
           {aiLoading ? (
             <div className="mt-6 flex items-center justify-center gap-2 py-10 text-sm text-gray-400">
               <span className="h-4 w-4 animate-spin rounded-full border-2 border-purple-300 border-t-purple-600" />
-              Loading AI forecasts...
+              {t('analytics.loadingForecasts')}
             </div>
           ) : aiChartData.length > 0 ? (
             <div className="mt-4">
@@ -147,9 +149,9 @@ export default function Analytics() {
                   <Tooltip
                     contentStyle={tooltipStyle}
                     cursor={{ fill: '#faf5ff' }}
-                    formatter={(value, name) => [`${value}`, name === 'current' ? 'Current' : 'Future (90d)']}
+                    formatter={(value, name) => [`${value}`, name === 'current' ? t('analytics.current') : t('analytics.future90')]}
                   />
-                  <Legend formatter={(value) => (value === 'current' ? 'Current Risk' : 'Future Risk (90d)')} />
+                  <Legend formatter={(value) => (value === 'current' ? t('analytics.currentRisk') : t('analytics.futureRisk'))} />
                   <Bar dataKey="current" fill="#93c5fd" radius={[4, 4, 0, 0]} maxBarSize={24} />
                   <Bar dataKey="future" fill="#7c3aed" radius={[4, 4, 0, 0]} maxBarSize={24}>
                     {aiChartData.map((entry, index) => (
@@ -164,7 +166,7 @@ export default function Analytics() {
             </div>
           ) : (
             <p className="mt-6 rounded-lg border border-dashed border-gray-300 py-8 text-center text-xs text-gray-500">
-              No AI forecasts available yet.
+              {t('analytics.noForecasts')}
             </p>
           )}
         </div>
@@ -172,18 +174,18 @@ export default function Analytics() {
         {/* ── AI Signals (Anomalies + Emerging risks) ───────────────── */}
         {!aiLoading && aiChartData.filter((d) => d.anomalies + d.emerging > 0).length > 0 && (
           <div className="rounded-xl border border-purple-200 bg-white p-5 lg:p-6">
-            <h3 className="text-base font-semibold text-navy-900 lg:text-lg">Active AI Signals</h3>
+            <h3 className="text-base font-semibold text-navy-900 lg:text-lg">{t('analytics.aiSignalsTitle')}</h3>
             <p className="mt-1 text-xs text-gray-500 lg:text-sm">
-              Anomalies and emerging risks detected per project.
+              {t('analytics.aiSignalsSub')}
             </p>
             <div className="mt-4 overflow-x-auto">
               <table className="w-full min-w-[640px] text-left text-sm">
                 <thead>
                   <tr className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
-                    <th className="px-4 py-3 font-semibold lg:px-6">Project</th>
-                    <th className="px-4 py-3 font-semibold">Anomalies</th>
-                    <th className="px-4 py-3 font-semibold">Emerging Risks</th>
-                    <th className="px-4 py-3 font-semibold">Delay Risk</th>
+                    <th className="px-4 py-3 font-semibold lg:px-6">{t('analytics.project')}</th>
+                    <th className="px-4 py-3 font-semibold">{t('analytics.anomalies')}</th>
+                    <th className="px-4 py-3 font-semibold">{t('analytics.emergingRisks')}</th>
+                    <th className="px-4 py-3 font-semibold">{t('analytics.delayRisk')}</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -218,13 +220,18 @@ export default function Analytics() {
         )}
 
         <div className="rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
-          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">Sector Risk Comparison</h3>
+          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
+            {t('analytics.sectorComparison')}
+          </h3>
           <p className="mt-1 text-xs text-gray-500 lg:text-sm">
-            Average risk score across monitored infrastructure sectors.
+            {t('analytics.sectorComparisonSub')}
           </p>
           <div className="mt-4">
             <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={sectorPerformance} margin={{ top: 10, right: 12, left: -12, bottom: 0 }}>
+              <BarChart
+                data={sectorPerformance}
+                margin={{ top: 10, right: 12, left: -12, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" vertical={false} />
                 <XAxis
                   dataKey="sector"
@@ -242,7 +249,7 @@ export default function Analytics() {
                 />
                 <Tooltip
                   contentStyle={tooltipStyle}
-                  formatter={(value) => [`${value}`, 'Avg Risk Score']}
+                  formatter={(value) => [`${value}`, t('analytics.avgRiskShort')]}
                   cursor={{ fill: '#f8fafc' }}
                 />
                 <Bar dataKey="avgRisk" radius={[4, 4, 0, 0]} maxBarSize={48}>
@@ -256,9 +263,11 @@ export default function Analytics() {
         </div>
 
         <div className="rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
-          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">Cost Overrun Analysis</h3>
+          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
+            {t('analytics.costOverrun')}
+          </h3>
           <p className="mt-1 text-xs text-gray-500 lg:text-sm">
-            Cost overrun percentage vs progress gap across projects.
+            {t('analytics.costOverrunSub')}
           </p>
           <div className="mt-4">
             <ResponsiveContainer width="100%" height={320}>
@@ -271,7 +280,13 @@ export default function Analytics() {
                   tick={{ fontSize: 11, fill: '#6b7280' }}
                   axisLine={{ stroke: '#e5e7eb' }}
                   tickLine={false}
-                  label={{ value: 'Progress Gap (%)', position: 'bottom', offset: 2, fontSize: 12, fill: '#6b7280' }}
+                  label={{
+                    value: 'Progress Gap (%)',
+                    position: 'bottom',
+                    offset: 2,
+                    fontSize: 12,
+                    fill: '#6b7280',
+                  }}
                 />
                 <YAxis
                   dataKey="costOverrun"
@@ -280,7 +295,13 @@ export default function Analytics() {
                   tick={{ fontSize: 11, fill: '#6b7280' }}
                   axisLine={{ stroke: '#e5e7eb' }}
                   tickLine={false}
-                  label={{ value: 'Cost Overrun (%)', angle: -90, position: 'insideLeft', fontSize: 12, fill: '#6b7280' }}
+                  label={{
+                    value: 'Cost Overrun (%)',
+                    angle: -90,
+                    position: 'insideLeft',
+                    fontSize: 12,
+                    fill: '#6b7280',
+                  }}
                 />
                 <Tooltip
                   cursor={{ strokeDasharray: '3 3' }}
@@ -305,13 +326,19 @@ export default function Analytics() {
         </div>
 
         <div className="rounded-xl border border-gray-200 bg-white p-5 lg:p-6">
-          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">Schedule Delay by Sector</h3>
+          <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
+            Schedule Delay by Sector
+          </h3>
           <p className="mt-1 text-xs text-gray-500 lg:text-sm">
             Average schedule delay in months per sector.
           </p>
           <div className="mt-4">
             <ResponsiveContainer width="100%" height={320}>
-              <BarChart data={sectorPerformance} layout="vertical" margin={{ top: 0, right: 24, left: 20, bottom: 0 }}>
+              <BarChart
+                data={sectorPerformance}
+                layout="vertical"
+                margin={{ top: 0, right: 24, left: 20, bottom: 0 }}
+              >
                 <CartesianGrid strokeDasharray="3 3" stroke="#e5e7eb" horizontal={false} />
                 <XAxis
                   type="number"
@@ -340,7 +367,9 @@ export default function Analytics() {
 
         <div className="overflow-hidden rounded-xl border border-gray-200 bg-white">
           <div className="border-b border-gray-100 px-5 py-4 lg:px-6">
-            <h3 className="text-base font-semibold text-navy-900 lg:text-lg">Ministry Risk Ranking</h3>
+            <h3 className="text-base font-semibold text-navy-900 lg:text-lg">
+              Ministry Risk Ranking
+            </h3>
             <p className="mt-1 text-xs text-gray-500 lg:text-sm">
               Ministries ranked by average risk score of their projects.
             </p>
