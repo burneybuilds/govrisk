@@ -6,7 +6,7 @@ import { MapContainer, DataTableFallback } from '../components/map';
 import { useRegionRiskData } from '../hooks/useRegionRiskData';
 import { useRiskScores } from '../hooks/useRiskScores';
 import { useMapLayerState } from '../hooks/useMapLayerState';
-import { PAGE_STRINGS } from '../constants/map';
+import { useI18n } from '../i18n';
 import type { StateKey } from '../types/map';
 
 type ViewMode = 'map' | 'table';
@@ -30,6 +30,7 @@ export default function RiskMap() {
   const { regions, isInitialLoading, status } = useRegionRiskData();
   const riskScores = useRiskScores();
   const layerControls = useMapLayerState();
+  const { t } = useI18n();
 
   const summary = useMemo(() => {
     if (regions.length === 0) return null;
@@ -52,31 +53,40 @@ export default function RiskMap() {
       <header className="mb-5 flex flex-wrap items-end justify-between gap-4">
         <div>
           <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
-            {PAGE_STRINGS.title}
+            {t('riskMap.title')}
           </h1>
-          <p className="mt-1 text-sm text-gray-500 lg:text-base">{PAGE_STRINGS.subtitle}</p>
+          <p className="mt-1 text-sm text-gray-500 lg:text-base">{t('riskMap.subtitle')}</p>
         </div>
         <div className="flex items-center gap-3">
           {summary && (
             <div className="hidden items-center gap-4 rounded-lg border border-gray-200 bg-white px-4 py-2 text-[13px] text-gray-600 sm:flex">
               <span>
-                <b className="tabular-nums text-navy-900">{summary.totalProjects}</b> projects
+                <b className="tabular-nums text-navy-900">{summary.totalProjects}</b>{' '}
+                {t('riskMap.summaryProjects', { count: summary.totalProjects }).replace(
+                  `${summary.totalProjects} `,
+                  '',
+                )}
               </span>
               <span className="h-4 w-px bg-gray-200" />
               <span>
-                Avg composite{' '}
+                {t('riskMap.avgComposite', { score: summary.avgScore.toFixed(0) })
+                  .replace(`${summary.avgScore.toFixed(0)}`, '')
+                  .trim()}{' '}
                 <b className="tabular-nums text-navy-900">{summary.avgScore.toFixed(0)}</b>
               </span>
               <span className="h-4 w-px bg-gray-200" />
               <span>
-                <b className="tabular-nums text-red-600">{summary.highRegions}</b> high/critical
-                regions
+                <b className="tabular-nums text-red-600">{summary.highRegions}</b>{' '}
+                {t('riskMap.highRegions', { count: summary.highRegions }).replace(
+                  `${summary.highRegions} `,
+                  '',
+                )}
               </span>
             </div>
           )}
           <div
             role="tablist"
-            aria-label="Risk map view"
+            aria-label={t('riskMap.mapViewAria')}
             className="flex rounded-lg border border-gray-300 bg-white p-0.5 text-sm"
           >
             <button
@@ -89,7 +99,7 @@ export default function RiskMap() {
               }`}
             >
               <MapIcon size={14} />
-              <span>{PAGE_STRINGS.mapToggle}</span>
+              <span>{t('riskMap.mapToggle')}</span>
             </button>
             <button
               type="button"
@@ -101,7 +111,7 @@ export default function RiskMap() {
               }`}
             >
               <Table2 size={14} />
-              <span>{PAGE_STRINGS.tableToggle}</span>
+              <span>{t('riskMap.tableToggle')}</span>
             </button>
           </div>
         </div>
@@ -129,7 +139,7 @@ export default function RiskMap() {
       )}
 
       <div className="sr-only" aria-live="polite">
-        {isInitialLoading ? 'Loading risk intelligence…' : 'Risk intelligence updated.'}
+        {isInitialLoading ? t('riskMap.loadingIntelligence') : t('riskMap.updated')}
       </div>
     </div>
   );

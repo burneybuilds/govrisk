@@ -5,14 +5,15 @@ import { sendAssistantMessage, getProjects } from '../services/api';
 import { LoadingState } from '../components/ui/LoadingState';
 import { RiskBadge } from '../components/ui/RiskBadge';
 import { RiskScore } from '../components/ui/RiskScore';
+import { useI18n } from '../i18n';
 
-const suggestedQuestions: string[] = [
-  'Which projects are at highest risk?',
-  'Why is the River Basin Development Project high risk?',
-  'Which sector has the highest average cost overrun?',
-  'Show me projects likely to be delayed.',
-  'What are the major risk drivers?',
-];
+const suggestedQuestionKeys = [
+  'assistant.suggest.highestRisk',
+  'assistant.suggest.riverBasin',
+  'assistant.suggest.costOverrun',
+  'assistant.suggest.delayed',
+  'assistant.suggest.drivers',
+] as const;
 
 interface Message {
   id: string;
@@ -21,6 +22,7 @@ interface Message {
 }
 
 export default function Assistant() {
+  const { t } = useI18n();
   const [messages, setMessages] = useState<Message[]>([]);
   const [isTyping, setIsTyping] = useState(false);
   const [projects, setProjects] = useState<any[]>([]);
@@ -56,7 +58,7 @@ export default function Assistant() {
       const assistantMessage: Message = {
         id: (Date.now() + 1).toString(),
         role: 'assistant',
-        content: "I couldn't process that request. Please try again.",
+        content: t('assistant.failed'),
       };
       setMessages((prev) => [...prev, assistantMessage]);
     } finally {
@@ -73,32 +75,32 @@ export default function Assistant() {
           </span>
           <div>
             <h1 className="text-2xl font-bold tracking-tight text-navy-900 lg:text-3xl">
-              GovRisk AI
+              {t('assistant.title')}
             </h1>
             <p className="text-sm font-medium text-gray-600">
-              Infrastructure Intelligence Assistant
+              {t('assistant.subtitle')}
             </p>
           </div>
         </div>
         <p className="mt-2 text-sm text-gray-500">
-          Ask questions about projects, risks, delays and portfolio performance.
+          {t('assistant.description')}
         </p>
       </div>
 
       <div className="mb-8 overflow-hidden rounded-xl border border-gray-200 bg-white">
         <div className="flex items-center justify-between border-b border-gray-200 px-5 py-3">
-          <h2 className="text-sm font-semibold text-navy-900">Monitored Projects</h2>
+          <h2 className="text-sm font-semibold text-navy-900">{t('assistant.monitoredProjects')}</h2>
         </div>
         {projectsLoading ? (
-          <LoadingState text="Loading projects..." />
+          <LoadingState text={t('assistant.loadingProjects')} />
         ) : (
           <div className="overflow-x-auto">
             <table className="w-full min-w-[600px] text-left text-sm">
               <thead>
                 <tr className="bg-gray-50 text-xs uppercase tracking-wider text-gray-500">
-                  <th className="px-4 py-3 font-semibold lg:px-6">Project</th>
-                  <th className="px-4 py-3 font-semibold">Risk Level</th>
-                  <th className="px-4 py-3 font-semibold">Risk Score</th>
+                  <th className="px-4 py-3 font-semibold lg:px-6">{t('assistant.project')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('assistant.riskLevel')}</th>
+                  <th className="px-4 py-3 font-semibold">{t('assistant.riskScore')}</th>
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-100">
@@ -127,7 +129,7 @@ export default function Assistant() {
         <AIChat
           messages={messages}
           onSend={handleSend}
-          suggestedQuestions={messages.length === 0 ? suggestedQuestions : undefined}
+          suggestedQuestions={messages.length === 0 ? suggestedQuestionKeys.map((k) => t(k)) : undefined}
           isTyping={isTyping}
         />
       </div>

@@ -2,6 +2,7 @@ import { memo, useState } from 'react';
 import type { ChoroplethId, MapLayerId, MapLayerState } from '../../types/map';
 import type { RampId } from '../../constants/map';
 import { rampLegend } from '../../utils/colors';
+import { useI18n } from '../../i18n';
 import { Skeleton } from './Skeleton';
 
 export type LayerDataStatus = {
@@ -35,7 +36,13 @@ function ColorRampPreview({ ramp }: { ramp: RampId }) {
   );
 }
 
-function StatusDot({ status }: { status: { isLoading: boolean; isError: boolean } }) {
+function StatusDot({
+  status,
+  t,
+}: {
+  status: { isLoading: boolean; isError: boolean };
+  t: ReturnType<typeof useI18n>['t'];
+}) {
   if (status.isLoading) {
     return (
       <span className="h-2 w-2 animate-pulse rounded-full bg-amber-300/80" aria-hidden="true" />
@@ -45,13 +52,17 @@ function StatusDot({ status }: { status: { isLoading: boolean; isError: boolean 
     return (
       <span
         className="h-2 w-2 rounded-full bg-red-400/90"
-        title="Source unavailable"
-        aria-label="Source unavailable"
+        title={t('map.sourceUnavailable')}
+        aria-label={t('map.sourceUnavailable')}
       />
     );
   }
   return (
-    <span className="h-2 w-2 rounded-full bg-emerald-400/90" title="Ready" aria-label="Ready" />
+    <span
+      className="h-2 w-2 rounded-full bg-emerald-400/90"
+      title={t('map.ready')}
+      aria-label={t('map.ready')}
+    />
   );
 }
 
@@ -65,6 +76,7 @@ function LayerControlPanelInner({
   onToggleWeatherOverlay,
   onSetOpacity,
 }: LayerControlPanelProps) {
+  const { t } = useI18n();
   const [open, setOpen] = useState(true);
 
   const riskChecked = layerState.choropleth === 'risk';
@@ -81,7 +93,7 @@ function LayerControlPanelInner({
         aria-controls="layer-control-panel"
         className="flex w-full items-center justify-between px-3 py-2 text-sm font-semibold text-amber-300 hover:text-amber-200 focus-visible:outline-2 focus-visible:outline-amber-400"
       >
-        <span>Layers</span>
+        <span>{t('map.layers')}</span>
         <span aria-hidden="true">{open ? '−' : '+'}</span>
       </button>
 
@@ -89,7 +101,7 @@ function LayerControlPanelInner({
         <div id="layer-control-panel" className="space-y-3 px-3 pb-3">
           <fieldset>
             <legend className="mb-1 text-[11px] font-medium uppercase tracking-wider text-gray-400">
-              Region choropleth (at most one)
+              {t('map.choroplethLegend')}
             </legend>
             <label className="flex cursor-pointer items-center justify-between gap-2 rounded px-2 py-1.5 hover:bg-white/5">
               <span className="flex min-w-0 items-center gap-2 text-[13px]">
@@ -101,8 +113,8 @@ function LayerControlPanelInner({
                   }
                   className="h-4 w-4 shrink-0 accent-purple-500"
                 />
-                Risk score
-                <StatusDot status={dataStatus.risk} />
+                {t('map.riskScoreLayer')}
+                <StatusDot status={dataStatus.risk} t={t} />
               </span>
               <ColorRampPreview ramp="risk" />
             </label>

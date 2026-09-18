@@ -134,16 +134,3 @@ export const RISK_LEVEL_COLORS: Record<RiskLevelKey, string> = {
 };
 
 export const APP_ACCENT = '#fbbf24'; // amber-400
-
-export const PAGE_STRINGS = {
-  title: 'India Risk Map',
-  subtitle: 'Interactive regional risk intelligence for infrastructure monitoring',
-  tableToggle: 'Table view',
-  mapToggle: 'Map view',
-  weatherUnavailable: 'Weather data unavailable',
-  disasterUnavailable: 'Disaster data unavailable',
-  riskUnavailable: 'Risk data unavailable',
-  regionsUnavailable: 'Region boundaries unavailable',
-  loading: 'Loading regional risk data…',
-  retry: 'Retry',
-} as const;

@@ -1,14 +1,15 @@
 import { useState, useEffect } from 'react';
 import { X, Loader2, AlertTriangle } from 'lucide-react';
+import { useI18n, type TranslationKey } from '../../i18n';
 import { addProjectUpdate, updateProjectUpdate } from '../../services/api';
 
-const UPDATE_TYPES = [
-  { value: 'GENERAL', label: 'General' },
-  { value: 'PROGRESS', label: 'Progress' },
-  { value: 'RISK', label: 'Risk' },
-  { value: 'FINANCIAL', label: 'Financial' },
-  { value: 'MILESTONE', label: 'Milestone' },
-  { value: 'FIELD_VISIT', label: 'Field Visit' },
+const UPDATE_TYPES: { value: string; label: TranslationKey }[] = [
+  { value: 'GENERAL', label: 'update.type.GENERAL' },
+  { value: 'PROGRESS', label: 'update.type.PROGRESS' },
+  { value: 'RISK', label: 'update.type.RISK' },
+  { value: 'FINANCIAL', label: 'update.type.FINANCIAL' },
+  { value: 'MILESTONE', label: 'update.type.MILESTONE' },
+  { value: 'FIELD_VISIT', label: 'update.type.FIELD_VISIT' },
 ];
 
 export default function AddUpdateModal({

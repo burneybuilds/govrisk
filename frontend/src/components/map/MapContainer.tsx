@@ -378,7 +378,7 @@ export function MapContainer({
 
       {/* Region intelligence panel (desktop right / mobile bottom sheet). */}
       {panelOpen && (
-        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[600] px-3 pb-3 md:top-14 md:bottom-3 md:left-auto md:right-3 md:w-[360px] md:px-0 md:pb-0">
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 z-[600] px-3 pb-3 md:top-14 md:left-auto md:right-3 md:w-[360px] md:max-h-[calc(100vh_-_4.25rem_-_30px)] md:px-0 md:pb-0">
           <RegionDetailPanel
             selected={selected}
             regions={regions}

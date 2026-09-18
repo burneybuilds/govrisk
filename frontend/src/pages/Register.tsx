@@ -3,10 +3,12 @@ import { Link, useNavigate } from 'react-router-dom';
 import { Eye, EyeOff, AlertCircle } from 'lucide-react';
 import { register } from '../services/api';
 import { useAuth } from '../context/AuthContext';
+import { useI18n } from '../i18n';
 
 export default function Register() {
   const navigate = useNavigate();
   const { setUser } = useAuth();
+  const { t } = useI18n();
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
@@ -21,15 +23,15 @@ export default function Register() {
     e.preventDefault();
     setError('');
     if (!fullName.trim() || !email.trim() || !password) {
-      setError('Full name, email, and password are required.');
+      setError(t('register.required'));
       return;
     }
     if (password.length < 6) {
-      setError('Password must be at least 6 characters long.');
+      setError(t('register.passwordShort'));
       return;
     }
     if (password !== confirmPassword) {
-      setError('Passwords do not match.');
+      setError(t('register.passwordMismatch'));
       return;
     }
     setLoading(true);
@@ -44,7 +46,7 @@ export default function Register() {
       setUser(data.user);
       navigate('/', { replace: true });
     } catch (err: any) {
-      setError(err.message || 'Registration failed. Please try again.');
+      setError(err.message || t('register.failed'));
     } finally {
       setLoading(false);
     }
@@ -63,20 +65,19 @@ export default function Register() {
             </div>
             <div>
               <h1 className="text-xl font-bold uppercase tracking-wide text-white">GovRisk</h1>
-              <p className="text-xs text-navy-300">AI Infrastructure Intelligence</p>
+              <p className="text-xs text-navy-300">{t('register.platformTitle')}</p>
             </div>
           </div>
           <div className="max-w-md">
             <h2 className="text-3xl font-bold leading-tight text-white">
-              Join the platform keeping India's infrastructure on track.
+              {t('register.heroTitle')}
             </h2>
             <p className="mt-4 text-sm leading-relaxed text-navy-300">
-              Government officers, analysts, and stakeholders can register to access AI-powered risk
-              monitoring for infrastructure projects across ministries.
+              {t('register.heroDesc')}
             </p>
           </div>
           <p className="text-xs text-navy-500">
-            Ministry of Electronics &amp; Information Technology · SIH 2026
+            {t('register.footerLine')}
           </p>
         </div>
       </div>
@@ -89,14 +90,14 @@ export default function Register() {
             </div>
             <div>
               <h1 className="text-lg font-bold uppercase tracking-wide text-white">GovRisk</h1>
-              <p className="text-xs text-navy-300">AI Infrastructure Intelligence</p>
+              <p className="text-xs text-navy-300">{t('register.platformTitle')}</p>
             </div>
           </div>
 
           <div className="rounded-2xl border border-navy-800 bg-navy-900 p-8 shadow-2xl">
-            <h2 className="text-2xl font-bold text-white">Create your account</h2>
+            <h2 className="text-2xl font-bold text-white">{t('register.title')}</h2>
             <p className="mt-1.5 text-sm text-navy-300">
-              Register to access the GovRisk monitoring platform
+              {t('register.subtitle')}
             </p>
 
             {error && (
@@ -112,21 +113,21 @@ export default function Register() {
                   htmlFor="fullName"
                   className="mb-1.5 block text-sm font-medium text-navy-100"
                 >
-                  Full Name
+                  {t('register.fullName')}
                 </label>
                 <input
                   id="fullName"
                   type="text"
                   value={fullName}
                   onChange={(e) => setFullName(e.target.value)}
-                  placeholder="e.g. Aarav Patel"
+                  placeholder={t('register.fullNamePh')}
                   className={inputClass}
                 />
               </div>
 
               <div>
                 <label htmlFor="email" className="mb-1.5 block text-sm font-medium text-navy-100">
-                  Email
+                  {t('register.email')}
                 </label>
                 <input
                   id="email"
@@ -134,7 +135,7 @@ export default function Register() {
                   autoComplete="email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="you@govrisk.gov.in"
+                  placeholder={t('register.emailPh')}
                   className={inputClass}
                 />
               </div>
@@ -145,7 +146,7 @@ export default function Register() {
                     htmlFor="password"
                     className="mb-1.5 block text-sm font-medium text-navy-100"
                   >
-                    Password
+                    {t('register.password')}
                   </label>
                   <div className="relative">
                     <input
@@ -154,14 +155,14 @@ export default function Register() {
                       autoComplete="new-password"
                       value={password}
                       onChange={(e) => setPassword(e.target.value)}
-                      placeholder="Min 6 characters"
+                      placeholder={t('register.passwordPh')}
                       className="h-11 w-full rounded-lg border border-navy-700 bg-navy-800 px-4 pr-11 text-sm text-white outline-none transition-all placeholder:text-navy-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
                     />
                     <button
                       type="button"
                       onClick={() => setShowPassword((s) => !s)}
                       className="absolute right-3 top-1/2 -translate-y-1/2 text-navy-400 hover:text-navy-200"
-                      aria-label={showPassword ? 'Hide password' : 'Show password'}
+                      aria-label={showPassword ? t('login.hidePassword') : t('login.showPassword')}
                     >
                       {showPassword ? <EyeOff size={17} /> : <Eye size={17} />}
                     </button>
@@ -172,7 +173,7 @@ export default function Register() {
                     htmlFor="confirmPassword"
                     className="mb-1.5 block text-sm font-medium text-navy-100"
                   >
-                    Confirm Password
+                    {t('register.confirmPassword')}
                   </label>
                   <input
                     id="confirmPassword"
@@ -180,7 +181,7 @@ export default function Register() {
                     autoComplete="new-password"
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Re-enter password"
+                    placeholder={t('register.confirmPasswordPh')}
                     className="h-11 w-full rounded-lg border border-navy-700 bg-navy-800 px-4 text-sm text-white outline-none transition-all placeholder:text-navy-400 focus:border-blue-500 focus:ring-2 focus:ring-blue-500/30"
                   />
                 </div>
@@ -192,14 +193,15 @@ export default function Register() {
                     htmlFor="department"
                     className="mb-1.5 block text-sm font-medium text-navy-100"
                   >
-                    Department <span className="text-navy-500">(optional)</span>
+                    {t('register.department')}{' '}
+                    <span className="text-navy-500">({t('common.optional')})</span>
                   </label>
                   <input
                     id="department"
                     type="text"
                     value={department}
                     onChange={(e) => setDepartment(e.target.value)}
-                    placeholder="e.g. Ministry of Railways"
+                    placeholder={t('register.departmentPh')}
                     className={inputClass}
                   />
                 </div>
@@ -208,14 +210,15 @@ export default function Register() {
                     htmlFor="designation"
                     className="mb-1.5 block text-sm font-medium text-navy-100"
                   >
-                    Designation <span className="text-navy-500">(optional)</span>
+                    {t('register.designation')}{' '}
+                    <span className="text-navy-500">({t('common.optional')})</span>
                   </label>
                   <input
                     id="designation"
                     type="text"
                     value={designation}
                     onChange={(e) => setDesignation(e.target.value)}
-                    placeholder="e.g. Project Officer"
+                    placeholder={t('register.designationPh')}
                     className={inputClass}
                   />
                 </div>
@@ -226,15 +229,15 @@ export default function Register() {
                 disabled={loading}
                 className="h-11 w-full rounded-lg bg-blue-600 text-sm font-semibold text-white transition-colors hover:bg-blue-500 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading ? 'Creating account...' : 'Create account'}
+                {loading ? t('register.creating') : t('register.create')}
               </button>
             </form>
           </div>
 
           <p className="mt-6 text-center text-sm text-navy-300">
-            Already have an account?{' '}
+            {t('register.hasAccount')}{' '}
             <Link to="/login" className="font-semibold text-blue-400 hover:text-blue-300">
-              Sign in
+              {t('register.signIn')}
             </Link>
           </p>
         </div>

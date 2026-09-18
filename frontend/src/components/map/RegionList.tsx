@@ -41,7 +41,7 @@ function RegionListInner({
   return (
     <div
       ref={parentRef}
-      className="overflow-y-auto rounded-md border border-white/10"
+      className="scrollbar-thin overflow-y-auto rounded-md border border-white/10"
       style={{ height: Math.min(maxHeight, Math.max(88, rows.length * ROW_HEIGHT)) }}
       aria-label="Region list"
       role="listbox"

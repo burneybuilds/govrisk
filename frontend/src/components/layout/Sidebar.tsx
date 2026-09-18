@@ -12,15 +12,16 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
+import { useI18n, TranslationKey } from '../../i18n';
 
-const navItems = [
-  { to: '/', icon: BarChart3, label: 'Dashboard' },
-  { to: '/projects', icon: FolderOpen, label: 'Projects' },
-  { to: '/risk-map', icon: MapPin, label: 'Risk Map' },
-  { to: '/analytics', icon: TrendingUp, label: 'Analytics' },
-  { to: '/alerts', icon: AlertTriangle, label: 'Early Warnings' },
-  { to: '/assistant', icon: Bot, label: 'AI Assistant' },
-  { to: '/reports', icon: FileText, label: 'Reports' },
+const navItems: { to: string; icon: typeof BarChart3; labelKey: TranslationKey }[] = [
+  { to: '/', icon: BarChart3, labelKey: 'nav.dashboard' },
+  { to: '/projects', icon: FolderOpen, labelKey: 'nav.projects' },
+  { to: '/risk-map', icon: MapPin, labelKey: 'nav.riskMap' },
+  { to: '/analytics', icon: TrendingUp, labelKey: 'nav.analytics' },
+  { to: '/alerts', icon: AlertTriangle, labelKey: 'nav.earlyWarnings' },
+  { to: '/assistant', icon: Bot, labelKey: 'nav.aiAssistant' },
+  { to: '/reports', icon: FileText, labelKey: 'nav.reports' },
 ];
 
 function AshokaChakra({ size = 11 }: { size?: number }) {
@@ -41,11 +42,13 @@ function AshokaChakra({ size = 11 }: { size?: number }) {
 function BottomNavItem({
   to,
   icon: Icon,
-  label,
+  labelKey,
+  t,
 }: {
   to: string;
   icon: typeof BarChart3;
-  label: string;
+  labelKey: TranslationKey;
+  t: (key: TranslationKey) => string;
 }) {
   return (
     <NavLink
@@ -65,7 +68,7 @@ function BottomNavItem({
               isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600'
             }`}
           />
-          <span className="whitespace-nowrap">{label}</span>
+          <span className="whitespace-nowrap">{t(labelKey)}</span>
           {isActive && (
             <span className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-[#C9A227]" />
           )}
@@ -77,9 +80,10 @@ function BottomNavItem({
 
 export default function BottomBar() {
   const { user, logout } = useAuth();
+  const { t } = useI18n();
   const navigate = useNavigate();
 
-  const displayName = user?.fullName || 'GovRisk User';
+  const displayName = user?.fullName || t('nav.govRiskUser');
 
   const handleLogout = () => {
     logout();
@@ -93,12 +97,12 @@ export default function BottomBar() {
           type="button"
           onClick={handleLogout}
           className="group hidden min-w-0 shrink-0 items-center gap-2.5 px-4 py-4 md:flex"
-          title="Log out"
-          aria-label="Log out"
+          title={t('nav.logOut')}
+          aria-label={t('nav.logOut')}
         >
           <span
             className="relative h-12 w-12 shrink-0 rounded-full"
-            title={user?.role === 'admin' ? 'Administrator' : undefined}
+            title={user?.role === 'admin' ? t('nav.administrator') : undefined}
           >
             {user?.role === 'admin' ? (
               <>
@@ -120,7 +124,9 @@ export default function BottomBar() {
             <span className="block truncate text-xs font-semibold text-navy-900">
               {displayName}
             </span>
-            <span className="block truncate text-[10px] text-gray-500">Log out</span>
+            <span className="block truncate text-[10px] text-gray-500">
+              {t('nav.logOut')}
+            </span>
           </span>
         </button>
 
@@ -128,21 +134,23 @@ export default function BottomBar() {
 
         <nav className="flex min-w-0 flex-1 items-stretch">
           {navItems.map((item) => (
-            <BottomNavItem key={item.to} {...item} />
+            <BottomNavItem key={item.to} {...item} t={t} />
           ))}
-          {user?.role === 'admin' && <BottomNavItem to="/admin" icon={ShieldCheck} label="Admin" />}
-          <BottomNavItem to="/settings" icon={Settings} label="Settings" />
+          {user?.role === 'admin' && (
+            <BottomNavItem to="/admin" icon={ShieldCheck} labelKey="nav.admin" t={t} />
+          )}
+          <BottomNavItem to="/settings" icon={Settings} labelKey="nav.settings" t={t} />
         </nav>
 
         <button
           type="button"
           onClick={handleLogout}
           className="group flex shrink-0 items-center gap-1 px-3 py-4 text-[11px] font-medium text-gray-500 transition-colors hover:text-navy-900 md:hidden"
-          title="Log out"
-          aria-label="Log out"
+          title={t('nav.logOut')}
+          aria-label={t('nav.logOut')}
         >
           <LogOut size={20} className="text-gray-400 transition-colors group-hover:text-blue-600" />
-          <span className="hidden sm:block">Log out</span>
+          <span className="hidden sm:block">{t('nav.logOut')}</span>
         </button>
       </div>
     </aside>

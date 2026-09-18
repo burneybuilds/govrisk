@@ -1,4 +1,4 @@
-import { memo, useMemo } from 'react';
+import { memo, useMemo, useState } from 'react';
 import type {
   DisasterSummary,
   FactorDriver,
@@ -191,10 +191,12 @@ function RegionDetailPanelInner({
     [factorDrivers],
   );
 
+  const [regionsMinimized, setRegionsMinimized] = useState(false);
+
   return (
     <aside
       aria-label="Region intelligence"
-      className="pointer-events-auto flex w-full max-h-full flex-col overflow-hidden rounded-t-2xl border border-white/10 bg-[#0f1830]/95 text-gray-100 shadow-2xl backdrop-blur md:max-h-[calc(100%-3rem)] md:rounded-l-2xl md:rounded-r-none md:max-w-none"
+      className="pointer-events-auto flex min-h-0 w-full max-h-full flex-col overflow-hidden rounded-t-2xl border border-white/10 bg-[#0f1830]/95 text-gray-100 shadow-2xl backdrop-blur md:max-h-[calc(100vh_-_4.25rem_-_30px)] md:rounded-l-2xl md:rounded-r-none md:max-w-none"
     >
       <div className="flex items-center justify-between gap-2 border-b border-white/10 px-4 py-3">
         {region ? (
@@ -217,19 +219,47 @@ function RegionDetailPanelInner({
         ) : (
           <>
             <h2 className="text-base font-semibold text-gray-200">All regions</h2>
-            <button
-              type="button"
-              onClick={onClose}
-              aria-label="Close panel"
-              className="rounded p-1 text-gray-400 hover:bg-white/10 hover:text-gray-100 focus-visible:outline-2 focus-visible:outline-amber-400 md:hidden"
-            >
-              ✕
-            </button>
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={() => setRegionsMinimized((m) => !m)}
+                aria-expanded={!regionsMinimized}
+                aria-label={regionsMinimized ? 'Expand regions list' : 'Minimize regions list'}
+                className="rounded p-1 text-gray-400 hover:bg-white/10 hover:text-gray-100 focus-visible:outline-2 focus-visible:outline-amber-400"
+              >
+                <span
+                  aria-hidden="true"
+                  className={`inline-block transition-transform duration-300 ${
+                    regionsMinimized ? 'rotate-180' : ''
+                  }`}
+                >
+                  ▾
+                </span>
+              </button>
+              <button
+                type="button"
+                onClick={onClose}
+                aria-label="Close panel"
+                className="rounded p-1 text-gray-400 hover:bg-white/10 hover:text-gray-100 focus-visible:outline-2 focus-visible:outline-amber-400 md:hidden"
+              >
+                ✕
+              </button>
+            </div>
           </>
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
+      <div
+        className={`grid flex-1 transition-[grid-template-rows,opacity] duration-300 ease-out ${
+          regionsMinimized && !region ? 'grid-rows-[0fr] opacity-0' : 'grid-rows-[1fr]'
+        }`}
+      >
+        <div
+          className={`min-h-0 overflow-hidden ${
+            regionsMinimized && !region ? 'invisible' : ''
+          }`}
+        >
+        <div className="scrollbar-thin h-full overflow-y-auto p-4">
         {region ? (
           <div className="space-y-5">
             <section>
@@ -313,15 +343,20 @@ function RegionDetailPanelInner({
             )}
             <section>
               <SectionLabel>Browse regions (by score)</SectionLabel>
-              <RegionList
-                regions={regions}
-                selectedKey={selected?.stateKey}
-                onSelect={(key) => onSelectRegion(key)}
-                isLoading={status.risk.isLoading}
-              />
+              {!regionsMinimized && (
+                <RegionList
+                  regions={regions}
+                  selectedKey={selected?.stateKey}
+                  onSelect={(key) => onSelectRegion(key)}
+                  isLoading={status.risk.isLoading}
+                  maxHeight={360}
+                />
+              )}
             </section>
           </div>
         )}
+        </div>
+        </div>
       </div>
     </aside>
   );

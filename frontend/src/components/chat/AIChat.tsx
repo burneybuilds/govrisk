@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import type { FormEvent } from 'react';
 import { Send } from 'lucide-react';
+import { useI18n } from '../../i18n';
 
 interface AIChatProps {
   messages: Array<{ id: string; role: 'user' | 'assistant'; content: string }>;
@@ -19,6 +20,7 @@ export function AIChat({
   suggestedQuestions = [],
   isTyping = false,
 }: AIChatProps) {
+  const { t } = useI18n();
   const [input, setInput] = useState('');
   const scrollRef = useRef<HTMLDivElement>(null);
 
@@ -40,7 +42,7 @@ export function AIChat({
       <div ref={scrollRef} className="flex-1 space-y-4 overflow-y-auto p-6">
         {messages.length === 0 ? (
           <div>
-            <h3 className="text-sm font-medium text-navy-900">Ask GovRisk AI...</h3>
+            <h3 className="text-sm font-medium text-navy-900">{t('assistant.ask')}</h3>
             <div className="mt-4 grid gap-2 sm:grid-cols-2">
               {suggestedQuestions.map((question) => (
                 <button
@@ -92,7 +94,7 @@ export function AIChat({
           <input
             value={input}
             onChange={(e) => setInput(e.target.value)}
-            placeholder="Ask GovRisk AI..."
+            placeholder={t('assistant.ask')}
             className="flex-1 rounded-xl border border-gray-200 px-4 py-3 text-sm outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
           />
           <button

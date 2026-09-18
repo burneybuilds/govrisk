@@ -10,6 +10,8 @@
   font-size: 12px;
   line-height: 1.45;
   max-width: 240px;
+  white-space: normal;
+  overflow-wrap: break-word;
 }
 
 .gm-map-tooltip.leaflet-tooltip::before {

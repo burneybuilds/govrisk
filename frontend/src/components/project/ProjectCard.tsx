@@ -1,5 +1,6 @@
 import { useNavigate } from 'react-router-dom';
 import { ArrowRight, MapPin } from 'lucide-react';
+import { useI18n } from '../../i18n';
 import type { Project } from '../../types';
 import { RiskScore } from '../ui/RiskScore';
 import { RiskBadge } from '../ui/RiskBadge';
@@ -13,6 +14,7 @@ interface ProjectCardProps {
 
 export function ProjectCard({ project, onSelect }: ProjectCardProps) {
   const navigate = useNavigate();
+  const { t } = useI18n();
 
   const handleClick = () => {
     if (onSelect) {
@@ -41,22 +43,22 @@ export function ProjectCard({ project, onSelect }: ProjectCardProps) {
       </div>
 
       <div className="mb-1 flex items-center justify-between">
-        <span className="text-xs text-gray-500">Physical Progress</span>
+        <span className="text-xs text-gray-500">{t('projectCard.physicalProgress')}</span>
         <span className="text-xs font-medium text-gray-700">{project.physicalProgress}%</span>
       </div>
       <ProgressBar value={project.physicalProgress} />
 
       <div className="mt-3 flex items-center justify-between text-xs text-gray-500">
-        <span>Original: {formatCurrency(project.originalCost)}</span>
+        <span>{t('projectCard.original', { cost: formatCurrency(project.originalCost) })}</span>
         <span className={costOverrun > 15 ? 'font-medium text-red-600' : 'text-gray-500'}>
-          Overrun {costOverrun.toFixed(1)}%
+          {t('projectCard.overrun', { pct: costOverrun.toFixed(1) })}
         </span>
       </div>
 
       <div className="mt-3 flex items-center justify-between border-t border-gray-100 pt-3">
         <RiskBadge level={project.riskLevel} size="sm" />
         <span className="inline-flex items-center gap-1 text-xs font-medium text-blue-600 hover:text-blue-700">
-          View Details
+          {t('projectCard.viewDetails')}
           <ArrowRight size={13} />
         </span>
       </div>
