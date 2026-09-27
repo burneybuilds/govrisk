@@ -39,6 +39,20 @@ describe('adaptRiskMapPoints', () => {
     });
   });
 
+  it('keeps every project at its exact coordinates', () => {
+    const payload = Array.from({ length: 60 }, (_, index) => ({
+      ...VALID_POINTS[0],
+      id: `P-${index + 1}`,
+      lat: 8 + index * 0.5,
+      lng: 70 + index * 0.4,
+    }));
+    const points = adaptRiskMapPoints(payload);
+    expect(points).toHaveLength(60);
+    expect(points.map((point) => [point.lat, point.lng])).toEqual(
+      payload.map((point) => [point.lat, point.lng]),
+    );
+  });
+
   it('rejects a malformed payload (missing riskScore) instead of rendering garbage', () => {
     const bad = [{ ...VALID_POINTS[0], riskScore: undefined }];
     expect(() => adaptRiskMapPoints(bad)).toThrow();
@@ -115,11 +129,14 @@ describe('adaptTopRiskFactors', () => {
 
 describe('adaptDisasterSummary', () => {
   it('aggregates events into totals + dominant type', () => {
-    const summary = adaptDisasterSummary([
-      { type: 'flood', year: 2024, events: 6, severity: 'HIGH', deaths: 40, displaced: 95 },
-      { type: 'flood', year: 2023, events: 4, severity: 'CRITICAL', deaths: 27, displaced: 40 },
-      { type: 'cyclone', year: 2024, events: 2, severity: 'HIGH', deaths: 6, displaced: 5 },
-    ]);
+    const summary = adaptDisasterSummary(
+      [
+        { type: 'flood', year: 2024, events: 6, severity: 'HIGH', deaths: 40, displaced: 95 },
+        { type: 'flood', year: 2023, events: 4, severity: 'CRITICAL', deaths: 27, displaced: 40 },
+        { type: 'cyclone', year: 2024, events: 2, severity: 'HIGH', deaths: 6, displaced: 5 },
+      ],
+      'odisha',
+    );
     expect(summary.totalEvents).toBe(12);
     expect(summary.dominantType).toBe('Flood');
     expect(summary.dominantFrequency).toBe(10);
@@ -128,10 +145,27 @@ describe('adaptDisasterSummary', () => {
   });
 
   it('returns an inert summary when history is empty', () => {
-    const summary = adaptDisasterSummary([]);
+    const summary = adaptDisasterSummary([], 'odisha');
     expect(summary.regionAvailable).toBe(false);
     expect(summary.totalEvents).toBe(0);
     expect(summary.dominantType).toBeNull();
+  });
+
+  it('scopes event ids to the region so ids stay unique across regions', () => {
+    const flood = {
+      type: 'flood',
+      year: 2024,
+      events: 2,
+      severity: 'HIGH',
+      deaths: 1,
+      displaced: 2,
+    } as const;
+    const assam = adaptDisasterSummary([flood], 'assam');
+    const bihar = adaptDisasterSummary([flood], 'bihar');
+
+    expect(assam.events[0].id).toBe('DIS-assam-0');
+    expect(bihar.events[0].id).toBe('DIS-bihar-0');
+    expect(assam.events[0].id).not.toBe(bihar.events[0].id);
   });
 });
 

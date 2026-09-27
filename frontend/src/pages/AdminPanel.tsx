@@ -206,8 +206,9 @@ export default function AdminPanel() {
   const [search, setSearch] = useState('');
   const [roleFilter, setRoleFilter] = useState('');
   const [statusFilter, setStatusFilter] = useState('');
-  const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const searchRef = useRef(search);
+const searchDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+const searchRef = useRef(search);
+const usersRequestIdRef = useRef(0);
 
   const [logs, setLogs] = useState<AuditLogItem[]>([]);
   const [logsPage, setLogsPage] = useState(1);
@@ -263,6 +264,10 @@ export default function AdminPanel() {
   }, []);
 
   const fetchUsers = useCallback(async () => {
+    // Guard against out-of-order responses: overlapping requests used to race
+    // and whichever resolved last won, so a stale page could overwrite the
+    // current one.
+    const requestId = ++usersRequestIdRef.current;
     setUsersLoading(true);
     setUsersError('');
     try {
@@ -271,13 +276,15 @@ export default function AdminPanel() {
       if (roleFilter) params.role = roleFilter;
       if (statusFilter) params.status = statusFilter;
       const res = await getUsers(params as any);
+      if (requestId !== usersRequestIdRef.current) return;
       setUsers(res.items);
       setUsersTotalPages(res.totalPages);
       setUsersTotal(res.total);
     } catch (e: any) {
+      if (requestId !== usersRequestIdRef.current) return;
       setUsersError(e.message || 'Failed to load users');
     } finally {
-      setUsersLoading(false);
+      if (requestId === usersRequestIdRef.current) setUsersLoading(false);
     }
   }, [usersPage, roleFilter, statusFilter]);
 
@@ -365,8 +372,14 @@ export default function AdminPanel() {
     searchRef.current = val;
     if (searchDebounceRef.current) clearTimeout(searchDebounceRef.current);
     searchDebounceRef.current = setTimeout(() => {
-      setUsersPage(1);
-      fetchUsers();
+      // Resetting the page re-runs the effect, which refetches with a fresh
+      // closure. Calling fetchUsers() here as well issued a second request
+      // still carrying the old page number.
+      if (usersPage === 1) {
+        fetchUsers();
+      } else {
+        setUsersPage(1);
+      }
     }, 300);
   }
 

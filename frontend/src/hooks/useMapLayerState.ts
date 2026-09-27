@@ -1,7 +1,8 @@
 import { useCallback, useMemo, useState } from 'react';
-import type { ChoroplethId, MapLayerId, MapLayerState } from '../types/map';
+import type { BasemapId, ChoroplethId, MapLayerId, MapLayerState } from '../types/map';
 
 const INITIAL_STATE: MapLayerState = {
+  basemap: 'street',
   choropleth: 'risk',
   riskMarkers: true,
   projects: true,
@@ -13,6 +14,8 @@ const INITIAL_STATE: MapLayerState = {
 
 export interface MapLayerControls {
   state: MapLayerState;
+  /** Set the basemap imagery drawn beneath every data layer. */
+  setBasemap: (basemap: BasemapId) => void;
   /** Set the exclusive region choropleth. */
   setChoropleth: (layer: ChoroplethId) => void;
   clearChoropleth: () => void;
@@ -29,6 +32,10 @@ export interface MapLayerControls {
  */
 export function useMapLayerState(): MapLayerControls {
   const [state, setState] = useState<MapLayerState>(INITIAL_STATE);
+
+  const setBasemap = useCallback((basemap: BasemapId) => {
+    setState((prev) => ({ ...prev, basemap }));
+  }, []);
 
   const setChoropleth = useCallback((layer: ChoroplethId) => {
     setState((prev) => ({ ...prev, choropleth: layer }));
@@ -57,6 +64,7 @@ export function useMapLayerState(): MapLayerControls {
   return useMemo(
     () => ({
       state,
+      setBasemap,
       setChoropleth,
       clearChoropleth,
       toggleRiskMarkers,
@@ -64,6 +72,15 @@ export function useMapLayerState(): MapLayerControls {
       toggleWeatherOverlay,
       setOpacity,
     }),
-    [state, setChoropleth, clearChoropleth, toggleRiskMarkers, toggleProjects, toggleWeatherOverlay, setOpacity],
+    [
+      state,
+      setBasemap,
+      setChoropleth,
+      clearChoropleth,
+      toggleRiskMarkers,
+      toggleProjects,
+      toggleWeatherOverlay,
+      setOpacity,
+    ],
   );
 }

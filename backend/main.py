@@ -1,6 +1,9 @@
+import os
+
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
+from config import setup_logging, validate_config
 from database import engine, Base
 from auth.database import auth_engine, AuthBase
 from auth.dependencies import get_current_user
@@ -10,12 +13,16 @@ from routers import auth as auth_router
 from routers import users as users_router
 from routers import admin as admin_router
 
+setup_logging(os.getenv("LOG_LEVEL", "INFO"))
+# Refuses to boot in production with dev secrets still in place.
+validate_config()
+
 Base.metadata.create_all(bind=engine)
 AuthBase.metadata.create_all(bind=auth_engine)
 run_migrations(engine)
 
 app = FastAPI(
-    title="GovRisk API",
+    title="SANKALP API",
     description="AI-Powered Infrastructure Risk Intelligence Platform",
     version="0.2.0",
 )
@@ -42,4 +49,4 @@ app.include_router(ai.router)
 
 @app.get("/api/health")
 def health_check():
-    return {"status": "ok", "service": "govrisk-api"}
+    return {"status": "ok", "service": "sankalp-api"}

@@ -5,13 +5,23 @@ from auth.database import get_auth_db
 from auth.models import User
 from auth.security import decode_token
 
-security = HTTPBearer()
+# auto_error=False so a missing Authorization header produces 401
+# ("unauthenticated"), matching the documented status-code contract, instead of
+# FastAPI's HTTPBearer default of 403 (which means "authenticated but not
+# allowed" and is misleading to clients).
+security = HTTPBearer(auto_error=False)
 
 
 def get_current_user(
-    credentials: HTTPAuthorizationCredentials = Depends(security),
+    credentials: HTTPAuthorizationCredentials | None = Depends(security),
     db: Session = Depends(get_auth_db),
 ) -> User:
+    if credentials is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"},
+        )
     token = credentials.credentials
     payload = decode_token(token)
     if payload is None or payload.get("type") != "access":

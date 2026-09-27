@@ -95,6 +95,10 @@ function ProjectDetailPanelInner({ project, onClose }: ProjectDetailPanelProps) 
           <Row label="Delay prob." value={`${project.delayProbability}%`} />
           <Row label="Funding" value={FUNDING_LABELS[project.fundingSource ?? ''] ?? '—'} />
           <Row label="State" value={project.stateName} />
+          <Row
+            label="Coordinates"
+            value={`${project.lat.toFixed(4)}, ${project.lng.toFixed(4)}`}
+          />
           {project.confidence && (
             <Row label="Data confidence" value={project.confidence.replaceAll('_', ' ')} />
           )}

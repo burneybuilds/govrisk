@@ -259,7 +259,34 @@ def persist_prediction(db: Session, project_id: str, result: PredictionResult) -
 
 
 def persist_anomalies(db: Session, project_id: str, anomalies: list) -> None:
+    """Upsert anomalies by (project_id, type) for still-open records.
+
+    Re-analysis used to append a brand new row every run, so a resolved
+    anomaly reappeared on the next analysis and the table grew without bound.
+    An open anomaly is now refreshed in place; only a genuinely new type
+    inserts, and previously resolved rows are left alone.
+    """
+    if not anomalies:
+        return
+
+    open_rows = {
+        row.type: row
+        for row in db.query(Anomaly).filter(
+            Anomaly.project_id == project_id,
+            Anomaly.resolved.is_(False),
+        ).all()
+    }
+
     for a in anomalies:
+        existing = open_rows.get(a["type"])
+        if existing is not None:
+            existing.severity = a["severity"]
+            existing.score = a["score"]
+            existing.title = a["title"]
+            existing.description = a["description"]
+            existing.evidence = json.dumps(a.get("evidence", []))
+            existing.created_at = _now_iso()
+            continue
         db.add(
             Anomaly(
                 id=str(uuid.uuid4()),
@@ -472,10 +499,19 @@ def analyze_update_in_background(project_id: str, update_id: int) -> None:
                         )
                     )
                     if result["severity"] in ("HIGH", "CRITICAL"):
+                        # Bounded by AI_ALERT_DEDUP_HOURS so a category that
+                        # has genuinely gone quiet and come back can re-alert.
+                        # Previously the query had no time predicate, so the
+                        # first alert muted the category permanently.
+                        cutoff = (
+                            datetime.now(timezone.utc)
+                            - timedelta(hours=AI_ALERT_DEDUP_HOURS)
+                        ).isoformat()
                         alert_exists = db.query(Alert).filter(
                             Alert.project_id == project_id,
                             Alert.type == "AI Emerging Risk",
                             Alert.description.like(f"%{result['title']}%"),
+                            Alert.detected_date >= cutoff,
                         ).first()
                         if not alert_exists:
                             db.add(
@@ -522,7 +558,6 @@ def resolve_emerging_risk(db: Session, project_id: str, risk_id: str) -> bool:
     if not record:
         return False
     record.status = "RESOLVED"
-    record.updated_at = _now_iso()
     db.commit()
     return True
 
@@ -540,7 +575,6 @@ def resolve_anomaly(db: Session, project_id: str, anomaly_id: str) -> bool:
     if not record:
         return False
     record.resolved = True
-    record.updated_at = _now_iso()
     db.commit()
     return True
 

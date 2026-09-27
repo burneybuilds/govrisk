@@ -20,8 +20,8 @@ export const rawRiskMapPointSchema = z
     riskLevel: riskLevelSchema,
     costOverrunProbability: z.number().finite(),
     delayProbability: z.number().finite(),
-    lat: z.number().finite(),
-    lng: z.number().finite(),
+    lat: z.number().finite().min(-90).max(90),
+    lng: z.number().finite().min(-180).max(180),
     // Government-ingest provenance (backend/ingest). Optional: manual projects
     // have no ingestion metadata.
     status: z.enum(['ONGOING', 'COMPLETED', 'DELAYED', 'STALLED', 'CANCELLED']).optional().nullable(),

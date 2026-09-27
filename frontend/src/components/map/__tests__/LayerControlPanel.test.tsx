@@ -4,9 +4,11 @@ import userEvent from '@testing-library/user-event';
 import { LayerControlPanel, type LayerControlPanelProps } from '../LayerControlPanel';
 import type { LayerDataStatus } from '../LayerControlPanel';
 import type { MapLayerState } from '../../../types/map';
+import { I18nProvider } from '../../../i18n';
 
 function makeState(): MapLayerState {
   return {
+    basemap: 'street',
     choropleth: 'risk',
     riskMarkers: true,
     projects: true,
@@ -40,7 +42,11 @@ function renderPanel(status: LayerDataStatus = makeStatus(), state: MapLayerStat
     dataStatus: status,
     ...handlers,
   };
-  const view = render(<LayerControlPanel {...props} />);
+  const view = render(
+    <I18nProvider>
+      <LayerControlPanel {...props} />
+    </I18nProvider>,
+  );
   return { view, handlers };
 }
 

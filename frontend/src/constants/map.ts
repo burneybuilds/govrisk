@@ -1,10 +1,12 @@
-import type { ChoroplethId, MapLayerId, RiskLevelKey } from '../types/map';
+import type { BasemapId, ChoroplethId, MapLayerId, RiskLevelKey } from '../types/map';
 
 /** Map visual configuration. */
 export const MAP_CENTER: [number, number] = [20.5937, 78.9629];
 export const MAP_DEFAULT_ZOOM = 4.5;
 export const MAP_MIN_ZOOM = 4;
-export const MAP_MAX_ZOOM = 12;
+/** Street-level zoom. Both tile providers carry imagery to z19 (CARTO to z20),
+ *  so this is the binding limit for operators inspecting a single site. */
+export const MAP_MAX_ZOOM = 19;
 export const MAP_MAX_BOUNDS: [[number, number], [number, number]] = [
   [6.5, 68.0],
   [36.5, 98.5],
@@ -30,8 +32,66 @@ export const BASE_TILE_OPTIONS = {
     '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions">CARTO</a>',
 } as const;
 
+/** Esri World Imagery. Note the `{z}/{y}/{x}` axis order (not `{z}/{x}/{y}`)
+ *  and no `{s}` subdomain — Leaflet does not reorder the placeholders.
+ *  Override with `VITE_SATELLITE_TILE_URL` for a private basemap. */
+const DEFAULT_SATELLITE_TILE_URL =
+  'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}';
+
+export const SATELLITE_TILE_URL =
+  import.meta.env.VITE_SATELLITE_TILE_URL || DEFAULT_SATELLITE_TILE_URL;
+
+export interface BasemapDefinition {
+  id: BasemapId;
+  url: string;
+  attribution: string;
+  /** Tile host rotation; omitted for single-host providers. */
+  subdomains?: string;
+  /** Photographic/dark imagery — needs stronger boundary contrast. */
+  dark?: boolean;
+}
+
+/** Selectable basemaps, in switcher order. Exactly one is rendered at a time. */
+export const BASEMAPS: Record<BasemapId, BasemapDefinition> = {
+  street: {
+    id: 'street',
+    url: BASE_TILE_URL_WITH_KEY,
+    attribution: BASE_TILE_OPTIONS.attribution,
+    subdomains: BASE_TILE_OPTIONS.subdomains,
+  },
+  satellite: {
+    id: 'satellite',
+    url: SATELLITE_TILE_URL,
+    attribution:
+      'Imagery &copy; <a href="https://www.esri.com/">Esri</a>, Maxar, Earthstar Geographics, and the GIS User Community',
+    dark: true,
+  },
+};
+
+export const BASEMAP_ORDER: readonly BasemapId[] = ['street', 'satellite'];
+
 /** District boundaries only load once zoomed past this level. */
 export const DISTRICT_ZOOM_THRESHOLD = 7;
+
+/** Zoom at which a project click flies in, and where overlay washes begin to
+ *  fade so street-level imagery and markers stay readable. */
+export const PROJECT_FOCUS_ZOOM = 13;
+export const OVERLAY_FADE_START_ZOOM = 8;
+export const OVERLAY_FADE_END_ZOOM = 11;
+
+/**
+ * Region-scale choropleths are country/region shaped: at street zoom the same
+ * polygon covers the entire viewport, washing out the basemap. Fade the wash
+ * out between the two thresholds so a deep zoom reveals imagery + markers.
+ * Markers are drawn above the overlays and stay fully opaque.
+ */
+export function overlayOpacityFor(zoom: number, base: number): number {
+  if (zoom <= OVERLAY_FADE_START_ZOOM) return base;
+  if (zoom >= OVERLAY_FADE_END_ZOOM) return 0;
+  const progress = (zoom - OVERLAY_FADE_START_ZOOM) / (OVERLAY_FADE_END_ZOOM - OVERLAY_FADE_START_ZOOM);
+  return base * (1 - progress);
+}
+
 /** Debounce for pan/zoom events before state settles (ms). */
 export const VIEWPORT_DEBOUNCE_MS = 150;
 /** Artificial delay for mock fetchers so skeleton loaders are visible (ms). */

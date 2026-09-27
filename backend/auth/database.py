@@ -1,13 +1,15 @@
-import os
+"""Engine + session for the authentication database (`auth.db`)."""
+
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, declarative_base
-from dotenv import load_dotenv
 
-load_dotenv()
+from config import AUTH_DATABASE_URL
 
-AUTH_DATABASE_URL = os.getenv("AUTH_DATABASE_URL", "sqlite:///./auth.db")
+_engine_kwargs = {"pool_pre_ping": True}
+if AUTH_DATABASE_URL.startswith("sqlite"):
+    _engine_kwargs["connect_args"] = {"check_same_thread": False}
 
-auth_engine = create_engine(AUTH_DATABASE_URL, connect_args={"check_same_thread": False})
+auth_engine = create_engine(AUTH_DATABASE_URL, **_engine_kwargs)
 AuthSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=auth_engine)
 AuthBase = declarative_base()
 

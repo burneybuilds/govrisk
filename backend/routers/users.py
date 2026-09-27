@@ -289,7 +289,7 @@ def reset_user_password(
     db: Session = Depends(get_auth_db),
 ):
     user = _resolve_user(db, identifier)
-    temp_password = f"GovRisk@{_random_temp_suffix()}"
+    temp_password = f"SANKALP@{_random_temp_suffix()}"
     user.password_hash = hash_password(temp_password)
     db.flush()
     log_audit(
@@ -307,7 +307,12 @@ def reset_user_password(
 
 
 def _random_temp_suffix() -> str:
-    import random
-    import string
-    digits = "".join(random.choices(string.digits, k=4))
-    return f"{digits}"
+    """Cryptographically random suffix.
+
+    `random` is a seedable Mersenne Twister and 4 digits gave only ~13 bits of
+    entropy, so the temporary password was guessable. `secrets` is CSPRNG-backed.
+    16 hex chars keeps the full password well inside bcrypt's 72-byte limit.
+    """
+    import secrets
+
+    return secrets.token_hex(8)

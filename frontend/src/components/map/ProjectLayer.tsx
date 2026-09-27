@@ -11,10 +11,11 @@ export interface ProjectLayerProps {
   onSelectProject: (point: ProjectRiskPoint) => void;
 }
 
-/** Radius (px) for MEDIUM vs LARGE projects. */
-const SCALE_RADIUS: Record<ProjectScale, number> = { MEDIUM: 6, LARGE: 9 };
+/** Radius (px) for MEDIUM vs LARGE projects. Must stay below the 9px floor of
+ *  `RiskMarkers`, which draws the enclosing graduated risk disc. */
+const SCALE_RADIUS: Record<ProjectScale, number> = { MEDIUM: 4, LARGE: 6 };
 
-const DEFAULT_RADIUS = 7;
+const DEFAULT_RADIUS = 4.5;
 
 function radiusFor(point: ProjectRiskPoint): number {
   if (point.scale) return SCALE_RADIUS[point.scale] ?? DEFAULT_RADIUS;
@@ -62,6 +63,12 @@ function ProjectLayerInner({ points, selectedProjectId = null, onSelectProject }
                 <span>Cost</span>
                 <b>{formatCost(point.costEstimateCr)}</b>
               </div>
+              <div className="gm-tooltip-row">
+                <span>Coordinates</span>
+                <b>
+                  {point.lat.toFixed(4)}, {point.lng.toFixed(4)}
+                </b>
+              </div>
             </Tooltip>
           </CircleMarker>
         );
@@ -78,8 +85,9 @@ function formatCost(crore: number | undefined): string {
 
 /**
  * Government-ingest infrastructure projects layer. Status determines the fill
- * color, scale (or cost) or determines the radius. Independent of both the
- * choropleth and the risk markers so all three stack freely.
+ * color, scale (or cost) determines the core radius. Renders as the inner core
+ * of the concentric marker, inside `RiskMarkers`' graduated risk disc, so both
+ * encodings stay legible when the layers are combined.
  */
 export const ProjectLayer = memo(ProjectLayerInner);
 

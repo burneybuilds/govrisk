@@ -55,7 +55,7 @@ function BottomNavItem({
       to={to}
       end={to === '/'}
       className={({ isActive }) =>
-        `group relative flex min-w-[76px] flex-1 flex-col items-center gap-1.5 px-3 py-4 text-[11px] font-medium transition-colors duration-200 ${
+        `group relative flex min-w-[72px] flex-1 flex-col items-center gap-1.5 px-2 py-4 text-[11px] font-medium transition-colors duration-200 ${
           isActive ? 'text-navy-900' : 'text-gray-500 hover:text-navy-900'
         }`
       }
@@ -68,9 +68,18 @@ function BottomNavItem({
               isActive ? 'text-blue-600' : 'text-gray-400 group-hover:text-blue-600'
             }`}
           />
-          <span className="whitespace-nowrap">{t(labelKey)}</span>
+          {/* Labels wrap to at most two lines with a reserved two-line height.
+              Without this the nav was `whitespace-nowrap`, so one long label set
+              its own item width via min-content, pushed the row past the
+              viewport and turned the horizontal scrollbar on - items stopped
+              being evenly spaced. Wrapping keeps every item's min-content down
+              to its longest word, so `flex-1` distributes width evenly and the
+              reserved height keeps the icons on one baseline. */}
+          <span className="line-clamp-2 min-h-[28px] w-full break-words text-center leading-tight">
+            {t(labelKey)}
+          </span>
           {isActive && (
-            <span className="absolute inset-x-3 top-0 h-0.5 rounded-full bg-[#C9A227]" />
+            <span className="absolute inset-x-2 top-0 h-0.5 rounded-full bg-[#C9A227]" />
           )}
         </>
       )}
@@ -83,7 +92,7 @@ export default function BottomBar() {
   const { t } = useI18n();
   const navigate = useNavigate();
 
-  const displayName = user?.fullName || t('nav.govRiskUser');
+  const displayName = user?.fullName || t('nav.sankalpUser');
 
   const handleLogout = () => {
     logout();

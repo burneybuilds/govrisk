@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Literal, Optional
 
 from pydantic import BaseModel, Field, model_validator
 
@@ -212,11 +212,19 @@ class AlertResponse(BaseModel):
     projectName: str
     type: str
     severity: str
+    status: str
     detectedDate: str
     description: str
 
     class Config:
         from_attributes = True
+
+
+class AlertStatusUpdate(BaseModel):
+    # Constrained on purpose: an unknown status would silently drop the alert out
+    # of every severity tab in the Early Warning Center. An invalid value must
+    # be a 422, not a row that can never be surfaced again.
+    status: Literal["ACTIVE", "RESOLVED"]
 
 
 class DashboardResponse(BaseModel):

@@ -24,8 +24,31 @@ if load_dotenv is not None:
 APP_ENV = os.getenv("APP_ENV", "development")
 
 # Database locations
-DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./govrisk.db")
-AUTH_DATABASE_URL = os.getenv("AUTH_DATABASE_URL", "sqlite:///./auth.db")
+BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
+
+_RAW_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./govrisk.db")
+_RAW_AUTH_DATABASE_URL = os.getenv("AUTH_DATABASE_URL", "sqlite:///./auth.db")
+
+
+def resolve_sqlite_url(url: str) -> str:
+    """Anchor a relative sqlite path to the backend directory.
+
+    `sqlite:///./x.db` is otherwise resolved against the process working
+    directory, so the same code silently reads a different database depending
+    on where it was launched. Absolute paths, `:memory:` and URI-style values
+    are returned untouched.
+    """
+    prefix = "sqlite:///"
+    if not url.startswith(prefix):
+        return url
+    raw = url[len(prefix):]
+    if not raw or raw.startswith(":") or os.path.isabs(raw):
+        return url
+    return f"{prefix}{os.path.join(BACKEND_DIR, raw).replace(os.sep, '/')}"
+
+
+DATABASE_URL = resolve_sqlite_url(_RAW_DATABASE_URL)
+AUTH_DATABASE_URL = resolve_sqlite_url(_RAW_AUTH_DATABASE_URL)
 
 # JWT
 JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "govrisk-dev-secret-key-change-in-production")
@@ -81,12 +104,12 @@ def setup_logging(level: str = "INFO") -> None:
     root.handlers = [h for h in root.handlers if not isinstance(h, logging.StreamHandler)]
     root.addHandler(handler)
     root.setLevel(getattr(logging, level.upper(), logging.INFO))
-    logging.getLogger("govrisk.ai").setLevel(logging.DEBUG)
+    logging.getLogger("sankalp.ai").setLevel(logging.DEBUG)
     logging.getLogger("uvicorn").setLevel(logging.INFO)
 
 
 def get_logger(name: str) -> logging.Logger:
-    return logging.getLogger(f"govrisk.ai.{name}")
+    return logging.getLogger(f"sankalp.ai.{name}")
 
 
 ai_logger = get_logger("service")

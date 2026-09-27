@@ -10,7 +10,12 @@ router = APIRouter(prefix="/api/risk-map", tags=["risk-map"])
 
 @router.get("")
 def get_risk_map_data(db: Session = Depends(get_db), _user: User = Depends(get_current_user)):
-    projects = db.query(Project).all()
+    projects = (
+        db.query(Project)
+        .filter(Project.lat.is_not(None), Project.lng.is_not(None))
+        .order_by(Project.state, Project.name)
+        .all()
+    )
     return [
         {
             "id": p.id,

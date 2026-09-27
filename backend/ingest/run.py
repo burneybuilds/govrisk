@@ -26,7 +26,7 @@ from database import SessionLocal  # noqa: E402
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="GovRisk infrastructure project ingestion")
+    parser = argparse.ArgumentParser(description="SANKALP infrastructure project ingestion")
     parser.add_argument("--source", choices=["data_gov_in", "csv_file"], default="csv_file")
     parser.add_argument("--file", help="Path to CSV/JSON (csv_file source)")
     parser.add_argument("--dry-run", action="store_true", help="Report without writing")

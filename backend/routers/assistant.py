@@ -21,7 +21,9 @@ from config import ai_logger
 
 router = APIRouter(prefix="/api/assistant", tags=["assistant"])
 
-_ID_PATTERN = re.compile(r"PRJ-\d{3}", re.IGNORECASE)
+# 3+ digits: `next_project_id` keeps producing PRJ-1000, PRJ-1001, ... and a
+# fixed 3-digit pattern silently stopped resolving those references.
+_ID_PATTERN = re.compile(r"PRJ-\d{3,}", re.IGNORECASE)
 
 
 def _find_mentions(query: str) -> list:

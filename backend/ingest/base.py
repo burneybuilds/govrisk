@@ -19,7 +19,7 @@ from sqlalchemy.orm import Session
 from .contract import DataConfidence, RawProject
 from .normalize import canonical_sector, canonical_state, derive_scale, to_iso_date
 
-logger = logging.getLogger("govrisk.ingest")
+logger = logging.getLogger("sankalp.ingest")
 
 ACTION_INSERT = "INSERT"
 ACTION_UPDATE = "UPDATE"

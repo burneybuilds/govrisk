@@ -3,7 +3,14 @@ export type RiskLevel = 'LOW' | 'MEDIUM' | 'HIGH' | 'CRITICAL';
 export type Sector =
   'Transport' | 'Energy' | 'Water' | 'Communication' | 'Mining' | 'Social Infrastructure';
 
-export type AlertSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'RESOLVED';
+export type AlertSeverity = 'CRITICAL' | 'HIGH' | 'MEDIUM' | 'LOW' | 'RESOLVED';
+
+/**
+ * Lifecycle of a warning, independent of how severe it was. An alert keeps its
+ * severity after it is resolved, so filtering on severity alone misfiles every
+ * resolved warning.
+ */
+export type AlertStatus = 'ACTIVE' | 'RESOLVED';
 
 export interface RiskInputs {
   weather?: Record<string, any>;
@@ -105,6 +112,7 @@ export interface Alert {
   projectName: string;
   type: string;
   severity: AlertSeverity;
+  status?: AlertStatus;
   detectedDate: string;
   description: string;
 }

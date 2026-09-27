@@ -284,14 +284,17 @@ def update_project(
     if not project:
         raise HTTPException(status_code=404, detail="Project not found")
 
-    if data.name is not None:
-        name = data.name.strip()
+    # The (name, agency) pair is the uniqueness key enforced on create, so the
+    # guard has to run whenever *either* half changes - not only when a new
+    # name is supplied, which let an agency-only update create the collision.
+    new_name = data.name.strip() if data.name is not None else project.name
+    new_agency = data.agency.strip() if data.agency is not None else project.agency
+    if data.name is not None or data.agency is not None:
         duplicate = (
             db.query(Project)
             .filter(
-                func.lower(Project.name) == name.lower(),
-                func.lower(Project.agency)
-                == (data.agency or project.agency).strip().lower(),
+                func.lower(Project.name) == new_name.lower(),
+                func.lower(Project.agency) == new_agency.lower(),
                 Project.id != project.id,
             )
             .first()
@@ -301,7 +304,8 @@ def update_project(
                 status_code=status.HTTP_409_CONFLICT,
                 detail="A project with this name already exists for this agency",
             )
-        project.name = name
+    if data.name is not None:
+        project.name = new_name
 
     if data.ministry is not None:
         project.ministry = data.ministry.strip()
@@ -442,7 +446,7 @@ def add_project_update(
     project_id: str,
     data: ProjectUpdateCreate,
     background: BackgroundTasks,
-    user: User = Depends(get_current_user),
+    user: User = Depends(require_roles("admin", "officer", "analyst")),
     db: Session = Depends(get_db),
     db_auth: Session = Depends(get_auth_db),
 ):

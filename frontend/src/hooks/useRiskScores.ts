@@ -13,7 +13,8 @@ export function useRiskScores() {
     queryFn: loadRiskScores,
     staleTime: QUERY.risk.staleTime,
     retry: QUERY.risk.retry,
-    refetchOnWindowFocus: false,
+    refetchOnMount: 'always',
+    refetchOnWindowFocus: true,
   });
 }
 

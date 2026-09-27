@@ -1,6 +1,6 @@
-# GovRisk Frontend
+# SANKALP Frontend
 
-React + TypeScript + Vite frontend for the GovRisk India infrastructure risk
+React + TypeScript + Vite frontend for the SANKALP India infrastructure risk
 platform.
 
 ## Risk Map

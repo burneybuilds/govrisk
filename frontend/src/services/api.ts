@@ -1,3 +1,5 @@
+import type { Alert, AlertStatus } from '../types';
+
 const API_BASE = import.meta.env.VITE_API_URL || 'http://localhost:8000';
 
 function getAccessToken(): string | null {
@@ -60,6 +62,15 @@ async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
       const newToken = await refreshPromise!;
       headers.Authorization = `Bearer ${newToken}`;
       res = await fetch(`${API_BASE}${path}`, { ...options, headers });
+      if (res.status === 401) {
+        // The refresh succeeded but the retried request is still unauthorized
+        // (deactivated user, revoked session, insufficient scope). Without
+        // this the stored tokens were kept, every later request repeated the
+        // refresh-and-fail cycle, and the user was never routed to /login.
+        clearTokens();
+        window.location.href = '/login';
+        throw new Error('Session expired');
+      }
     } catch {
       clearTokens();
       window.location.href = '/login';
@@ -324,7 +335,14 @@ export function deleteProjectUpdate(projectId: string, updateId: number) {
 }
 
 export async function getAlerts() {
-  return apiFetch<any[]>('/api/alerts');
+  return apiFetch<Alert[]>('/api/alerts');
+}
+
+export async function updateAlertStatus(id: string, status: AlertStatus) {
+  return apiFetch<Alert>(`/api/alerts/${id}`, {
+    method: 'PATCH',
+    body: JSON.stringify({ status }),
+  });
 }
 
 export async function getDashboard() {

@@ -9,7 +9,7 @@ export interface MapLegendProps {
   layerState: MapLayerState;
   /** Highest intensity unit shown on whichever ramp is active. */
   activeChoropleth?: ChoroplethId | null;
-  hasMarkers: boolean;
+  markerCount: number;
 }
 
 const TITLES: Record<ChoroplethId, { title: string; min: string; max: string }> = {
@@ -17,7 +17,8 @@ const TITLES: Record<ChoroplethId, { title: string; min: string; max: string }> 
   disaster: { title: 'Recorded disaster events', min: 'Low', max: 'High' },
 };
 
-function MapLegendInner({ layerState, activeChoropleth, hasMarkers }: MapLegendProps) {
+function MapLegendInner({ layerState, activeChoropleth, markerCount }: MapLegendProps) {
+  const [collapsed, setCollapsed] = useState(false);
   const active: RampId | null =
     activeChoropleth ?? (layerState.weatherOverlay ? ('weather' as const) : null);
 
@@ -32,8 +33,6 @@ function MapLegendInner({ layerState, activeChoropleth, hasMarkers }: MapLegendP
   }, [active]);
 
   if (!legend) return null;
-
-  const [collapsed, setCollapsed] = useState(false);
 
   return (
     <div className="absolute bottom-6 left-3 z-[500] rounded-md border border-white/10 bg-[#0f1830]/90 px-3 py-2 text-[11px] text-gray-300 shadow-lg backdrop-blur">
@@ -71,7 +70,7 @@ function MapLegendInner({ layerState, activeChoropleth, hasMarkers }: MapLegendP
             />
             <span className="text-[10px] text-gray-400">{legend.max}</span>
           </div>
-          {hasMarkers && layerState.riskMarkers && (
+          {markerCount > 0 && layerState.riskMarkers && (
             <div className="mt-2 flex items-center gap-2 border-t border-white/10 pt-2">
               <span aria-hidden="true">
                 <svg width="18" height="18" viewBox="0 0 18 18">
@@ -85,7 +84,10 @@ function MapLegendInner({ layerState, activeChoropleth, hasMarkers }: MapLegendP
                   />
                 </svg>
               </span>
-              <span>A monitored project · size ∝ risk score</span>
+              <span>
+                {markerCount} project{markerCount === 1 ? '' : 's'} plotted at exact coordinates ·
+                outer disc = risk score
+              </span>
             </div>
           )}
           {layerState.projects && (
@@ -101,7 +103,7 @@ function MapLegendInner({ layerState, activeChoropleth, hasMarkers }: MapLegendP
                 </span>
               ))}
               <span className="col-span-2 mt-0.5 text-[10px] text-gray-500">
-                size = scale (small/large)
+                inner core = status · core size = scale (small/large)
               </span>
             </div>
 )}

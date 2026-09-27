@@ -1,5 +1,5 @@
 """
-GovRisk Demo Seed Script
+SANKALP Demo Seed Script
 ========================
 Creates the SQLite database and populates it with demonstration data.
 
@@ -21,7 +21,7 @@ from services.risk_service import apply_assessment
 
 
 def seed():
-    print("GovRisk Seed Script")
+    print("SANKALP Seed Script")
     print("=" * 40)
 
     # Remove existing database

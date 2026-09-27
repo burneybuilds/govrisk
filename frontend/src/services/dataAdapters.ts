@@ -116,6 +116,7 @@ function eventKey(regionKey: StateKey, index: number): string {
 /** Aggregate a region's event history into a compact, render-ready summary. */
 export function adaptDisasterSummary(
   rawEvents: z.infer<typeof rawDisasterResponseSchema>['regions'][number]['history'],
+  regionKey: StateKey,
 ): DisasterSummary {
   if (!rawEvents || rawEvents.length === 0) {
     return {
@@ -137,7 +138,7 @@ export function adaptDisasterSummary(
     frequencyByType.set(type, (frequencyByType.get(type) ?? 0) + e.events);
     if (lastEventYear === null || e.year > lastEventYear) lastEventYear = e.year;
     return {
-      id: eventKey(type, i),
+      id: eventKey(regionKey, i),
       type,
       year: e.year,
       severity: e.severity,
@@ -174,7 +175,7 @@ export function adaptDisasterData(raw: unknown): ReadonlyMap<StateKey, DisasterS
   for (const region of validated.regions) {
     const key = resolveStateKey(region.stateName);
     if (!key) continue;
-    map.set(key, adaptDisasterSummary(region.history));
+    map.set(key, adaptDisasterSummary(region.history, key));
   }
   return map;
 }
@@ -284,9 +285,12 @@ export function buildRegionRiskData(input: {
     if (disaster && disaster.dominantType) {
       factors.push(`${disaster.dominantType} (dominant hazard)`);
     }
-    if (weather && weather.activeAlerts.length > 0) {
+    if (weather) {
+      // The guard used to test for *any* active alert while the value counted
+      // only non-MODERATE ones, so a region whose alerts were all MODERATE
+      // rendered the literal string "0 severe weather alerts".
       const severe = weather.activeAlerts.filter((a) => a.severity !== 'MODERATE').length;
-      factors.push(`${severe} severe weather alerts`);
+      if (severe > 0) factors.push(`${severe} severe weather alerts`);
     }
     if (factors.length === 0) factors.push('Portfolio risk within average range');
 

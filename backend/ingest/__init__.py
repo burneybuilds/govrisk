@@ -1,4 +1,4 @@
-"""GovRisk infrastructure project ingestion package.
+"""SANKALP infrastructure project ingestion package.
 
 Sources are cleanly isolated per adapter (`ingest/sources/*`), each adapter
 only implements `fetch` (raw rows) + `parse` (raw -> RawProject). The shared

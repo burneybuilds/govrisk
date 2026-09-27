@@ -14,16 +14,33 @@ ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30")
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
 
 
+# bcrypt hashes at most 72 bytes of input and raises ValueError beyond that.
+BCRYPT_MAX_PASSWORD_BYTES = 72
+
+
 def generate_id() -> str:
     return str(uuid.uuid4())
 
 
 def hash_password(password: str) -> str:
-    return bcrypt.hashpw(password.encode("utf-8"), bcrypt.gensalt()).decode("utf-8")
+    encoded = password.encode("utf-8")
+    if len(encoded) > BCRYPT_MAX_PASSWORD_BYTES:
+        # Callers validate this via the Pydantic schemas; raise a clear error
+        # rather than letting bcrypt's ValueError surface as an HTTP 500.
+        raise ValueError(
+            "password must be at most "
+            f"{BCRYPT_MAX_PASSWORD_BYTES} bytes when UTF-8 encoded"
+        )
+    return bcrypt.hashpw(encoded, bcrypt.gensalt()).decode("utf-8")
 
 
 def verify_password(plain_password: str, hashed_password: str) -> bool:
-    return bcrypt.checkpw(plain_password.encode("utf-8"), hashed_password.encode("utf-8"))
+    encoded = plain_password.encode("utf-8")
+    if len(encoded) > BCRYPT_MAX_PASSWORD_BYTES:
+        # Cannot match any bcrypt hash, and passing it through raises ValueError,
+        # which would surface as an HTTP 500 on the public login endpoint.
+        return False
+    return bcrypt.checkpw(encoded, hashed_password.encode("utf-8"))
 
 
 def create_access_token(subject: str, role: str) -> str:

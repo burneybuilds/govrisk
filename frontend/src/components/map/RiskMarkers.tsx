@@ -11,8 +11,15 @@ export interface RiskMarkersProps {
   onSelectRegion?: (key: StateKey) => void;
 }
 
+/**
+ * Radius (px) of the graduated risk disc.
+ *
+ * The floor of 9 is deliberate: `ProjectLayer` draws a status core of at most
+ * 6px at the same coordinate, and both layers render the same project list.
+ * Equal radii would let the status core completely hide the risk value.
+ */
 function radiusFor(score: number): number {
-  return 5 + (Math.min(100, Math.max(0, score)) / 100) * 9;
+  return 9 + (Math.min(100, Math.max(0, score)) / 100) * 9;
 }
 
 function RiskMarkersInner({ points, selectedKey = null, onSelectRegion }: RiskMarkersProps) {
@@ -55,6 +62,12 @@ function RiskMarkersInner({ points, selectedKey = null, onSelectRegion }: RiskMa
                 <span>Delay prob.</span>
                 <b>{point.delayProbability}%</b>
               </div>
+              <div className="gm-tooltip-row">
+                <span>Coordinates</span>
+                <b>
+                  {point.lat.toFixed(4)}, {point.lng.toFixed(4)}
+                </b>
+              </div>
             </Tooltip>
           </CircleMarker>
         );
@@ -64,7 +77,8 @@ function RiskMarkersInner({ points, selectedKey = null, onSelectRegion }: RiskMa
 }
 
 /**
- * Graduated project markers on the purple scale. Independent of the regional
- * choropleth so both can render together.
+ * Graduated project markers on the purple scale. Drawn as the outer disc of the
+ * concentric project marker (risk fill, status core from `ProjectLayer`), so the
+ * two layers stack readably instead of hiding one another.
  */
 export const RiskMarkers = memo(RiskMarkersInner);

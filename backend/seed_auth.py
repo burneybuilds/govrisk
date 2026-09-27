@@ -10,7 +10,7 @@ from auth.audit import next_user_id
 DEMO_USERS = [
     {
         "full_name": "Admin User",
-        "email": "admin@govrisk.gov.in",
+        "email": "admin@sankalp.gov.in",
         "password": "admin123",
         "role": "admin",
         "department": "Digital India Corporation",
@@ -18,7 +18,7 @@ DEMO_USERS = [
     },
     {
         "full_name": "Rajesh Kumar",
-        "email": "officer@govrisk.gov.in",
+        "email": "officer@sankalp.gov.in",
         "password": "officer123",
         "role": "officer",
         "department": "Ministry of Road Transport",
@@ -26,7 +26,7 @@ DEMO_USERS = [
     },
     {
         "full_name": "Priya Sharma",
-        "email": "analyst@govrisk.gov.in",
+        "email": "analyst@sankalp.gov.in",
         "password": "analyst123",
         "role": "analyst",
         "department": "NITI Aayog",
@@ -34,7 +34,7 @@ DEMO_USERS = [
     },
     {
         "full_name": "Amit Verma",
-        "email": "viewer@govrisk.gov.in",
+        "email": "viewer@sankalp.gov.in",
         "password": "viewer123",
         "role": "viewer",
         "department": "Ministry of Finance",
@@ -43,10 +43,17 @@ DEMO_USERS = [
 ]
 
 EXPECTED_USER_IDS = {
-    "admin@govrisk.gov.in": "USR-0001",
-    "officer@govrisk.gov.in": "USR-0002",
-    "analyst@govrisk.gov.in": "USR-0003",
-    "viewer@govrisk.gov.in": "USR-0004",
+    "admin@sankalp.gov.in": "USR-0001",
+    "officer@sankalp.gov.in": "USR-0002",
+    "analyst@sankalp.gov.in": "USR-0003",
+    "viewer@sankalp.gov.in": "USR-0004",
+}
+
+LEGACY_DEMO_EMAILS = {
+    "admin@govrisk.gov.in": "admin@sankalp.gov.in",
+    "officer@govrisk.gov.in": "officer@sankalp.gov.in",
+    "analyst@govrisk.gov.in": "analyst@sankalp.gov.in",
+    "viewer@govrisk.gov.in": "viewer@sankalp.gov.in",
 }
 
 
@@ -55,6 +62,8 @@ def seed_auth():
     db = AuthSessionLocal()
     try:
         created = 0
+        migrated = 0
+        skipped = 0
         for u in DEMO_USERS:
             existing = db.query(User).filter(User.email == u["email"]).first()
             if existing:
@@ -63,6 +72,19 @@ def seed_auth():
                     print(f"  [backfill] {u['email']} -> {existing.user_id}")
                 else:
                     print(f"  [skip] {u['email']} already exists ({existing.user_id})")
+                skipped += 1
+                continue
+            legacy_email = next(
+                (old_email for old_email, new_email in LEGACY_DEMO_EMAILS.items() if new_email == u["email"]),
+                None,
+            )
+            existing = db.query(User).filter(User.email == legacy_email).first() if legacy_email else None
+            if existing:
+                existing.email = u["email"]
+                existing.password_hash = hash_password(u["password"])
+                existing.is_active = True
+                migrated += 1
+                print(f"  [migrated] {legacy_email} -> {u['email']} ({existing.user_id})")
                 continue
             user = User(
                 id=generate_id(),
@@ -79,7 +101,7 @@ def seed_auth():
             created += 1
             print(f"  [created] {u['email']} ({u['role']}) {user.user_id}")
         db.commit()
-        print(f"\nAuth seed complete. {created} users created, {4 - created} skipped.")
+        print(f"\nAuth seed complete. {created} users created, {migrated} migrated, {skipped} skipped.")
         print("\nDemo accounts:")
         for u in DEMO_USERS:
             uid = EXPECTED_USER_IDS.get(u["email"], "")

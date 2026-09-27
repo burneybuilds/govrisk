@@ -3,8 +3,7 @@ import { MapContainer as LeafletMap, TileLayer, ZoomControl, useMap } from 'reac
 import L from 'leaflet';
 import type { Feature } from 'geojson';
 import {
-  BASE_TILE_URL_WITH_KEY,
-  BASE_TILE_OPTIONS,
+  BASEMAPS,
   DISTRICT_BOUNDARY,
   DISTRICT_ZOOM_THRESHOLD,
   MAP_CENTER,
@@ -12,6 +11,8 @@ import {
   MAP_MAX_BOUNDS,
   MAP_MAX_ZOOM,
   MAP_MIN_ZOOM,
+  overlayOpacityFor,
+  PROJECT_FOCUS_ZOOM,
   REGION_BOUNDARY,
 } from '../../constants/map';
 import { useStateBoundaries, useDistrictBoundaries } from '../../hooks/useRegionGeoJson';
@@ -35,6 +36,7 @@ import { WeatherLayer } from './WeatherLayer';
 import { MapViewportTracker } from './MapViewportTracker';
 import { RegionSearch } from './RegionSearch';
 import { LayerControlPanel, type LayerDataStatus } from './LayerControlPanel';
+import { BasemapSwitcher } from './BasemapSwitcher';
 import { MapLegend } from './MapLegend';
 import { RegionDetailPanel } from './RegionDetailPanel';
 import { MapStatusBanner } from './MapStatusBanner';
@@ -113,7 +115,27 @@ function SelectedProjectFollower({
   return null;
 }
 
-const PROJECT_FOCUS_ZOOM = 9;
+/** Frames every project marker using its stored latitude/longitude. */
+function ProjectBoundsFitter({ points }: { points: readonly ProjectRiskPoint[] }) {
+  const map = useMap();
+  const fittedSignature = useRef<string | null>(null);
+
+  useEffect(() => {
+    const usable = points.filter((point) => Number.isFinite(point.lat) && Number.isFinite(point.lng));
+    if (usable.length === 0) return;
+
+    const signature = usable.map((point) => `${point.id}:${point.lat},${point.lng}`).join('|');
+    if (fittedSignature.current === signature) return;
+
+    const bounds = L.latLngBounds(usable.map((point) => L.latLng(point.lat, point.lng)));
+    if (!bounds.isValid()) return;
+
+    fittedSignature.current = signature;
+    map.fitBounds(bounds, { padding: [48, 48], maxZoom: 7 });
+  }, [map, points]);
+
+  return null;
+}
 
 export function MapContainer({
   regions,
@@ -190,6 +212,10 @@ export function MapContainer({
     [featuresByKey, handleFeatureSelect],
   );
 
+  /** Photographic imagery swallows thin lines, so boundaries are strengthened. */
+  const basemap = BASEMAPS[layerState.basemap] ?? BASEMAPS.street;
+  const satelliteBasemap = basemap.dark === true;
+
   const baseStatesStyle = useCallback(
     (): L.PathOptions => ({
       fillColor: 'transparent',
@@ -203,11 +229,11 @@ export function MapContainer({
   const districtStyle = useCallback(
     (): L.PathOptions => ({
       fill: false,
-      color: DISTRICT_BOUNDARY.color,
-      weight: DISTRICT_BOUNDARY.weight,
-      opacity: DISTRICT_BOUNDARY.opacity,
+      color: satelliteBasemap ? '#e2e8f0' : DISTRICT_BOUNDARY.color,
+      weight: satelliteBasemap ? 0.9 : DISTRICT_BOUNDARY.weight,
+      opacity: satelliteBasemap ? 0.9 : DISTRICT_BOUNDARY.opacity,
     }),
-    [],
+    [satelliteBasemap],
   );
 
   const districtTooltip = useCallback((feature: Feature) => {
@@ -221,6 +247,12 @@ export function MapContainer({
   const riskChoroplethOn = layerState.choropleth === 'risk' && !dataStatus.risk.isError;
   const disasterChoroplethOn = layerState.choropleth === 'disaster' && !dataStatus.disaster.isError;
   const weatherOn = layerState.weatherOverlay && !dataStatus.weather.isError;
+
+  // Region washes are meaningless at street zoom and would bury the imagery
+  // and markers the operator zoomed in to inspect.
+  const riskOverlayOpacity = overlayOpacityFor(viewportZoom, layerState.riskOpacity);
+  const disasterOverlayOpacity = overlayOpacityFor(viewportZoom, layerState.disasterOpacity);
+  const weatherOverlayOpacity = overlayOpacityFor(viewportZoom, layerState.weatherOpacity);
 
   const chipText = (() => {
     if (isInitialLoading) return 'Syncing live risk sources…';
@@ -248,13 +280,20 @@ export function MapContainer({
         className="h-full w-full bg-navy-950"
         preferCanvas
       >
+        {/* Remounting per basemap discards the previous tile cache instead of
+            layering the new imagery over stale tiles. `subdomains` is spread
+            conditionally: react-leaflet forwards every other prop into Leaflet
+            options, and an explicit `undefined` would override the default. */}
         <TileLayer
-          url={BASE_TILE_URL_WITH_KEY}
-          attribution={BASE_TILE_OPTIONS.attribution}
+          key={basemap.id}
+          url={basemap.url}
+          attribution={basemap.attribution}
           maxZoom={MAP_MAX_ZOOM}
+          {...(basemap.subdomains ? { subdomains: basemap.subdomains } : {})}
         />
         <ZoomControl position="bottomright" />
         <MapViewportTracker onViewport={({ zoom }) => setViewportZoom(zoom)} />
+        <ProjectBoundsFitter points={points} />
 
         {showDistricts && (
           <GeoRegionLayer
@@ -280,7 +319,7 @@ export function MapContainer({
             data={statesQuery.data}
             regions={regions}
             alerts={alerts}
-            opacity={layerState.weatherOpacity}
+            opacity={weatherOverlayOpacity}
             selectedKey={selectedKey}
             onSelectRegion={handleLayerSelect}
           />
@@ -290,7 +329,7 @@ export function MapContainer({
           <DisasterLayer
             data={statesQuery.data}
             regions={regions}
-            opacity={layerState.disasterOpacity}
+            opacity={disasterOverlayOpacity}
             selectedKey={selectedKey}
             onSelectRegion={handleLayerSelect}
           />
@@ -300,7 +339,7 @@ export function MapContainer({
           <RiskChoroplethLayer
             data={statesQuery.data}
             regions={regions}
-            opacity={layerState.riskOpacity}
+            opacity={riskOverlayOpacity}
             selectedKey={selectedKey}
             onSelectRegion={handleLayerSelect}
           />
@@ -342,7 +381,7 @@ export function MapContainer({
         <MapLegend
           layerState={layerState}
           activeChoropleth={riskChoroplethOn ? 'risk' : disasterChoroplethOn ? 'disaster' : null}
-          hasMarkers={points.length > 0}
+          markerCount={points.length}
         />
       </LeafletMap>
 
@@ -350,6 +389,7 @@ export function MapContainer({
           stacked column so transient messages never collide with each other,
           the search box, or the layer panel. */}
       <div className="absolute left-3 top-14 z-[500] flex max-w-[300px] flex-col items-start gap-2">
+        <BasemapSwitcher basemap={basemap.id} onChange={layerControls.setBasemap} />
         {statesQuery.isLoading && (
           <div className="flex items-center gap-2 rounded-md border border-white/10 bg-[#141e35]/90 px-3 py-2 text-xs text-gray-200 shadow-lg backdrop-blur">
             <Skeleton className="h-3 w-3 rounded-full" />

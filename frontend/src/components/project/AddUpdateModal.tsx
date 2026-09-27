@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { X, Loader2, AlertTriangle } from 'lucide-react';
-import { useI18n, type TranslationKey } from '../../i18n';
+import { type TranslationKey } from '../../i18n';
 import { addProjectUpdate, updateProjectUpdate } from '../../services/api';
 
 const UPDATE_TYPES: { value: string; label: TranslationKey }[] = [

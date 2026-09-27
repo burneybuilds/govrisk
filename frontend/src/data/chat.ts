@@ -77,7 +77,7 @@ export const mockResponses: Record<string, string> = {
     '**Key Insight:** Land acquisition remains the single largest systemic risk. Projects with proactive land acquisition planning show 47% lower delay probability.',
 
   'portfolio overview':
-    'Here is a snapshot of the **GovRisk monitored portfolio** as of September 2025:\n\n' +
+    'Here is a snapshot of the **SANKALP monitored portfolio** as of September 2025:\n\n' +
     '- **Total Projects Monitored:** 313\n' +
     '- **Total Sanctioned Cost:** ₹8.7 lakh Cr\n' +
     '- **Total Expenditure to Date:** ₹4.1 lakh Cr (47.1%)\n\n' +
@@ -129,7 +129,7 @@ export const mockResponses: Record<string, string> = {
     '**Action Required:** The monitoring committee should schedule dedicated reviews for Jal Shakti and Road Transport ministries this quarter.',
 
   hello:
-    "Hello! I'm the **GovRisk AI Assistant**, here to help you analyze government infrastructure project risks.\n\n" +
+    "Hello! I'm the **SANKALP AI Assistant**, here to help you analyze government infrastructure project risks.\n\n" +
     'I can assist you with:\n' +
     '- **Portfolio Risk Analysis** — View overall risk distribution and trends\n' +
     '- **Project Deep Dives** — Drill into specific project risk factors\n' +
@@ -140,7 +140,7 @@ export const mockResponses: Record<string, string> = {
     'Try asking me about high-risk projects, cost overruns, or sector performance to get started.',
 
   help:
-    "Here's how I can help you navigate the GovRisk platform:\n\n" +
+    "Here's how I can help you navigate the SANKALP platform:\n\n" +
     '**Project Analysis:**\n' +
     '- "Which projects are at highest risk?"\n' +
     '- "Show me projects likely to be delayed."\n' +

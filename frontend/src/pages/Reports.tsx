@@ -67,7 +67,7 @@ export default function Reports() {
     const totalCost = projects.reduce((sum, p) => sum + p.currentCost, 0);
 
     const lines = [
-      'GOVRISK - AI-POWERED INFRASTRUCTURE RISK INTELLIGENCE',
+      'SANKALP - AI-POWERED INFRASTRUCTURE RISK INTELLIGENCE',
       '====================================================',
       `Report: ${title}`,
       t('reports.generated', { date: createdAt }),

@@ -141,7 +141,12 @@ export type ChoroplethId = 'risk' | 'disaster';
 
 export type MapLayerId = 'risk' | 'disaster' | 'weather';
 
+/** Raster imagery drawn beneath the data layers. Exactly one at a time. */
+export type BasemapId = 'street' | 'satellite';
+
 export interface MapLayerState {
+  /** Basemap imagery underneath every other layer. */
+  basemap: BasemapId;
   /** Region choropleth currently rendered, if any. Exclusive — at most one. */
   choropleth: ChoroplethId | null;
   /** Graduated project markers (independent of the choropleth). */

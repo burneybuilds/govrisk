@@ -8,6 +8,7 @@ export { ProjectLayer, type ProjectLayerProps } from './ProjectLayer';
 export { ProjectDetailPanel, type ProjectDetailPanelProps } from './ProjectDetailPanel';
 export { WeatherLayer, type WeatherLayerProps } from './WeatherLayer';
 export { LayerControlPanel, type LayerControlPanelProps } from './LayerControlPanel';
+export { BasemapSwitcher, type BasemapSwitcherProps } from './BasemapSwitcher';
 export { MapLegend, type MapLegendProps } from './MapLegend';
 export { RegionSearch, type RegionSearchProps } from './RegionSearch';
 export { RegionList, type RegionListProps } from './RegionList';

@@ -1083,7 +1083,12 @@ def get_project_analytics(db: Session):
                 level = "HIGH"
             elif level == "HIGH" and progress > 0.8:
                 level = "MEDIUM"
-            month_data[level.lower()] += 1
+            bucket = level.lower()
+            if bucket not in month_data:
+                # `Project.risk_level` is a free-text column, so an unexpected
+                # or legacy value must not raise KeyError -> 500.
+                continue
+            month_data[bucket] += 1
         avg = round(sum(assessments[p.id]["riskScore"] for p in projects) / len(projects), 1)
         month_data["overall"] = round(avg + (progress - 0.5) * 4, 1)
 
@@ -1190,7 +1195,7 @@ def generate_assistant_response(query: str, db: Session) -> str:
 
     if "hello" in lower or "hi" == lower or lower.startswith("hi "):
         return (
-            "Hello! I'm the **GovRisk AI Assistant**, here to help you analyze "
+            "Hello! I'm the **SANKALP AI Assistant**, here to help you analyze "
             "government infrastructure project risks.\n\n"
             f"I'm currently monitoring **{len(projects)} projects** across the portfolio.\n\n"
             "I can help you with:\n"

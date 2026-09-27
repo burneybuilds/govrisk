@@ -18,7 +18,7 @@ const en = {
 
   // ── Navigation ─────────────────────────────────────────────────
   'nav.dashboard': 'Dashboard',
-  'nav.projects': 'Projects',
+  'nav.projects': 'Civil Infrastructure Projects',
   'nav.riskMap': 'Risk Map',
   'nav.analytics': 'Analytics',
   'nav.earlyWarnings': 'Early Warnings',
@@ -28,7 +28,7 @@ const en = {
   'nav.settings': 'Settings',
   'nav.logOut': 'Log out',
   'nav.administrator': 'Administrator',
-  'nav.govRiskUser': 'GovRisk User',
+  'nav.sankalpUser': 'SANKALP User',
 
   // ── Roles ──────────────────────────────────────────────────────
   'role.admin': 'Admin',
@@ -107,11 +107,11 @@ const en = {
     'Government officers, analysts, and stakeholders can register to access AI-powered risk monitoring for infrastructure projects across ministries.',
   'register.footerLine': 'Ministry of Electronics & Information Technology · SIH 2026',
   'register.title': 'Create your account',
-  'register.subtitle': 'Register to access the GovRisk monitoring platform',
+  'register.subtitle': 'Register to access the SANKALP monitoring platform',
   'register.fullName': 'Full Name',
   'register.fullNamePh': 'e.g. Aarav Patel',
   'register.email': 'Email',
-  'register.emailPh': 'you@govrisk.gov.in',
+  'register.emailPh': 'you@sankalp.gov.in',
   'register.password': 'Password',
   'register.passwordPh': 'Min 6 characters',
   'register.confirmPassword': 'Confirm Password',
@@ -183,8 +183,8 @@ const en = {
   'projects.allMinistries': 'All Ministries',
   'projects.addProject': 'Add Project',
   'projects.loading': 'Loading projects...',
-  'projects.connectError': 'Unable to connect to GovRisk services',
-  'projects.connectErrorDesc': 'Please check that the GovRisk backend is running and try again.',
+  'projects.connectError': 'Unable to connect to SANKALP services',
+  'projects.connectErrorDesc': 'Please check that the SANKALP backend is running and try again.',
   'projects.showing': 'Showing {count} of {total} projects',
   'projects.noProjects': 'No projects found',
   'projects.noProjectsDesc': 'Try adjusting your search query or clearing some filters.',
@@ -199,18 +199,23 @@ const en = {
 
   // ── Alerts page ────────────────────────────────────────────────
   'alerts.title': 'Early Warning Center',
-  'alerts.subtitle': 'Potential project risks detected by GovRisk',
+  'alerts.subtitle': 'Potential project risks detected by SANKALP',
   'alerts.loading': 'Loading alerts...',
   'alerts.failed': 'Failed to load alerts',
   'alerts.all': 'All',
   'alerts.critical': 'Critical',
   'alerts.high': 'High',
   'alerts.medium': 'Medium',
+  'alerts.low': 'Low',
   'alerts.resolved': 'Resolved',
   'alerts.showing': 'Showing {count} alerts',
   'alerts.noTitle': 'No alerts in this category',
   'alerts.noDesc': 'There are currently no alerts matching this filter.',
   'alertCard.viewProject': 'View Project',
+  'alertCard.resolve': 'Mark Resolved',
+  'alertCard.reopen': 'Reopen',
+  'alertCard.resolved': 'Resolved',
+  'alertCard.statusFailed': 'Could not update the alert status',
 
   // ── Analytics page ─────────────────────────────────────────────
   'analytics.title': 'Analytics',
@@ -265,7 +270,7 @@ const en = {
   'reports.execSummary': 'Executive Summary:',
   'reports.execSummaryBody':
     'This report summarises the risk posture of the monitored infrastructure portfolio. The following projects are flagged as high risk or critical and require review by the project monitoring committee.',
-  'reports.footer': 'GovRisk · AI-Powered Infrastructure Risk Intelligence · For official monitoring use',
+  'reports.footer': 'SANKALP · AI-Powered Infrastructure Risk Intelligence · For official monitoring use',
   'reports.reportType.project.title': 'Project Risk Report',
   'reports.reportType.project.desc': 'Detailed risk analysis for individual projects',
   'reports.reportType.portfolio.title': 'Portfolio Risk Report',
@@ -422,7 +427,7 @@ const en = {
   'admin.saveChanges': 'Save Changes',
 
   // ── Assistant page ─────────────────────────────────────────────
-  'assistant.title': 'GovRisk AI',
+  'assistant.title': 'SANKALP AI',
   'assistant.subtitle': 'Infrastructure Intelligence Assistant',
   'assistant.description': 'Ask questions about projects, risks, delays and portfolio performance.',
   'assistant.monitoredProjects': 'Monitored Projects',
@@ -430,7 +435,7 @@ const en = {
   'assistant.project': 'Project',
   'assistant.riskLevel': 'Risk Level',
   'assistant.riskScore': 'Risk Score',
-  'assistant.ask': 'Ask GovRisk AI...',
+  'assistant.ask': 'Ask SANKALP AI...',
   'assistant.failed': "I couldn't process that request. Please try again.",
   'assistant.suggest.highestRisk': 'Which projects are at highest risk?',
   'assistant.suggest.riverBasin': 'Why is the River Basin Development Project high risk?',
@@ -640,6 +645,9 @@ const en = {
 
   // ── Map components ─────────────────────────────────────────────
   'map.layers': 'Layers',
+  'map.basemap': 'Basemap',
+  'map.basemapStreet': 'Street',
+  'map.basemapSatellite': 'Satellite',
   'map.choroplethLegend': 'Region choropleth (at most one)',
   'map.riskScoreLayer': 'Risk score',
   'map.disasterHistoryLayer': 'Disaster history',
@@ -713,7 +721,7 @@ const hi: Record<keyof typeof en, string> = {
 
   // ── Navigation ─────────────────────────────────────────────────
   'nav.dashboard': 'डैशबोर्ड',
-  'nav.projects': 'परियोजनाएँ',
+  'nav.projects': 'सिविल अवसंरचना परियोजनाएँ',
   'nav.riskMap': 'जोखिम मानचित्र',
   'nav.analytics': 'एनालिटिक्स',
   'nav.earlyWarnings': 'प्रारंभिक चेतावनी',
@@ -723,7 +731,7 @@ const hi: Record<keyof typeof en, string> = {
   'nav.settings': 'सेटिंग्स',
   'nav.logOut': 'लॉग आउट',
   'nav.administrator': 'प्रशासक',
-  'nav.govRiskUser': 'GovRisk उपयोगकर्ता',
+  'nav.sankalpUser': 'SANKALP उपयोगकर्ता',
 
   // ── Roles ──────────────────────────────────────────────────────
   'role.admin': 'प्रशासक',
@@ -802,11 +810,11 @@ const hi: Record<keyof typeof en, string> = {
     'सरकारी अधिकारी, विश्लेषक और हितधारक मंत्रालयों में अवसंरचना परियोजनाओं के लिए एआई-संचालित जोखिम निगरानी तक पहुँचने के लिए पंजीकरण कर सकते हैं।',
   'register.footerLine': 'इलेक्ट्रॉनिक्स एवं सूचना प्रौद्योगिकी मंत्रालय · SIH 2026',
   'register.title': 'अपना खाता बनाएं',
-  'register.subtitle': 'GovRisk निगरानी मंच तक पहुँचने के लिए पंजीकरण करें',
+  'register.subtitle': 'SANKALP निगरानी मंच तक पहुँचने के लिए पंजीकरण करें',
   'register.fullName': 'पूरा नाम',
   'register.fullNamePh': 'जैसे आरव पटेल',
   'register.email': 'ईमेल',
-  'register.emailPh': 'you@govrisk.gov.in',
+  'register.emailPh': 'you@sankalp.gov.in',
   'register.password': 'पासवर्ड',
   'register.passwordPh': 'न्यूनतम 6 अक्षर',
   'register.confirmPassword': 'पासवर्ड की पुष्टि करें',
@@ -877,8 +885,8 @@ const hi: Record<keyof typeof en, string> = {
   'projects.allMinistries': 'सभी मंत्रालय',
   'projects.addProject': 'परियोजना जोड़ें',
   'projects.loading': 'परियोजनाएँ लोड हो रही हैं...',
-  'projects.connectError': 'GovRisk सेवाओं से कनेक्ट नहीं हो सका',
-  'projects.connectErrorDesc': 'कृपया जाँचें कि GovRisk बैकएंड चल रहा है और पुनः प्रयास करें।',
+  'projects.connectError': 'SANKALP सेवाओं से कनेक्ट नहीं हो सका',
+  'projects.connectErrorDesc': 'कृपया जाँचें कि SANKALP बैकएंड चल रहा है और पुनः प्रयास करें।',
   'projects.showing': '{count} में से {total} परियोजनाएँ दिखाई जा रही हैं',
   'projects.noProjects': 'कोई परियोजना नहीं मिली',
   'projects.noProjectsDesc': 'अपनी खोज क्वेरी समायोजित करें या कुछ फ़िल्टर हटाने का प्रयास करें।',
@@ -893,18 +901,23 @@ const hi: Record<keyof typeof en, string> = {
 
   // ── Alerts page ────────────────────────────────────────────────
   'alerts.title': 'प्रारंभिक चेतावनी केंद्र',
-  'alerts.subtitle': 'GovRisk द्वारा पहचाने गए संभावित परियोजना जोखिम',
+  'alerts.subtitle': 'SANKALP द्वारा पहचाने गए संभावित परियोजना जोखिम',
   'alerts.loading': 'चेतावनियाँ लोड हो रही हैं...',
   'alerts.failed': 'चेतावनियाँ लोड करने में विफल',
   'alerts.all': 'सभी',
   'alerts.critical': 'गंभीर',
   'alerts.high': 'उच्च',
   'alerts.medium': 'मध्यम',
+  'alerts.low': 'निम्न',
   'alerts.resolved': 'समाधान हो गया',
   'alerts.showing': '{count} चेतावनियाँ दिखाई जा रही हैं',
   'alerts.noTitle': 'इस श्रेणी में कोई चेतावनी नहीं',
   'alerts.noDesc': 'इस फ़िल्टर से मेल खाती कोई चेतावनी वर्तमान में नहीं है।',
   'alertCard.viewProject': 'परियोजना देखें',
+  'alertCard.resolve': 'समाधानित चिह्नित करें',
+  'alertCard.reopen': 'पुनः खोलें',
+  'alertCard.resolved': 'समाधान हो गया',
+  'alertCard.statusFailed': 'चेतावनी की स्थिति अपडेट नहीं हो सकी',
 
   // ── Analytics page ─────────────────────────────────────────────
   'analytics.title': 'एनालिटिक्स',
@@ -959,7 +972,7 @@ const hi: Record<keyof typeof en, string> = {
   'reports.execSummary': 'कार्यकारी सारांश:',
   'reports.execSummaryBody':
     'यह रिपोर्ट निगरानी किए गए अवसंरचना पोर्टफोलियो की जोखिम स्थिति का सारांश प्रस्तुत करती है। निम्नलिखित परियोजनाओं को उच्च जोखिम या गंभीर के रूप में चिह्नित किया गया है और परियोजना निगरानी समिति द्वारा समीक्षा की आवश्यकता है।',
-  'reports.footer': 'GovRisk · एआई-संचालित अवसंरचना जोखिम बुद्धिमत्ता · आधिकारिक निगरानी उपयोग हेतु',
+  'reports.footer': 'SANKALP · एआई-संचालित अवसंरचना जोखिम बुद्धिमत्ता · आधिकारिक निगरानी उपयोग हेतु',
   'reports.reportType.project.title': 'परियोजना जोखिम रिपोर्ट',
   'reports.reportType.project.desc': 'व्यक्तिगत परियोजनाओं के लिए विस्तृत जोखिम विश्लेषण',
   'reports.reportType.portfolio.title': 'पोर्टफोलियो जोखिम रिपोर्ट',
@@ -1116,7 +1129,7 @@ const hi: Record<keyof typeof en, string> = {
   'admin.saveChanges': 'परिवर्तन सहेजें',
 
   // ── Assistant page ─────────────────────────────────────────────
-  'assistant.title': 'GovRisk AI',
+  'assistant.title': 'SANKALP AI',
   'assistant.subtitle': 'अवसंरचना बुद्धिमत्ता सहायक',
   'assistant.description': 'परियोजनाओं, जोखिमों, विलंबों और पोर्टफोलियो प्रदर्शन के बारे में प्रश्न पूछें।',
   'assistant.monitoredProjects': 'निगरानी की गई परियोजनाएँ',
@@ -1124,7 +1137,7 @@ const hi: Record<keyof typeof en, string> = {
   'assistant.project': 'परियोजना',
   'assistant.riskLevel': 'जोखिम स्तर',
   'assistant.riskScore': 'जोखिम स्कोर',
-  'assistant.ask': 'GovRisk AI से पूछें...',
+  'assistant.ask': 'SANKALP AI से पूछें...',
   'assistant.failed': "मैं उस अनुरोध को संसाधित नहीं कर सका। कृपया पुनः प्रयास करें।",
   'assistant.suggest.highestRisk': 'कौन सी परियोजनाएँ सबसे अधिक जोखिम में हैं?',
   'assistant.suggest.riverBasin': 'नदी बेसिन विकास परियोजना उच्च जोखिम में क्यों है?',
@@ -1334,6 +1347,9 @@ const hi: Record<keyof typeof en, string> = {
 
   // ── Map components ─────────────────────────────────────────────
   'map.layers': 'परतें',
+  'map.basemap': 'आधार मानचित्र',
+  'map.basemapStreet': 'सड़क',
+  'map.basemapSatellite': 'उपग्रह',
   'map.choroplethLegend': 'क्षेत्र कोरोप्लेथ (अधिकतम एक)',
   'map.riskScoreLayer': 'जोखिम स्कोर',
   'map.disasterHistoryLayer': 'आपदा इतिहास',
@@ -1413,10 +1429,14 @@ export function riskLevelLabel(lang: Lang, level: RiskLevel | string): string {
 }
 
 export function severityLabel(lang: Lang, severity: string): string {
-  if (severity === 'RESOLVED') {
+  // Severity arrives as unconstrained free text from the server, so a
+  // lower/mixed-case value would miss the dictionary and leak the raw string
+  // into the UI untranslated.
+  const key = (severity ?? '').trim().toUpperCase();
+  if (key === 'RESOLVED') {
     return lang === 'hi' ? hi['severity.RESOLVED'] : en['severity.RESOLVED'];
   }
-  return riskLevelLabel(lang, severity);
+  return riskLevelLabel(lang, key);
 }
 
 export function roleLabel(lang: Lang, role: string, full = false): string {
@@ -1424,8 +1444,6 @@ export function roleLabel(lang: Lang, role: string, full = false): string {
   const dict = lang === 'hi' ? hi : en;
   return dict[key] ?? en[key] ?? role;
 }
-
-const dictionaries: Record<Lang, Record<TranslationKey, string>> = { en, hi };
 
 const LANG_KEY = 'govrisk-lang';
 

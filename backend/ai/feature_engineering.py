@@ -101,14 +101,36 @@ def _enum_risk(mapping: dict, value) -> Optional[float]:
 
 
 def branch_risk_level(inputs: dict, branch: str, mapping: dict) -> Optional[float]:
+    """Worst recognised severity in a branch, or None if the branch has none.
+
+    Scans every value in the branch and keeps the highest score, so the result
+    does not depend on the order the keys happen to be stored in. A branch whose
+    values are all unknown to `mapping` returns None (the caller decides the
+    fallback) rather than silently reporting a mid-range risk.
+    """
     b = inputs.get(branch) or {}
-    for key, value in b.items():
+    if not isinstance(b, dict):
+        return None
+    worst: Optional[float] = None
+    for value in b.values():
         if not isinstance(value, str):
             continue
         r = _enum_risk(mapping, value)
-        if r is not None:
-            return r
-    return None
+        if r is None:
+            continue
+        if worst is None or r > worst:
+            worst = r
+    return worst
+
+
+def _risk_or(inputs: dict, branch: str, mapping: dict, default: float) -> float:
+    """`branch_risk_level` with an explicit default.
+
+    A real score of 0.0 (a fully cleared branch, for example) is a valid answer
+    and must not be replaced by the default.
+    """
+    r = branch_risk_level(inputs, branch, mapping)
+    return default if r is None else r
 
 
 _RISK4 = {"LOW": 0.2, "MODERATE": 0.45, "HIGH": 0.7, "CRITICAL": 0.9}
@@ -116,6 +138,50 @@ _RISK5 = {
     "NONE": 0.0, "LOW": 0.2, "MODERATE": 0.45, "HIGH": 0.7, "SEVERE": 0.9,
     "CRITICAL": 0.95, "VERY LOW": 0.1,
 }
+
+# Vocabularies below mirror the values the app actually persists in
+# `Project.risk_inputs` (see the seed data / risk-input form), not an
+# invented scale. Anything missing here silently fell through to a fixed
+# mid-range default, which scored healthy branches as moderate risk.
+
+# weather.condition / weather.disruption
+_WEATHER = {
+    **_RISK5,
+    "CLEAR": 0.05, "MILD": 0.25, "UNFAVOURABLE": 0.7,
+}
+# ground.condition / ground.groundwater
+_GROUND = {
+    **_RISK5,
+    "FAVOURABLE": 0.1, "DIFFICULT": 0.7,
+}
+# material.availability
+_MATERIAL = {
+    **_RISK5,
+    "ADEQUATE": 0.15, "TIGHT": 0.6, "SHORTAGE": 0.8, "SEVERE_SHORTAGE": 0.92,
+}
+# workforce.availability / workforce.productivity / workforce.absenteeism
+_WORKFORCE = {
+    **_RISK5,
+    "ADEQUATE": 0.15, "NORMAL": 0.3, "TIGHT": 0.6,
+    "SHORTAGE": 0.8, "SEVERE_SHORTAGE": 0.92,
+}
+# clearance.environmentalClearance
+_CLEARANCE = {
+    "CLEARED": 0.0, "NOT_REQUIRED": 0.0, "PENDING": 0.5, "REJECTED": 0.9,
+}
+# administrative.turnaround / administrative.interDepartmentDependency
+_ADMIN = {
+    **_RISK4,
+    "FAST": 0.1, "NORMAL": 0.3, "SLOW": 0.75, "BLOCKED": 0.95,
+}
+# supplyChain.accessibility / .equipmentAvailability / .supplierDependency
+_SUPPLY = {
+    **_RISK4,
+    "GOOD": 0.1, "ADEQUATE": 0.15, "TIGHT": 0.6,
+    "SHORTAGE": 0.8, "SEVERE_SHORTAGE": 0.92, "POOR": 0.85,
+}
+# legalSocial.oppositionLevel
+_LEGAL = {"NONE": 0.0, "LOW": 0.2, "MODERATE": 0.5, "HIGH": 0.8}
 
 
 def build_features(
@@ -214,35 +280,21 @@ def build_features(
         "current_risk_score": current_risk,
         # --- risk-input branches ---
         "contractor_score": contractor_score(inputs) or 0.0,
-        "clearance_status": branch_risk_level(
-            inputs, "clearance", {
-                "CLEARED": 0.0, "PENDING": 0.5, "REJECTED": 0.9,
-            }
-        ) or (0.0 if "clearance" not in inputs else 0.3),
-        "material_status": branch_risk_level(
-            inputs, "material", _RISK5
-        ) or 0.3,
-        "workforce_status": branch_risk_level(
-            inputs, "workforce", {
-                "ADEQUATE": 0.2, "NORMAL": 0.35, "SHORTAGE": 0.75, "SEVERE_SHORTAGE": 0.9, "LOW": 0.7,
-            }
-        ) or 0.3,
-        "weather_risk": branch_risk_level(inputs, "weather", _RISK5) or 0.3,
-        "ground_risk": branch_risk_level(inputs, "ground", _RISK5) or 0.3,
-        "legal_risk": branch_risk_level(
-            inputs, "legal_social", {
-                "NONE": 0.0, "LOW": 0.2, "MODERATE": 0.5, "HIGH": 0.8,
-            }
-        ) or 0.2,
-        "administrative_risk": branch_risk_level(
-            inputs, "administrative", {
-                "FAST": 0.1, "NORMAL": 0.35, "SLOW": 0.75,
-            }
-        ) or 0.3,
-        "supply_chain_risk": branch_risk_level(
-            inputs, "supply_chain", _RISK5
-        ) or 0.3,
-        "calamity_risk": branch_risk_level(inputs, "calamity", _RISK4) or 0.3,
+        "clearance_status": _risk_or(
+            inputs, "clearance", _CLEARANCE, 0.3
+        ),
+        "material_status": _risk_or(
+            inputs, "material", _MATERIAL, 0.3
+        ),
+        "workforce_status": _risk_or(
+            inputs, "workforce", _WORKFORCE, 0.3
+        ),
+        "weather_risk": _risk_or(inputs, "weather", _WEATHER, 0.3),
+        "ground_risk": _risk_or(inputs, "ground", _GROUND, 0.3),
+        "legal_risk": _risk_or(inputs, "legal_social", _LEGAL, 0.2),
+        "administrative_risk": _risk_or(inputs, "administrative", _ADMIN, 0.3),
+        "supply_chain_risk": _risk_or(inputs, "supply_chain", _SUPPLY, 0.3),
+        "calamity_risk": _risk_or(inputs, "calamity", _RISK4, 0.3),
         "forecast_anchor": (
             (float(getattr(project, "delay_probability", 0) or 0) / 100.0)
             + (float(getattr(project, "cost_overrun_probability", 0) or 0) / 100.0)

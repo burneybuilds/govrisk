@@ -60,7 +60,7 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
     year: 'numeric',
   });
 
-  const initials = user ? getInitials(user.fullName) : 'GR';
+  const initials = user ? getInitials(user.fullName) : 'SA';
 
   const [notificationsOpen, setNotificationsOpen] = useState(false);
   const [alerts, setAlerts] = useState<any[]>([]);
@@ -137,7 +137,7 @@ export default function Topbar({ onToggleSidebar }: TopbarProps) {
             className="h-10 w-auto shrink-0"
           />
           <div className="min-w-0 border-l border-gray-200 pl-3">
-            <p className="text-sm font-bold tracking-wide text-navy-900 font-heading">GovRisk</p>
+            <p className="text-sm font-bold tracking-wide text-navy-900 font-heading">SANKALP</p>
             <p className="text-[11px] text-gray-500">{t('topbar.tagline')}</p>
           </div>
         </div>

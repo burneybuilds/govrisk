@@ -1,4 +1,4 @@
-# GovRisk — AI-Powered Infrastructure Risk Intelligence Platform
+# SANKALP — AI-Powered Infrastructure Risk Intelligence Platform
 
 A web application for monitoring government infrastructure projects, identifying risk early, and empowering officials with AI-driven insights. Built for the Smart India Hackathon 2026.
 
@@ -47,10 +47,10 @@ FastAPI Backend
 
 | Role | Email | Password |
 |---|---|---|
-| Admin | `admin@govrisk.gov.in` | `admin123` |
-| Officer | `officer@govrisk.gov.in` | `officer123` |
-| Analyst | `analyst@govrisk.gov.in` | `analyst123` |
-| Viewer | `viewer@govrisk.gov.in` | `viewer123` |
+| Admin | `admin@sankalp.gov.in` | `admin123` |
+| Officer | `officer@sankalp.gov.in` | `officer123` |
+| Analyst | `analyst@sankalp.gov.in` | `analyst123` |
+| Viewer | `viewer@sankalp.gov.in` | `viewer123` |
 
 > These are DEMO credentials only. Never use default secrets in production.
 
@@ -244,7 +244,7 @@ This is an SIH MVP. Before production, consider:
 
 ## AI Early-Warning Layer
 
-GovRisk combines a **deterministic rule engine** (unchanged - the single
+SANKALP combines a **deterministic rule engine** (unchanged - the single
 source of truth for risk scores) with a **hybrid AI layer** that delivers
 95-day early warnings without ever fabricating numbers.
 
@@ -271,7 +271,7 @@ project updates + alerts + risk inputs
 - **No fake AI.** No ML model is claimed: the predictor is a transparent
   statistical model (`prediction_method` = `rule_statistical_fallback` when
   there is no update history, `hybrid` once >= 3 updates exist). `model_version`
-  is `govrisk-ai-v1`.
+  is `sankalp-ai-v1`.
 - **LLM is optional and never trusted for numbers.** A provider is read from
   `AI_PROVIDER`/`AI_API_KEY` (OpenAI-compatible or Anthropic). It only
   classifies updates and enriches explanations; output must validate against a

@@ -148,7 +148,7 @@ function LayerControlPanelInner({
                   className="h-4 w-4 shrink-0 accent-orange-500"
                 />
                 Disaster history
-                <StatusDot status={dataStatus.disaster} />
+                <StatusDot status={dataStatus.disaster} t={t} />
               </span>
               <ColorRampPreview ramp="disaster" />
             </label>
@@ -185,7 +185,7 @@ function LayerControlPanelInner({
                 />
                 Project markers
               </span>
-              <StatusDot status={dataStatus.projects} />
+              <StatusDot status={dataStatus.projects} t={t} />
             </label>
 
             <label className="flex cursor-pointer items-center justify-between gap-2 rounded px-2 py-1.5 text-[13px] hover:bg-white/5">
@@ -197,7 +197,7 @@ function LayerControlPanelInner({
                   className="h-4 w-4 accent-cyan-500"
                 />
                 Infrastructure projects
-                <StatusDot status={dataStatus.projects} />
+                <StatusDot status={dataStatus.projects} t={t} />
               </span>
               <span className="text-[10px] uppercase tracking-wide text-cyan-400/80">
                 Govt
@@ -213,7 +213,7 @@ function LayerControlPanelInner({
                   className="h-4 w-4 shrink-0 accent-blue-500"
                 />
                 Weather overlay
-                <StatusDot status={dataStatus.weather} />
+                <StatusDot status={dataStatus.weather} t={t} />
               </span>
               <ColorRampPreview ramp="weather" />
             </label>

@@ -61,10 +61,10 @@ export default function Register() {
         <div className="flex h-full flex-col justify-between bg-gradient-to-br from-navy-900 via-navy-900 to-navy-800 p-12">
           <div className="flex items-center gap-3">
             <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-blue-600 text-base font-bold text-white">
-              GR
+              SA
             </div>
             <div>
-              <h1 className="text-xl font-bold uppercase tracking-wide text-white">GovRisk</h1>
+              <h1 className="text-xl font-bold uppercase tracking-wide text-white">SANKALP</h1>
               <p className="text-xs text-navy-300">{t('register.platformTitle')}</p>
             </div>
           </div>
@@ -86,10 +86,10 @@ export default function Register() {
         <div className="w-full max-w-md">
           <div className="mb-8 flex items-center gap-3 lg:hidden">
             <div className="flex h-11 w-11 items-center justify-center rounded-xl bg-blue-600 text-sm font-bold text-white">
-              GR
+              SA
             </div>
             <div>
-              <h1 className="text-lg font-bold uppercase tracking-wide text-white">GovRisk</h1>
+              <h1 className="text-lg font-bold uppercase tracking-wide text-white">SANKALP</h1>
               <p className="text-xs text-navy-300">{t('register.platformTitle')}</p>
             </div>
           </div>
