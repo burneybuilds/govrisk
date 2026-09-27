@@ -325,7 +325,7 @@ export default function Reports() {
                   })}
               </div>
               <div className="mt-6 border-t border-gray-100 pt-4 text-center text-xs text-gray-400">
-                {t('reports.footer')}
+                GovRisk · AI-Powered Infrastructure Risk Intelligence · For official monitoring use
               </div>
             </div>
             <div className="flex justify-end border-t border-gray-200 px-6 py-4 sm:px-8">

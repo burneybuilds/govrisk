@@ -56,6 +56,8 @@ const en = {
   'table.costOverrun': 'Cost Overrun',
   'table.delayProb': 'Delay Probability',
   'table.riskScore': 'Risk Score',
+  'table.topDriver': 'Top Driver',
+  'table.dataQuality': 'Data',
   'table.status': 'Status',
   'table.originalCost': 'Original Cost',
   'table.currentCost': 'Current Cost',
@@ -759,6 +761,8 @@ const hi: Record<keyof typeof en, string> = {
   'table.costOverrun': 'लागत वृद्धि',
   'table.delayProb': 'विलंब संभावना',
   'table.riskScore': 'जोखिम स्कोर',
+  'table.topDriver': 'प्रमुख कारण',
+  'table.dataQuality': 'डेटा',
   'table.status': 'स्थिति',
   'table.originalCost': 'मूल लागत',
   'table.currentCost': 'वर्तमान लागत',
@@ -1445,7 +1449,9 @@ export function roleLabel(lang: Lang, role: string, full = false): string {
   return dict[key] ?? en[key] ?? role;
 }
 
-const LANG_KEY = 'govrisk-lang';
+const dictionaries: Record<Lang, Record<TranslationKey, string>> = { en, hi };
+
+const LANG_KEY = 'sankalp-lang';
 
 interface I18nValue {
   lang: Lang;

@@ -24,37 +24,21 @@ if load_dotenv is not None:
 APP_ENV = os.getenv("APP_ENV", "development")
 
 # Database locations
-BACKEND_DIR = os.path.dirname(os.path.abspath(__file__))
-
-_RAW_DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./govrisk.db")
-_RAW_AUTH_DATABASE_URL = os.getenv("AUTH_DATABASE_URL", "sqlite:///./auth.db")
-
-
-def resolve_sqlite_url(url: str) -> str:
-    """Anchor a relative sqlite path to the backend directory.
-
-    `sqlite:///./x.db` is otherwise resolved against the process working
-    directory, so the same code silently reads a different database depending
-    on where it was launched. Absolute paths, `:memory:` and URI-style values
-    are returned untouched.
-    """
-    prefix = "sqlite:///"
-    if not url.startswith(prefix):
-        return url
-    raw = url[len(prefix):]
-    if not raw or raw.startswith(":") or os.path.isabs(raw):
-        return url
-    return f"{prefix}{os.path.join(BACKEND_DIR, raw).replace(os.sep, '/')}"
-
-
-DATABASE_URL = resolve_sqlite_url(_RAW_DATABASE_URL)
-AUTH_DATABASE_URL = resolve_sqlite_url(_RAW_AUTH_DATABASE_URL)
+DATABASE_URL = os.getenv("DATABASE_URL", "sqlite:///./sankalp.db")
+AUTH_DATABASE_URL = os.getenv("AUTH_DATABASE_URL", "sqlite:///./auth.db")
 
 # JWT
-JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "govrisk-dev-secret-key-change-in-production")
+JWT_SECRET_KEY = os.getenv("JWT_SECRET_KEY", "sankalp-dev-secret-key-change-in-production")
 JWT_ALGORITHM = os.getenv("JWT_ALGORITHM", "HS256")
 ACCESS_TOKEN_EXPIRE_MINUTES = int(os.getenv("ACCESS_TOKEN_EXPIRE_MINUTES", "30"))
 REFRESH_TOKEN_EXPIRE_DAYS = int(os.getenv("REFRESH_TOKEN_EXPIRE_DAYS", "7"))
+
+# Authentication brute-force protection / rate limiting
+# (must be positive integers; defaults are safe for a demo deployment)
+AUTH_MAX_FAILED_ATTEMPTS = int(os.getenv("AUTH_MAX_FAILED_ATTEMPTS", "5"))
+AUTH_LOCKOUT_MINUTES = int(os.getenv("AUTH_LOCKOUT_MINUTES", "15"))
+AUTH_RATE_LIMIT_WINDOW_SECONDS = int(os.getenv("AUTH_RATE_LIMIT_WINDOW_SECONDS", "300"))
+AUTH_MAX_REQUESTS_PER_WINDOW = int(os.getenv("AUTH_MAX_REQUESTS_PER_WINDOW", "20"))
 
 # AI / LLM layer (`AI_PROVIDER` may be empty to run deterministic-only)
 AI_PROVIDER = os.getenv("AI_PROVIDER", "").strip().lower()
@@ -65,6 +49,9 @@ AI_TIMEOUT_SECONDS = float(os.getenv("AI_TIMEOUT_SECONDS", "30"))
 AI_MAX_RETRIES = int(os.getenv("AI_MAX_RETRIES", "1"))  # bounded retries - never infinite
 AI_ANALYSIS_TTL_HOURS = int(os.getenv("AI_ANALYSIS_TTL_HOURS", "6"))  # cached-analysis freshness
 AI_ALERT_DEDUP_HOURS = int(os.getenv("AI_ALERT_DEDUP_HOURS", "168"))  # 7 days dedup window
+
+# PARIKSHAN ML integration
+ML_ENABLED = os.getenv("ML_ENABLED", "1").strip().lower() not in ("0", "false", "")
 
 
 def is_llm_available() -> bool:
@@ -79,8 +66,17 @@ def validate_config() -> None:
     they are never acceptable for production.
     """
     missing = []
-    if not JWT_SECRET_KEY or "change-this" in JWT_SECRET_KEY or JWT_SECRET_KEY.startswith("govrisk-dev"):
+    if not JWT_SECRET_KEY or "change-this" in JWT_SECRET_KEY or JWT_SECRET_KEY.startswith("sankalp-dev"):
         missing.append("JWT_SECRET_KEY (set a strong, unique value)")
+    auth_limits = {
+        "AUTH_MAX_FAILED_ATTEMPTS": AUTH_MAX_FAILED_ATTEMPTS,
+        "AUTH_LOCKOUT_MINUTES": AUTH_LOCKOUT_MINUTES,
+        "AUTH_RATE_LIMIT_WINDOW_SECONDS": AUTH_RATE_LIMIT_WINDOW_SECONDS,
+        "AUTH_MAX_REQUESTS_PER_WINDOW": AUTH_MAX_REQUESTS_PER_WINDOW,
+    }
+    for name, value in auth_limits.items():
+        if value <= 0:
+            missing.append(f"{name} (must be a positive integer)")
     if APP_ENV == "production":
         if missing:
             raise SystemExit(

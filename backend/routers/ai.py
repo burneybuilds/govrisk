@@ -19,6 +19,7 @@ from ai.ai_service import (
     get_cached_or_analyze,
     resolve_anomaly,
     resolve_emerging_risk,
+    get_ml_status,
 )
 from ai.schemas import InsightsResponse, AIHealthResponse
 
@@ -46,6 +47,45 @@ def ai_health(_user: User = Depends(get_current_user)):
     return AIHealthResponse(**llm_service.health())
 
 
+@router.get("/ml-status")
+def ml_status(_user: User = Depends(get_current_user)):
+    """Diagnostic endpoint: reveal whether the trained PARIKSHAN models
+    loaded and which version is live. Failures never crash the app."""
+    return get_ml_status()
+
+
+@router.get("/projects/{project_id}/ml-forecast")
+def project_ml_forecast(
+    project_id: str,
+    db: Session = Depends(get_db),
+    _user: User = Depends(require_roles("admin", "officer", "analyst")),
+):
+    """Direct access to the PARIKSHAN ML forecast for a project (live model
+    run). Numeric output only - never influenced by the LLM."""
+    try:
+        from services.ml_prediction_service import ml_prediction_for_project
+    except ImportError as exc:
+        raise HTTPException(
+            status_code=503,
+            detail="PARIKSHAN ML unavailable. ML dependencies are not installed in this "
+            "runtime (run the backend from the ML virtual environment). "
+            "Deterministic risk analysis remains available.",
+        ) from exc
+
+    project = _project_or_404(db, project_id)
+    try:
+        forecast = ml_prediction_for_project(project)
+    except Exception as exc:  # noqa: BLE001
+        raise _degrade(exc) from exc
+    if forecast is None:
+        raise HTTPException(
+            status_code=503,
+            detail="PARIKSHAN ML forecast unavailable. Model artifacts may not be loaded "
+            "or prediction failed. Deterministic risk analysis remains available.",
+        )
+    return forecast
+
+
 @router.get("/projects/{project_id}/prediction")
 def project_prediction(
     project_id: str,
@@ -65,19 +105,23 @@ def project_prediction(
 @router.get("/projects/{project_id}/anomalies")
 def project_anomalies(
     project_id: str,
+    include_resolved: bool = False,
     db: Session = Depends(get_db),
     _user: User = Depends(get_current_user),
 ):
+    """Open anomalies of the latest analysis batch by default.
+
+    `include_resolved=true` additionally returns the historical, already
+    resolved records. Each item carries its `id` so the client can address
+    the resolve endpoint.
+    """
     from models import Anomaly
 
     _project_or_404(db, project_id)
-    rows = (
-        db.query(Anomaly)
-        .filter(Anomaly.project_id == project_id)
-        .order_by(Anomaly.created_at.desc())
-        .limit(20)
-        .all()
-    )
+    query = db.query(Anomaly).filter(Anomaly.project_id == project_id)
+    if not include_resolved:
+        query = query.filter(Anomaly.resolved.is_(False))
+    rows = query.order_by(Anomaly.created_at.desc()).limit(50).all()
     from ai.ai_service import _anomaly_to_dict
 
     return [_anomaly_to_dict(r) for r in rows]

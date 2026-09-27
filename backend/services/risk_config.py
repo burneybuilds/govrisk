@@ -1,4 +1,4 @@
-"""Central configuration for the SANKALP rule-based risk engine.
+"""Central configuration for the Sankalp rule-based risk engine.
 
 Everything an analyst or adjuster would want to tune lives here, so the
 engine behaviour is adjustable in ONE place:
@@ -13,6 +13,9 @@ This module is intentionally free of logic so it can be replaced by a
 config file (or an ML model configuration) later without touching the
 engine.
 """
+
+ENGINE_VERSION = "1.0.0"
+RISK_CONTRACT_VERSION = "1.1.0"
 
 # 15 core risk factors and their weights. Total must equal 100.
 FACTOR_WEIGHTS = {

@@ -1,30 +1,12 @@
 from pydantic import BaseModel, EmailStr, Field
-from typing import Annotated, Optional
+from typing import Optional
 from datetime import datetime
-from pydantic.functional_validators import AfterValidator
-
-# bcrypt hashes at most 72 bytes of input and raises ValueError beyond that.
-# Enforcing the limit here turns an unhandled ValueError (HTTP 500) into a
-# normal 422 validation response.
-BCRYPT_MAX_PASSWORD_BYTES = 72
-
-
-def _password_within_bcrypt_limit(value: str) -> str:
-    if len(value.encode("utf-8")) > BCRYPT_MAX_PASSWORD_BYTES:
-        raise ValueError(
-            "password must be at most "
-            f"{BCRYPT_MAX_PASSWORD_BYTES} bytes when UTF-8 encoded"
-        )
-    return value
-
-
-Password = Annotated[str, AfterValidator(_password_within_bcrypt_limit)]
 
 
 class UserRegister(BaseModel):
     fullName: str = Field(..., min_length=1, max_length=100)
     email: EmailStr
-    password: Password = Field(..., min_length=6)
+    password: str = Field(..., min_length=6, max_length=128)
     department: Optional[str] = None
     designation: Optional[str] = None
 
@@ -43,6 +25,8 @@ class UserResponse(BaseModel):
     department: Optional[str] = None
     designation: Optional[str] = None
     isActive: bool
+    isApproved: bool
+    mustChangePassword: bool
     createdAt: str
     updatedAt: str
     lastLogin: Optional[str] = None
@@ -66,7 +50,7 @@ class ProfileUpdate(BaseModel):
 
 class PasswordChange(BaseModel):
     currentPassword: str
-    newPassword: Password = Field(..., min_length=6)
+    newPassword: str = Field(..., min_length=6, max_length=128)
 
 
 class UserRoleUpdate(BaseModel):
@@ -83,8 +67,15 @@ class AdminUserCreate(BaseModel):
     role: str = Field(..., pattern="^(admin|officer|analyst|viewer)$")
     department: Optional[str] = None
     designation: Optional[str] = None
-    temporaryPassword: Password = Field(..., min_length=6)
     isActive: bool = True
+    # NOTE: no temporaryPassword field. The server generates a
+    # cryptographically secure temporary password via `secrets` and returns it
+    # exactly once to the calling admin. Human-chosen or client-supplied
+    # temporary passwords are never accepted.
+
+
+class AdminCreateUserResponse(UserResponse):
+    temporaryPassword: str
 
 
 class AdminUserUpdate(BaseModel):
@@ -92,6 +83,10 @@ class AdminUserUpdate(BaseModel):
     email: Optional[EmailStr] = None
     department: Optional[str] = None
     designation: Optional[str] = None
+
+
+class UserApprovalUpdate(BaseModel):
+    isApproved: bool
 
 
 class PasswordResetResponse(BaseModel):

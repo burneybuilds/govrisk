@@ -1,0 +1,25 @@
+# PARIKSHAN — Phase 7 extras (LLM Project Intelligence Assistant).
+# Install only when Phase 7 begins: pip install -r requirements-assistant.txt
+#
+# NOTE: chromadb is deliberately NOT used (see HANDOFF.md Phase 1 report) —
+# its chroma-hnswlib dependency requires compiling a native C++ extension,
+# which needs Microsoft C++ Build Tools not present on this machine. Given
+# the corpus is ~2,000 short project narratives, Phase 7 instead implements
+# a brute-force numpy cosine-similarity search — no vector DB dependency,
+# no native build, one less point of demo-day failure.
+
+ollama==0.3.3
+sentence-transformers==3.2.1
+jinja2==3.1.4
+
+# torch (sentence-transformers' dependency) must be installed as the
+# CPU-only build on this machine — the default PyPI wheel is CUDA-enabled
+# and failed with `OSError: [WinError 1114] ... c10.dll` (a DLL init
+# failure, not a missing-package problem) despite a working NVIDIA GPU and
+# an up-to-date VC++ Redistributable already installed. Found and fixed
+# during Phase 7 build — see HANDOFF.md. Install with:
+#   pip install -r requirements-assistant.txt
+#   pip install torch==2.14.0 --index-url https://download.pytorch.org/whl/cpu --force-reinstall --no-deps
+# The retriever's embedding layer (paimana.assistant.retriever) degrades
+# gracefully to rule-only routing regardless if this ever fails on another
+# machine — see EmbeddingUnavailableError.

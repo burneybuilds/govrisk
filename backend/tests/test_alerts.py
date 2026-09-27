@@ -133,6 +133,10 @@ class AlertsApiTestCase(unittest.TestCase):
         with AuthSessionLocal() as db:
             user = db.query(User).filter(User.email == email).first()
             user.role = role
+            # Registration now creates a pending-approval account; the
+            # authorization dependency rejects unapproved users on every
+            # request, so the test user must be approved explicitly.
+            user.is_approved = True
             db.commit()
 
         return {"Authorization": f"Bearer {r.json()['accessToken']}"}
@@ -235,9 +239,12 @@ class AlertsApiTestCase(unittest.TestCase):
     def test_requires_authentication(self):
         self._add_alert("A-1", "HIGH")
 
-        self.assertEqual(self.client.get("/api/alerts").status_code, 401)
+        # The app's HTTPBearer dependency answers a missing Authorization
+        # header with 403 "Not authenticated" on every protected route, so
+        # that is the contract asserted here rather than 401.
+        self.assertEqual(self.client.get("/api/alerts").status_code, 403)
         self.assertEqual(
-            self.client.patch("/api/alerts/A-1", json={"status": "RESOLVED"}).status_code, 401
+            self.client.patch("/api/alerts/A-1", json={"status": "RESOLVED"}).status_code, 403
         )
 
     def test_unknown_status_is_rejected(self):

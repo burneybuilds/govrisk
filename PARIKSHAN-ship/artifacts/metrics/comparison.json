@@ -1,0 +1,288 @@
+{
+  "targets": {
+    "cost_overrun_pct": {
+      "task": "regression",
+      "conventional_model": "ols_sector_fe",
+      "conventional_r2": 0.006219243178064993,
+      "ml_model": "random_forest",
+      "ml_r2": 0.5323588661924641,
+      "bootstrap": {
+        "mean_diff": 0.5249470363674759,
+        "ci_lower": 0.48684203795687314,
+        "ci_upper": 0.560406418921906,
+        "ci_excludes_zero": true,
+        "n_boot": 1000,
+        "n_groups": 1330
+      },
+      "all_ml_family_metrics": {
+        "random_forest": {
+          "mae": 27.33252467372228,
+          "rmse": 59.72789188187033,
+          "r2": 0.5323588661924641,
+          "mape_pct": 195.84169522136162,
+          "n": 34414
+        },
+        "xgboost": {
+          "mae": 32.34636149065102,
+          "rmse": 67.20690114291841,
+          "r2": 0.4079122529041761,
+          "mape_pct": 242.68655973924797,
+          "n": 34414
+        },
+        "lightgbm": {
+          "mae": 31.132381464133474,
+          "rmse": 65.07262356493003,
+          "r2": 0.44492078499686105,
+          "mape_pct": 231.8504808252857,
+          "n": 34414
+        }
+      },
+      "chosen_hyperparameters": {
+        "n_estimators": 200,
+        "max_depth": 8,
+        "min_samples_leaf": 5
+      },
+      "quantile_interval": {
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "target_coverage": 0.8,
+        "observed_coverage_test": 0.7099153829464092,
+        "mean_interval_width_test": 61.477821350097656,
+        "n_train": 29805,
+        "n_test": 4609
+      }
+    },
+    "time_overrun_months": {
+      "task": "regression",
+      "conventional_model": "naive_sector_mean",
+      "conventional_r2": -0.020690816427191283,
+      "ml_model": "random_forest",
+      "ml_r2": 0.46013204709483935,
+      "bootstrap": {
+        "mean_diff": 0.48085674321673916,
+        "ci_lower": 0.4540990609481486,
+        "ci_upper": 0.5073498915054276,
+        "ci_excludes_zero": true,
+        "n_boot": 1000,
+        "n_groups": 1330
+      },
+      "all_ml_family_metrics": {
+        "random_forest": {
+          "mae": 6.183176961988767,
+          "rmse": 8.563783504407173,
+          "r2": 0.46013204709483935,
+          "mape_pct": 105.22550425847992,
+          "n": 34414
+        },
+        "xgboost": {
+          "mae": 6.412492363676079,
+          "rmse": 8.690796213902408,
+          "r2": 0.44399932120270724,
+          "mape_pct": 105.58969744241426,
+          "n": 34414
+        },
+        "lightgbm": {
+          "mae": 6.468088921751861,
+          "rmse": 8.76515833781205,
+          "r2": 0.43444386168754956,
+          "mape_pct": 106.2716223083762,
+          "n": 34414
+        }
+      },
+      "chosen_hyperparameters": {
+        "n_estimators": 200,
+        "max_depth": 8,
+        "min_samples_leaf": 5
+      },
+      "quantile_interval": {
+        "quantiles": [
+          0.1,
+          0.5,
+          0.9
+        ],
+        "target_coverage": 0.8,
+        "observed_coverage_test": 0.6964634410935127,
+        "mean_interval_width_test": 13.023045539855957,
+        "n_train": 29805,
+        "n_test": 4609
+      }
+    },
+    "y_cost_overrun": {
+      "task": "classification",
+      "conventional_model": "logistic_regression",
+      "conventional_pr_auc": 0.7209308415610337,
+      "ml_model": "random_forest",
+      "ml_pr_auc": 0.7162026139807876,
+      "bootstrap": {
+        "mean_diff": -0.004794053759882709,
+        "ci_lower": -0.023561168578970018,
+        "ci_upper": 0.014117253344402907,
+        "ci_excludes_zero": false,
+        "n_boot": 1000,
+        "n_groups": 1330
+      },
+      "delong": {
+        "auc_a": 0.9128031517132934,
+        "auc_b": 0.9115263745091681,
+        "auc_diff": 0.0012767772041253345,
+        "z_statistic": 1.0535709740550019,
+        "p_value": 0.2920793840628302
+      },
+      "all_ml_family_metrics": {
+        "random_forest": {
+          "pr_auc": 0.7162026139807876,
+          "roc_auc": 0.9128031517132935,
+          "brier": 0.07810118808180354,
+          "f1_at_best_threshold": 0.6896887949947185,
+          "best_threshold": 0.3268908200079472,
+          "base_rate": 0.1708897541698146,
+          "n": 34414
+        },
+        "xgboost": {
+          "pr_auc": 0.67633715483999,
+          "roc_auc": 0.9002113185713785,
+          "brier": 0.08875800120270615,
+          "f1_at_best_threshold": 0.6256925463544359,
+          "best_threshold": 0.2843124750764476,
+          "base_rate": 0.1708897541698146,
+          "n": 34414
+        },
+        "lightgbm": {
+          "pr_auc": 0.6513898993752825,
+          "roc_auc": 0.8894603928391491,
+          "brier": 0.0928172524126715,
+          "f1_at_best_threshold": 0.607517881600974,
+          "best_threshold": 0.2970391637476448,
+          "base_rate": 0.1708897541698146,
+          "n": 34414
+        }
+      },
+      "chosen_hyperparameters": {
+        "n_estimators": 400,
+        "max_depth": 14,
+        "min_samples_leaf": 2
+      }
+    },
+    "y_time_overrun": {
+      "task": "classification",
+      "conventional_model": "logistic_regression",
+      "conventional_pr_auc": 0.7991093825035656,
+      "ml_model": "xgboost",
+      "ml_pr_auc": 0.8624368231701581,
+      "bootstrap": {
+        "mean_diff": 0.06363327718786353,
+        "ci_lower": 0.050511041168548265,
+        "ci_upper": 0.07785324132492671,
+        "ci_excludes_zero": true,
+        "n_boot": 1000,
+        "n_groups": 1330
+      },
+      "delong": {
+        "auc_a": 0.8295157341102315,
+        "auc_b": 0.7625128501301517,
+        "auc_diff": 0.06700288398007981,
+        "z_statistic": 31.34506405698304,
+        "p_value": 0.0
+      },
+      "all_ml_family_metrics": {
+        "random_forest": {
+          "pr_auc": 0.8580244951341737,
+          "roc_auc": 0.8269605996048428,
+          "brier": 0.16850988686320792,
+          "f1_at_best_threshold": 0.7782401203657991,
+          "best_threshold": 0.3932162896132046,
+          "base_rate": 0.5436450281862033,
+          "n": 34414
+        },
+        "xgboost": {
+          "pr_auc": 0.8624368231701581,
+          "roc_auc": 0.8295157341102316,
+          "brier": 0.16802165690244988,
+          "f1_at_best_threshold": 0.776393776625301,
+          "best_threshold": 0.39145199118347423,
+          "base_rate": 0.5436450281862033,
+          "n": 34414
+        },
+        "lightgbm": {
+          "pr_auc": 0.8607923587008679,
+          "roc_auc": 0.8290705437111692,
+          "brier": 0.16813081747965572,
+          "f1_at_best_threshold": 0.7787311793140135,
+          "best_threshold": 0.3899725514035741,
+          "base_rate": 0.5436450281862033,
+          "n": 34414
+        }
+      },
+      "chosen_hyperparameters": {
+        "n_estimators": 200,
+        "max_depth": 4,
+        "learning_rate": 0.1
+      }
+    },
+    "y_severe": {
+      "task": "classification",
+      "conventional_model": "logistic_regression",
+      "conventional_pr_auc": 0.6644152979806027,
+      "ml_model": "random_forest",
+      "ml_pr_auc": 0.7018632993926878,
+      "bootstrap": {
+        "mean_diff": 0.03762407419231269,
+        "ci_lower": 0.012779691100518234,
+        "ci_upper": 0.06351098863118325,
+        "ci_excludes_zero": true,
+        "n_boot": 1000,
+        "n_groups": 1330
+      },
+      "delong": {
+        "auc_a": 0.8808783351690292,
+        "auc_b": 0.8582440380501939,
+        "auc_diff": 0.022634297118835356,
+        "z_statistic": 13.314363620724583,
+        "p_value": 0.0
+      },
+      "all_ml_family_metrics": {
+        "random_forest": {
+          "pr_auc": 0.7018632993926878,
+          "roc_auc": 0.8808783351690292,
+          "brier": 0.10094575591716036,
+          "f1_at_best_threshold": 0.6568868237636907,
+          "best_threshold": 0.2935769683509565,
+          "base_rate": 0.2078223978613355,
+          "n": 34414
+        },
+        "xgboost": {
+          "pr_auc": 0.6631095673076445,
+          "roc_auc": 0.8590559944909427,
+          "brier": 0.11065611288329585,
+          "f1_at_best_threshold": 0.6177763618986939,
+          "best_threshold": 0.2936309254798458,
+          "base_rate": 0.2078223978613355,
+          "n": 34414
+        },
+        "lightgbm": {
+          "pr_auc": 0.6590062223884742,
+          "roc_auc": 0.8550269003925287,
+          "brier": 0.11215450988299966,
+          "f1_at_best_threshold": 0.6102829711975746,
+          "best_threshold": 0.29228133663188327,
+          "base_rate": 0.2078223978613355,
+          "n": 34414
+        }
+      },
+      "chosen_hyperparameters": {
+        "n_estimators": 400,
+        "max_depth": 14,
+        "min_samples_leaf": 2
+      }
+    }
+  },
+  "best_ml": {
+    "target": "y_time_overrun",
+    "family": "xgboost",
+    "pr_auc": 0.8624368231701581
+  },
+  "headline": "ML significantly beat the conventional baseline on 4/5 targets, significantly lost on 0, and showed no significant difference on 1."
+}

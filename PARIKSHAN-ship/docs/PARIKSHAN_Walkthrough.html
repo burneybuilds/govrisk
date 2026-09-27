@@ -1,0 +1,412 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>PARIKSHAN &mdash; Walkthrough</title>
+<style>
+  :root {
+    --bg: #fbf7f0;
+    --card: #ffffff;
+    --ink: #2b2620;
+    --muted: #6b6255;
+    --accent: #1f6f50;
+    --accent2: #c9762b;
+    --red: #b0342a;
+    --amber: #b8860b;
+    --green: #1b7a3d;
+    --border: #e7ddcb;
+  }
+  * { box-sizing: border-box; }
+  html, body {
+    margin: 0; padding: 0; height: 100%;
+    background: var(--bg); color: var(--ink);
+    font-family: "Segoe UI", Calibri, Arial, sans-serif;
+  }
+  .app {
+    max-width: 900px; margin: 0 auto; padding: 24px 20px 100px;
+    min-height: 100vh; display: flex; flex-direction: column;
+  }
+  header { text-align: center; margin-bottom: 8px; }
+  header h1 {
+    font-size: 2rem; margin: 4px 0 0; color: var(--accent);
+    letter-spacing: 0.5px;
+  }
+  header p { color: var(--muted); margin: 4px 0 0; font-size: 0.95rem; }
+
+  .progress-row { display: flex; align-items: center; gap: 10px; margin: 18px 0 6px; }
+  .progress-track {
+    flex: 1; height: 8px; background: var(--border); border-radius: 6px; overflow: hidden;
+  }
+  .progress-fill {
+    height: 100%; background: var(--accent); width: 0%;
+    transition: width 0.3s ease;
+  }
+  .progress-label { font-size: 0.85rem; color: var(--muted); white-space: nowrap; }
+
+  .card {
+    background: var(--card); border: 1px solid var(--border); border-radius: 16px;
+    padding: 28px 32px; flex: 1; box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    display: flex; flex-direction: column; gap: 16px;
+    animation: fadeIn 0.4s ease;
+  }
+  @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+
+  .slide-kicker {
+    font-size: 0.8rem; text-transform: uppercase; letter-spacing: 1.5px;
+    color: var(--accent2); font-weight: 700;
+  }
+  .slide-title { font-size: 1.6rem; margin: 0; color: var(--ink); }
+  .slide-visual { text-align: center; margin: 6px 0; }
+  .slide-visual svg { max-width: 100%; height: auto; }
+  .slide-body { font-size: 1.08rem; line-height: 1.6; color: var(--ink); }
+  .slide-body b { color: var(--accent); }
+  .slide-body code {
+    background: #f0ead9; padding: 2px 7px; border-radius: 6px; font-size: 0.95rem;
+  }
+  .slide-body .cmd {
+    display: block; background: #2b2620; color: #f0ead9; padding: 12px 16px;
+    border-radius: 10px; font-family: Consolas, monospace; font-size: 0.92rem;
+    overflow-x: auto; margin: 10px 0;
+  }
+  .pill-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 4px; }
+  .pill {
+    padding: 5px 14px; border-radius: 999px; font-size: 0.85rem; font-weight: 700; color: white;
+  }
+  .pill.red { background: var(--red); }
+  .pill.amber { background: var(--amber); }
+  .pill.green { background: var(--green); }
+
+  .controls {
+    position: fixed; left: 0; right: 0; bottom: 0;
+    background: linear-gradient(to top, var(--bg) 60%, transparent);
+    padding: 18px 20px 22px;
+  }
+  .controls-inner {
+    max-width: 900px; margin: 0 auto; display: flex; align-items: center;
+    justify-content: center; gap: 12px; flex-wrap: wrap;
+  }
+  button {
+    font-family: inherit; font-size: 0.95rem; font-weight: 600;
+    padding: 10px 18px; border-radius: 999px; border: 1px solid var(--border);
+    background: var(--card); color: var(--ink); cursor: pointer;
+    transition: transform 0.15s ease, background 0.15s ease;
+  }
+  button:hover { transform: translateY(-1px); }
+  button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
+  button.primary { background: var(--accent); color: white; border-color: var(--accent); }
+  button.ghost { background: transparent; }
+  .hint {
+    text-align: center; color: var(--muted); font-size: 0.8rem; margin-top: 6px;
+  }
+  .badge-narrating {
+    display: inline-flex; align-items: center; gap: 6px; font-size: 0.8rem;
+    color: var(--accent); font-weight: 700;
+  }
+  .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--accent); animation: pulse 1s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.3; } }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="app">
+  <header>
+    <h1>PARIKSHAN</h1>
+    <p>A talking walkthrough &mdash; what it is, how to install it, how to use it</p>
+  </header>
+
+  <div class="progress-row">
+    <span class="progress-label" id="slideCounter">Slide 1 / 12</span>
+    <div class="progress-track"><div class="progress-fill" id="progressFill"></div></div>
+    <span class="badge-narrating" id="narratingBadge" hidden><span class="dot"></span> speaking&hellip;</span>
+  </div>
+
+  <div class="card" id="card"></div>
+</div>
+
+<div class="controls">
+  <div class="controls-inner">
+    <button class="ghost" id="prevBtn">&larr; Back</button>
+    <button class="primary" id="playBtn">&#9654; Play narration</button>
+    <button class="ghost" id="nextBtn">Next &rarr;</button>
+    <label style="font-size:0.85rem;color:var(--muted);display:flex;align-items:center;gap:6px;">
+      <input type="checkbox" id="autoAdvance" checked> auto-advance
+    </label>
+  </div>
+  <div class="hint" id="voiceHint"></div>
+</div>
+
+<script>
+const SLIDES = [
+  {
+    kicker: "Welcome",
+    title: "What is PARIKSHAN?",
+    visual: `<svg viewBox="0 0 400 120" width="380"><circle cx="60" cy="60" r="40" fill="#1f6f50"/><text x="60" y="68" text-anchor="middle" font-size="34" fill="white">?</text>
+      <path d="M110 60 H 290" stroke="#c9762b" stroke-width="4" marker-end="url(#arrow)"/>
+      <defs><marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#c9762b"/></marker></defs>
+      <circle cx="330" cy="60" r="40" fill="#b8860b"/><text x="330" y="68" text-anchor="middle" font-size="30" fill="white">&#9888;</text></svg>`,
+    body: `India is building almost <b>2,000 huge projects</b> right now &mdash; highways, railways,
+      ports, power plants &mdash; each one costing more than &#8377;150 crore. Right now, we usually only
+      find out a project is late or over budget <b>after</b> it already happens.
+      <br><br>
+      PARIKSHAN is like a <b>weather forecast, but for building projects</b>. It looks at how a
+      project has been going, and tries to warn us <b>before</b> it gets bad &mdash; while there's still
+      time to fix it.`,
+    say: `India is building almost 2000 huge projects right now. Highways, railways, ports, power
+      plants. Each one costs a huge amount of money. Right now, we usually only find out a project
+      is late or over budget after it already happens. PARIKSHAN is like a weather forecast, but for
+      building projects. It looks at how a project has been going, and tries to warn us before it
+      gets bad, while there's still time to fix it.`
+  },
+  {
+    kicker: "The most important rule",
+    title: "The data here is pretend!",
+    visual: `<svg viewBox="0 0 400 100" width="380"><rect x="20" y="20" width="360" height="60" rx="14" fill="#fff4d6" stroke="#b8860b" stroke-width="2"/>
+      <text x="200" y="45" text-anchor="middle" font-size="16" fill="#8a6400" font-weight="bold">&#9888; SYNTHETIC DATA</text>
+      <text x="200" y="66" text-anchor="middle" font-size="12" fill="#6b6255">made up to look realistic, not real government data</text></svg>`,
+    body: `This project does <b>not</b> use secret real government numbers. It uses <b>pretend
+      (made-up) data</b> that looks like the real thing, built to match publicly known statistics.
+      <br><br>
+      Every single screen shows a big warning banner reminding you of this. Think of this whole
+      project as a <b>demonstration of a method</b>, not a real report card on India's
+      infrastructure.`,
+    say: `Here is something very important. This project does not use secret real government numbers.
+      It uses pretend, made up data that looks like the real thing. Every single screen shows a big
+      warning banner reminding you of this. Think of this whole project as a demonstration of a
+      method, not a real report card on India's infrastructure.`
+  },
+  {
+    kicker: "How it works",
+    title: "A relay race with 4 runners",
+    visual: `<svg viewBox="0 0 420 90" width="400">
+      <circle cx="40" cy="45" r="30" fill="#1f6f50"/><text x="40" y="50" text-anchor="middle" font-size="12" fill="white">Data</text>
+      <path d="M75 45 H 130" stroke="#c9762b" stroke-width="3" marker-end="url(#a2)"/>
+      <circle cx="160" cy="45" r="30" fill="#c9762b"/><text x="160" y="50" text-anchor="middle" font-size="12" fill="white">Brain</text>
+      <path d="M195 45 H 250" stroke="#c9762b" stroke-width="3" marker-end="url(#a2)"/>
+      <circle cx="280" cy="45" r="30" fill="#b0342a"/><text x="280" y="50" text-anchor="middle" font-size="11" fill="white">Alarm</text>
+      <path d="M315 45 H 350" stroke="#c9762b" stroke-width="3" marker-end="url(#a2)"/>
+      <circle cx="380" cy="45" r="30" fill="#1f6f50"/><text x="380" y="46" text-anchor="middle" font-size="10" fill="white">Story-</text><text x="380" y="57" text-anchor="middle" font-size="10" fill="white">teller</text>
+      <defs><marker id="a2" markerWidth="10" markerHeight="10" refX="8" refY="5" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#c9762b"/></marker></defs>
+      </svg>`,
+    body: `<b>1. The Data Runner</b> builds a giant pretend spreadsheet about all 1,981 projects.<br>
+      <b>2. The Brain Runner</b> teaches two kinds of "brains" &mdash; old-fashioned statistics and
+      modern machine learning &mdash; to guess which projects will have problems, then honestly
+      compares them.<br>
+      <b>3. The Alarm Runner</b> turns those guesses into a risk score (like a fever thermometer,
+      0 to 100) and rings a bell when a project looks like real trouble.<br>
+      <b>4. The Storyteller Runner</b> shows it all on friendly screens you can click through, and
+      even lets you chat with a helpful assistant.`,
+    say: `Think of it like a relay race with four runners. The Data Runner builds a giant pretend
+      spreadsheet about all the projects. The Brain Runner teaches two kinds of brains, old fashioned
+      statistics and modern machine learning, to guess which projects will have problems, and then
+      honestly compares them. The Alarm Runner turns those guesses into a risk score, like a fever
+      thermometer, and rings a bell when a project looks like real trouble. The Storyteller Runner
+      shows it all on friendly screens you can click through, and even lets you chat with a helpful
+      assistant.`
+  },
+  {
+    kicker: "Get it running &mdash; step 1",
+    title: "Installing it: just one command",
+    visual: ``,
+    body: `You don't need to understand any code. After unzipping the project folder, open
+      PowerShell inside it and run:
+      <span class="cmd">powershell -ExecutionPolicy Bypass -File install.ps1</span>
+      This one command checks what's on your computer, installs anything missing, and rebuilds all
+      the pretend data and robot brains from scratch. It takes a while &mdash; maybe 20 to 40
+      minutes &mdash; so start it, then go get a snack.`,
+    say: `You don't need to understand any code. After unzipping the project folder, open PowerShell
+      inside it and run this one command: powershell dash execution policy bypass dash file install
+      dot p s 1. This one command checks what's on your computer, installs anything missing, and
+      rebuilds all the pretend data and robot brains from scratch. It takes a while, maybe 20 to 40
+      minutes, so start it, then go get a snack.`
+  },
+  {
+    kicker: "Get it running &mdash; step 2",
+    title: "Want the chatbot too? (optional)",
+    visual: ``,
+    body: `The chatbot screen needs an extra free AI helper called <b>Ollama</b>. It's completely
+      optional &mdash; everything else works perfectly without it. To add it, run:
+      <span class="cmd">powershell -ExecutionPolicy Bypass -File install.ps1 -WithAssistant</span>
+      This also downloads the AI's "brain file" (about 4.7 gigabytes), so it needs a good internet
+      connection.`,
+    say: `The chatbot screen needs an extra free AI helper called Ollama. It's completely optional,
+      everything else works perfectly without it. To add it, run the install script again with the
+      dash with assistant option. This also downloads the AI's brain file, about 4.7 gigabytes, so it
+      needs a good internet connection.`
+  },
+  {
+    kicker: "Get it running &mdash; step 3",
+    title: "Opening the dashboard",
+    visual: ``,
+    body: `Once installed, run:
+      <span class="cmd">&amp; "C:\\dev\\paimana-venv\\Scripts\\python.exe" -m streamlit run "src\\paimana\\app\\Home.py"</span>
+      Your web browser should pop open by itself, showing the dashboard. That's it &mdash; you're in!`,
+    say: `Once installed, run the streamlit command shown on screen. Your web browser should pop open
+      by itself, showing the dashboard. That's it, you're in!`
+  },
+  {
+    kicker: "Screen 1",
+    title: "Portfolio Overview &mdash; the big picture",
+    visual: ``,
+    body: `The first screen you see. It shows how many projects there are, how much money they're
+      all worth, and how many are flagged as risky right now &mdash; plus colourful charts of which
+      sectors and states have the most trouble.`,
+    say: `Screen one is Portfolio Overview, the big picture. It shows how many projects there are,
+      how much money they're all worth, and how many are flagged as risky right now, plus colourful
+      charts of which sectors and states have the most trouble.`
+  },
+  {
+    kicker: "Screen 2",
+    title: "Early Warning Centre &mdash; the alarm list",
+    visual: `<div class="pill-row" style="justify-content:center;"><span class="pill red">Critical</span><span class="pill amber">High / Medium</span><span class="pill green">Doing fine</span></div>`,
+    body: `Like a hospital's list of patients who need attention soonest. Every risky project shows
+      up here with a colour, plus <b>why</b> it was flagged and what to actually do about it.`,
+    say: `Screen two is the Early Warning Centre, the alarm list. It's like a hospital's list of
+      patients who need attention soonest. Every risky project shows up here with a colour, plus why
+      it was flagged, and what to actually do about it.`
+  },
+  {
+    kicker: "Screen 3",
+    title: "Project Deep-Dive &mdash; zoom into one",
+    visual: ``,
+    body: `Pick any single project and see its whole story: predicted cost vs. approved cost, how
+      its risk changed over time, which factors are pushing risk up or down, and what delays it has
+      run into.`,
+    say: `Screen three is Project Deep Dive. Pick any single project and see its whole story:
+      predicted cost versus approved cost, how its risk changed over time, which factors are pushing
+      risk up or down, and what delays it has run into.`
+  },
+  {
+    kicker: "Screen 4",
+    title: "Model Lab &mdash; the robot brains' report card",
+    visual: ``,
+    body: `This is where the project grades itself, honestly. It says plainly when the fancy
+      machine-learning brain did better than old-fashioned statistics &mdash; <b>and</b> when it
+      didn't. No hiding bad results here.`,
+    say: `Screen four is the Model Lab, the robot brains' report card. This is where the project
+      grades itself, honestly. It says plainly when the fancy machine learning brain did better than
+      old fashioned statistics, and when it didn't. No hiding bad results here.`
+  },
+  {
+    kicker: "Screen 5",
+    title: "Assistant &mdash; a chatbot you can talk to",
+    visual: ``,
+    body: `Type a question in plain English &mdash; like "What is the riskiest sector?" &mdash; and
+      it answers in a sentence. The important part: this chatbot is <b>never allowed to make up
+      numbers</b>. Everything it says is double-checked against real data, and if it ever tries to
+      sneak in a fake number, a safety checker catches it and swaps in a guaranteed-correct answer
+      instead.`,
+    say: `Screen five is the Assistant, a chatbot you can talk to. Type a question in plain English,
+      and it answers in a sentence. The important part: this chatbot is never allowed to make up
+      numbers. Everything it says is double checked against real data, and if it ever tries to sneak
+      in a fake number, a safety checker catches it and swaps in a guaranteed correct answer instead.`
+  },
+  {
+    kicker: "The honest report card",
+    title: "How good is it, really?",
+    visual: ``,
+    body: `For guessing <b>how big</b> an overrun will be, the modern AI brain did clearly better.
+      For a simple <b>yes/no</b> guess on cost overruns, the two brains tied &mdash; and the project
+      says so plainly instead of hiding it. If this system had existed for real in the past, it
+      would have caught about <b>4 out of 5</b> eventually-severe problem projects, with over a year
+      of warning time on average.`,
+    say: `Here's the honest report card. For guessing how big an overrun will be, the modern AI brain
+      did clearly better. For a simple yes or no guess on cost overruns, the two brains tied, and the
+      project says so plainly instead of hiding it. If this system had existed for real in the past,
+      it would have caught about four out of five eventually severe problem projects, with over a
+      year of warning time on average. That's PARIKSHAN: a check up system for big building
+      projects, built to be helpful, careful, and honest.`
+  }
+];
+
+let current = 0;
+let synth = window.speechSynthesis;
+let utterance = null;
+let chosenVoice = null;
+
+function pickVoice() {
+  const voices = synth ? synth.getVoices() : [];
+  chosenVoice = voices.find(v => /en-(US|GB|IN)/i.test(v.lang)) || voices[0] || null;
+}
+if (synth) {
+  pickVoice();
+  synth.onvoiceschanged = pickVoice;
+}
+
+const card = document.getElementById('card');
+const counter = document.getElementById('slideCounter');
+const fill = document.getElementById('progressFill');
+const playBtn = document.getElementById('playBtn');
+const prevBtn = document.getElementById('prevBtn');
+const nextBtn = document.getElementById('nextBtn');
+const badge = document.getElementById('narratingBadge');
+const autoAdvance = document.getElementById('autoAdvance');
+const voiceHint = document.getElementById('voiceHint');
+
+if (!synth) {
+  voiceHint.textContent = "Your browser can't speak the narration out loud, but you can still read every slide below.";
+  playBtn.disabled = true;
+}
+
+function renderSlide() {
+  const s = SLIDES[current];
+  card.innerHTML = `
+    <div class="slide-kicker">${s.kicker}</div>
+    <h2 class="slide-title">${s.title}</h2>
+    ${s.visual ? `<div class="slide-visual">${s.visual}</div>` : ''}
+    <div class="slide-body">${s.body}</div>
+  `;
+  counter.textContent = `Slide ${current + 1} / ${SLIDES.length}`;
+  fill.style.width = `${((current + 1) / SLIDES.length) * 100}%`;
+  prevBtn.disabled = current === 0;
+  nextBtn.disabled = current === SLIDES.length - 1;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+function stopSpeaking() {
+  if (synth) synth.cancel();
+  badge.hidden = true;
+  playBtn.textContent = '\u25B6 Play narration';
+}
+
+function speakCurrent() {
+  if (!synth) return;
+  synth.cancel();
+  const s = SLIDES[current];
+  utterance = new SpeechSynthesisUtterance(s.say);
+  if (chosenVoice) utterance.voice = chosenVoice;
+  utterance.rate = 0.98;
+  utterance.onstart = () => { badge.hidden = false; playBtn.textContent = '\u23F8 Pause'; };
+  utterance.onend = () => {
+    badge.hidden = true;
+    playBtn.textContent = '\u25B6 Play narration';
+    if (autoAdvance.checked && current < SLIDES.length - 1) {
+      current += 1;
+      renderSlide();
+      setTimeout(speakCurrent, 400);
+    }
+  };
+  utterance.onerror = () => { badge.hidden = true; playBtn.textContent = '\u25B6 Play narration'; };
+  synth.speak(utterance);
+}
+
+playBtn.addEventListener('click', () => {
+  if (synth && synth.speaking) {
+    stopSpeaking();
+  } else {
+    speakCurrent();
+  }
+});
+prevBtn.addEventListener('click', () => {
+  stopSpeaking();
+  if (current > 0) { current -= 1; renderSlide(); }
+});
+nextBtn.addEventListener('click', () => {
+  stopSpeaking();
+  if (current < SLIDES.length - 1) { current += 1; renderSlide(); }
+});
+
+renderSlide();
+</script>
+</body>
+</html>

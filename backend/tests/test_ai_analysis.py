@@ -7,7 +7,7 @@ Covers:
 - LLM integration: valid JSON, malformed JSON -> deterministic fallback,
   provider unavailable -> neutral, never raises
 - AI API routes via TestClient against an ISOLATED temp database
-  (the dev govrisk.db/auth.db are never touched)
+  (the dev sankalp.db/auth.db are never touched)
 """
 
 import json
@@ -253,7 +253,7 @@ class LlmServiceTestCase(unittest.TestCase):
 
 def _patch_temp_dbs():
     """Point main + router DB sessions at throwaway SQLite files so the
-    API tests never write to the developer's govrisk.db / auth.db."""
+    API tests never write to the developer's sankalp.db / auth.db."""
     global _TMP_ENGINE, _TMP_AUTH_ENGINE
     from sqlalchemy import create_engine
     from sqlalchemy.orm import sessionmaker
@@ -325,6 +325,7 @@ class AiApiTestCase(unittest.TestCase):
         with AuthSessionLocal() as db:
             user = db.query(User).filter(User.email == email).first()
             user.role = "officer"
+            user.is_approved = True
             db.commit()
         return {"Authorization": f"Bearer {r.json()['accessToken']}"}
 
