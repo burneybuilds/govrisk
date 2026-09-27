@@ -259,7 +259,7 @@ function RegionDetailPanelInner({
             regionsMinimized && !region ? 'invisible' : ''
           }`}
         >
-        <div className="scrollbar-thin h-full overflow-y-auto p-4">
+        <div className="scrollbar-overlay h-full overflow-y-auto p-4">
         {region ? (
           <div className="space-y-5">
             <section>

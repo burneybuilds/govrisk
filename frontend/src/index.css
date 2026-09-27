@@ -70,4 +70,40 @@ body {
   .scrollbar-thin {
     scrollbar-width: thin;
   }
+
+  /*
+   * The global scrollbar above is tuned for the light theme (#b8c7e0 thumb on a
+   * transparent track), which all but disappears over the dark navy map
+   * overlays. These keep a visible track and a high-contrast thumb so the
+   * scroll position is readable against `bg-[#0f1830]`.
+   *
+   * `scrollbar-color` is the standard property and is what Chrome 121+ and
+   * Firefox actually honour - setting it puts the browser in standard
+   * scrollbar mode, which makes it ignore the ::-webkit-scrollbar rules
+   * entirely. So both are declared: the standard pair for current browsers,
+   * the pseudo-elements as the fallback for older Chrome.
+   */
+  .scrollbar-overlay {
+    scrollbar-width: thin;
+    scrollbar-color: #64748b #0a1128;
+  }
+
+  .scrollbar-overlay::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  .scrollbar-overlay::-webkit-scrollbar-track {
+    background: #0a1128;
+    border-radius: 9999px;
+  }
+
+  .scrollbar-overlay::-webkit-scrollbar-thumb {
+    background: #64748b;
+    border: 2px solid #0a1128;
+    border-radius: 9999px;
+  }
+
+  .scrollbar-overlay::-webkit-scrollbar-thumb:hover {
+    background: #94a3b8;
+  }
 }
